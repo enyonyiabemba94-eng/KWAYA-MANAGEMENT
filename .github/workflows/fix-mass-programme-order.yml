@@ -1,0 +1,53 @@
+name: Fix Mass Programme Order
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: "!contains(github.event.head_commit.message, 'Mass Programme order applied')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch mass programme order
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('mass-programmes.html')
+          s = p.read_text(encoding='utf-8')
+
+          marker = 'Mass Programme order applied'
+          if marker in s:
+              raise SystemExit(0)
+
+          new_render = r'''function renderSlots(values={}){values=values||{};let html='';html+=`<div class="section"><div class="sectionTitle"><h3>🎵 Mwanzo</h3><small>3 nafasi</small></div>${Array.from({length:3},(_,i)=>renderSongField('opening',i,values.opening?.[i]||{})).join('')}</div>`;html+=renderSingle('penitential','Kyrie / Bwana Utuhurumie',values.penitential||{});html+=renderSingle('psalm','Zaburi',values.psalm||{});html+=renderSingle('alleluia','Shangilio / Alleluia',values.alleluia||{});html+=`<div class="section"><div class="sectionTitle"><h3>🍞 Sadaka</h3><small>6 nafasi</small></div>${Array.from({length:6},(_,i)=>renderSongField('offertory',i,values.offertory?.[i]||{})).join('')}</div>`;html+=renderSingle('holy','Mtakatifu',values.holy||{});html+=renderSingle('lamb','Mwana Kondoo',values.lamb||{});html+=`<div class="section"><div class="sectionTitle"><h3>🍷 Komunio</h3><small>6 nafasi</small></div>${Array.from({length:6},(_,i)=>renderSongField('communion',i,values.communion?.[i]||{})).join('')}</div>`;html+=`<div class="section"><div class="sectionTitle"><h3>🙏 Shukrani</h3><small>4 nafasi</small></div>${Array.from({length:4},(_,i)=>renderSongField('thanksgiving',i,values.thanksgiving?.[i]||{})).join('')}</div>`;html+=renderSingle('closing','Wimbo wa Mwisho / Kutoka',values.closing||{});special.forEach(([k,label])=>{const active=$(k)?.checked;const arr=Array.isArray(values[k])?values[k]:[];html+=`<div class="section" id="section_${k}" style="display:${active?'block':'none'}"><div class="sectionTitle"><h3>${label}</h3><small>6 nafasi</small></div>${Array.from({length:6},(_,i)=>renderSongField(k,i,arr[i]||{})).join('')}</div>`});$('slots').innerHTML=html}function toggleManual'''
+
+          # Replace only the renderSlots function, preserving the rest of the existing page.
+          s2, n = re.subn(r'function renderSlots\(values=\{\}\)\{.*?\}function toggleManual', new_render, s, count=1)
+          if n != 1:
+              raise SystemExit('Could not locate renderSlots function')
+
+          # Make the displayed labels unambiguous in the existing single-song fields.
+          s2 = s2.replace('🎼 Nyimbo za Kuingia', '🎵 Mwanzo')
+          s2 = s2.replace('💰 Nyimbo za Sadaka', '🍞 Sadaka')
+          s2 = s2.replace('🍞 Nyimbo za Komunio', '🍷 Komunio')
+          s2 = s2.replace('🙏 Nyimbo za Shukrani', '🙏 Shukrani')
+          s2 = s2.replace('Wimbo wa Kumaliza', 'Wimbo wa Mwisho / Kutoka')
+          s2 = s2.replace('Mwanakondoo wa Mungu', 'Mwana Kondoo')
+
+          p.write_text(s2, encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mass-programmes.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Mass Programme order applied'
+          git push
