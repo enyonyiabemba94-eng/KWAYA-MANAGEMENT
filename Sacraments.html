@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>KWAYA MANAGEMENT - Sakramenti</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+:root{
+    --primary:#173b7a;
+    --secondary:#2457a6;
+    --light:#f4f7fb;
+    --white:#ffffff;
+    --text:#172033;
+    --muted:#6b7280;
+    --border:#e3e8f0;
+    --success:#198754;
+    --danger:#dc3545;
+    --warning:#d89b00;
+    --shadow:0 8px 25px rgba(20,40,80,.08);
+}
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--light);
+    color:var(--text);
+}
+
+/* SIDEBAR */
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+    width:260px;
+    background:var(--primary);
+    color:white;
+    z-index:1000;
+    overflow-y:auto;
+}
+
+.brand{
+    padding:22px 18px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.brand h2{
+    margin:0;
+    font-size:21px;
+}
+
+.brand small{
+    display:block;
+    margin-top:5px;
+    color:#cbd7ef;
+    font-size:12px;
+}
+
+.menu{
+    padding:15px 10px;
+}
+
+.menu a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:#eaf0ff;
+    text-decoration:none;
+    padding:12px 14px;
+    border-radius:9px;
+    margin-bottom:5px;
+    font-size:14px;
+}
+
+.menu a:hover,
+.menu a.active{
+    background:rgba(255,255,255,.14);
+}
+
+.menu .icon{
+    width:22px;
+    text-align:center;
+}
+
+/* MAIN */
+.main{
+    margin-left:260px;
+    min-height:100vh;
+}
+
+.topbar{
+    height:70px;
+    background:white;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:500;
+}
+
+.topbar h1{
+    margin:0;
+    font-size:21px;
+}
+
+.user-info{
+    color:var(--muted);
+    font-size:14px;
+}
+
+.content{
+    padding:25px;
+}
+
+/* PAGE HEADER */
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.page-header h2{
+    margin:0 0 5px;
+    font-size:24px;
+}
+
+.page-header p{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+}
+
+/* CARDS */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.stat{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px;
+    box-shadow:var(--shadow);
+}
+
+.stat-title{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:8px;
+}
+
+.stat-value{
+    font-size:25px;
+    font-weight:bold;
+}
+
+/* PANEL */
+.panel{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+    overflow:hidden;
+}
+
+.panel-header{
+    padding:18px 20px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+}
+
+.panel-header h3{
+    margin:0;
+    font-size:17px;
+}
+
+.panel-body{
+    padding:20px;
+}
+
+/* SEARCH */
+.search-box{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.search-box input{
+    flex:1;
+    min-width:220px;
+}
+
+/* FORM */
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+label{
+    font-size:13px;
+    font-weight:bold;
+}
+
+input,
+select{
+    width:100%;
+    border:1px solid #d6dce6;
+    border-radius:9px;
+    padding:11px 12px;
+    font-size:14px;
+    outline:none;
+    background:white;
+}
+
+input:focus,
+select:focus{
+    border-color:var(--secondary);
+    box-shadow:0 0 0 3px rgba(36,87,166,.10);
+}
+
+/* SACRAMENT SECTIONS */
+.sacrament-section{
+    border:1px solid var(--border);
+    border-radius:12px;
+    margin-bottom:16px;
+    overflow:hidden;
+}
+
+.sacrament-title{
+    background:#f7f9fc;
+    padding:13px 15px;
+    font-weight:bold;
+    color:var(--primary);
+    border-bottom:1px solid var(--border);
+}
+
+.sacrament-body{
+    padding:15px;
+}
+
+/* BUTTONS */
+.btn{
+    border:0;
+    border-radius:8px;
+    padding:10px 15px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.btn-primary{
+    background:var(--primary);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:#102f65;
+}
+
+.btn-secondary{
+    background:#eef2f7;
+    color:#263449;
+}
+
+.btn-danger{
+    background:#fdecec;
+    color:var(--danger);
+}
+
+.btn-success{
+    background:#eaf7ef;
+    color:var(--success);
+}
+
+.actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:18px;
+    flex-wrap:wrap;
+}
+
+/* TABLE */
+.table-wrap{
+    width:100%;
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:850px;
+}
+
+th,
+td{
+    padding:12px 13px;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+    font-size:13px;
+}
+
+th{
+    background:#f7f9fc;
+    color:#374151;
+    font-size:12px;
+    text-transform:uppercase;
+}
+
+tr:hover td{
+    background:#fafcff;
+}
+
+.badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.badge-yes{
+    background:#e8f7ee;
+    color:#16834b;
+}
+
+.badge-no{
+    background:#f1f3f5;
+    color:#6b7280;
+}
+
+/* MOBILE */
+.mobile-menu{
+    display:none;
+    background:none;
+    border:0;
+    font-size:24px;
+    cursor:pointer;
+}
+
+.overlay{
+    display:none;
+}
+
+/* TOAST */
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    background:#172033;
+    color:white;
+    padding:13px 18px;
+    border-radius:9px;
+    box-shadow:var(--shadow);
+    display:none;
+    z-index:2000;
+    font-size:13px;
+}
+
+.toast.show{
+    display:block;
+}
+
+/* EMPTY */
+.empty{
+    text-align:center;
+    padding:35px 15px;
+    color:var(--muted);
+}
+
+/* RESPONSIVE */
+@media(max-width:1000px){
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:800px){
+
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .overlay{
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,.35);
+        z-index:900;
+    }
+
+    .overlay.show{
+        display:block;
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .mobile-menu{
+        display:block;
+    }
+
+    .topbar{
+        padding:0 16px;
+    }
+
+    .content{
+        padding:16px;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-group.full{
+        grid-column:auto;
+    }
+
+    .page-header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+}
+
+@media(max-width:500px){
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+    }
+
+    .stat{
+        padding:14px;
+    }
+
+    .stat-value{
+        font-size:21px;
+    }
+
+    .panel-body{
+        padding:14px;
+    }
+
+    .topbar h1{
+        font-size:17px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+        <h2>KWAYA MANAGEMENT</h2>
+        <small>Usimamizi wa Kwaya</small>
+    </div>
+
+    <nav class="menu">
+
+        <a href="index.html">
+            <span class="icon">🏠</span>
+            Dashboard
+        </a>
+
+        <a href="members.html">
+            <span class="icon">👥</span>
+            Waimbaji
+        </a>
+
+        <a href="attendance.html">
+            <span class="icon">📋</span>
+            Mahudhurio
+        </a>
+
+        <a href="songs.html">
+            <span class="icon">🎵</span>
+            Nyimbo
+        </a>
+
+        <a href="song-books.html">
+            <span class="icon">📚</span>
+            Vitabu vya Nyimbo
+        </a>
+
+        <a href="sacraments.html" class="active">
+            <span class="icon">✝️</span>
+            Sakramenti
+        </a>
+
+        <a href="reports.html">
+            <span class="icon">📊</span>
+            Ripoti
+        </a>
+
+        <a href="events.html">
+            <span class="icon">📅</span>
+            Ratiba
+        </a>
+
+        <a href="announcements.html">
+            <span class="icon">📢</span>
+            Taarifa
+        </a>
+
+        <a href="documents.html">
+            <span class="icon">📄</span>
+            Nyaraka / PDF
+        </a>
+
+        <a href="settings.html">
+            <span class="icon">⚙️</span>
+            Settings
+        </a>
+
+        <a href="#" id="logoutBtn">
+            <span class="icon">🚪</span>
+            Toka
+        </a>
+
+    </nav>
+</aside>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- MAIN -->
+<main class="main">
+
+    <header class="topbar">
+
+        <div style="display:flex;align-items:center;gap:12px;">
+            <button class="mobile-menu" id="mobileMenu">☰</button>
+            <h1>Sakramenti</h1>
+        </div>
+
+        <div class="user-info">
+            Mwanakwaya
+        </div>
+
+    </header>
+
+    <section class="content">
+
+        <div class="page-header">
+            <div>
+                <h2>📜 Taarifa za Sakramenti</h2>
+                <p>
+                    Hifadhi na simamia taarifa za sakramenti za kila mwanakwaya.
+                </p>
+            </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats">
+
+            <div class="stat">
+                <div class="stat-title">Waimbaji Wote</div>
+                <div class="stat-value" id="totalMembers">0</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-title">Ubatizo</div>
+                <div class="stat-value" id="baptizedCount">0</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-title">Komunyo ya Kwanza</div>
+                <div class="stat-value" id="communionCount">0</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-title">Kipaimara</div>
+                <div class="stat-value" id="confirmationCount">0</div>
+            </div>
+
+        </div>
+
+        <!-- SEARCH -->
+        <div class="panel">
+
+            <div class="panel-header">
+                <h3>🔎 Tafuta Mwanakwaya</h3>
+            </div>
+
+            <div class="panel-body">
+
+                <div class="search-box">
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Andika jina la mwanakwaya..."
+                    >
+
+                    <button class="btn btn-secondary" onclick="loadData()">
+                        🔄 Refresh
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FORM -->
+        <div class="panel">
+
+            <div class="panel-header">
+                <h3 id="formTitle">➕ Weka Taarifa za Sakramenti</h3>
+            </div>
+
+            <div class="panel-body">
+
+                <div class="form-grid">
+
+                    <div class="form-group full">
+
+                        <label>Mwanakwaya</label>
+
+                        <select id="memberSelect">
+                            <option value="">-- Chagua Mwanakwaya --</option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <br>
+
+                <!-- UBATIZO -->
+                <div class="sacrament-section">
+
+                    <div class="sacrament-title">
+                        ✝️ UBATIZO
+                    </div>
+
+                    <div class="sacrament-body">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label>Tarehe ya Ubatizo</label>
+
+                                <input
+                                    type="date"
+                                    id="baptismDate"
+                                >
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label>Mahali pa Ubatizo</label>
+
+                                <input
+                                    type="text"
+                                    id="baptismPlace"
+                                    placeholder="Mfano: Kigango cha Kristo Mfalme"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- KOMUNYO -->
+                <div class="sacrament-section">
+
+                    <div class="sacrament-title">
+                        🍞 KOMUNYO YA KWANZA
+                    </div>
+
+                    <div class="sacrament-body">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label>Tarehe ya Komunyo ya Kwanza</label>
+
+                                <input
+                                    type="date"
+                                    id="communionDate"
+                                >
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label>Mahali pa Komunyo ya Kwanza</label>
+
+                                <input
+                                    type="text"
+                                    id="communionPlace"
+                                    placeholder="Mahali"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- KIPAIMARA -->
+                <div class="sacrament-section">
+
+                    <div class="sacrament-title">
+                        🕊️ KIPAIMARA
+                    </div>
+
+                    <div class="sacrament-body">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label>Tarehe ya Kipaimara</label>
+
+                                <input
+                                    type="date"
+                                    id="confirmationDate"
+                                >
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label>Mahali pa Kipaimara</label>
+
+                                <input
+                                    type="text"
+                                    id="confirmationPlace"
+                                    placeholder="Mahali"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- NDOA -->
+                <div class="sacrament-section">
+
+                    <div class="sacrament-title">
+                        💍 NDOA
+                    </div>
+
+                    <div class="sacrament-body">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label>Tarehe ya Ndoa</label>
+
+                                <input
+                                    type="date"
+                                    id="marriageDate"
+                                >
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label>Mahali pa Ndoa</label>
+
+                                <input
+                                    type="text"
+                                    id="marriagePlace"
+                                    placeholder="Mahali"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="actions">
+
+                    <button
+                        class="btn btn-secondary"
+                        onclick="clearForm()"
+                    >
+                        Futa
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="saveSacraments()"
+                    >
+                        💾 Hifadhi Taarifa
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <h3>📋 Orodha ya Taarifa za Sakramenti</h3>
+
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Mwanakwaya</th>
+
+                            <th>Ubatizo</th>
+
+                            <th>Komunyo</th>
+
+                            <th>Kipaimara</th>
+
+                            <th>Ndoa</th>
+
+                            <th>Hatua</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="sacramentsTable">
+
+                        <tr>
+                            <td colspan="6" class="empty">
+                                Inapakia taarifa...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* ================================
+   SUPABASE
+================================ */
+
+const SUPABASE_URL =
+    "https://xulnkdrgjgajmcqntwga.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* ================================
+   VARIABLES
+================================ */
+
+let members = [];
+let sacraments = [];
+let editingMemberId = null;
+
+
+/* ================================
+   HELPERS
+================================ */
+
+function escapeHTML(value){
+
+    if(value === null || value === undefined){
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+function showToast(message){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    },3000);
+}
+
+
+function formatDate(date){
+
+    if(!date){
+        return "—";
+    }
+
+    const d = new Date(date);
+
+    if(isNaN(d)){
+        return "—";
+    }
+
+    return d.toLocaleDateString("sw-TZ",{
+        day:"2-digit",
+        month:"2-digit",
+        year:"numeric"
+    });
+}
+
+
+function hasValue(value){
+
+    return value !== null &&
+           value !== undefined &&
+           String(value).trim() !== "";
+
+}
+
+
+/* ================================
+   LOAD MEMBERS
+================================ */
+
+async function loadMembers(){
+
+    const {data,error} =
+        await supabaseClient
+            .from("members")
+            .select("*")
+            .order("full_name",{ascending:true});
+
+    if(error){
+
+        console.error(error);
+
+        showToast(
+            "Imeshindikana kupakia waimbaji."
+        );
+
+        return;
+    }
+
+    members = data || [];
+
+    document.getElementById("totalMembers")
+        .textContent = members.length;
+
+    populateMemberSelect();
+}
+
+
+/* ================================
+   MEMBER SELECT
+================================ */
+
+function populateMemberSelect(){
+
+    const select =
+        document.getElementById("memberSelect");
+
+    select.innerHTML =
+        `<option value="">-- Chagua Mwanakwaya --</option>`;
+
+    members.forEach(member => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = member.id;
+
+        option.textContent =
+            member.full_name || "Mwanakwaya";
+
+        select.appendChild(option);
+
+    });
+
+}
+
+
+/* ================================
+   LOAD SACRAMENTS
+================================ */
+
+async function loadSacraments(){
+
+    const {data,error} =
+        await supabaseClient
+            .from("sacraments")
+            .select("*");
+
+    if(error){
+
+        console.error(error);
+
+        document.getElementById("sacramentsTable")
+            .innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty">
+                        Imeshindikana kupakia taarifa za sakramenti.
+                    </td>
+                </tr>
+            `;
+
+        return;
+    }
+
+    sacraments = data || [];
+
+    updateStats();
+
+    renderTable();
+}
+
+
+/* ================================
+   LOAD EVERYTHING
+================================ */
+
+async function loadData(){
+
+    await loadMembers();
+    await loadSacraments();
+
+}
+
+
+/* ================================
+   STATS
+================================ */
+
+function updateStats(){
+
+    let baptized = 0;
+    let communion = 0;
+    let confirmation = 0;
+
+    sacraments.forEach(item => {
+
+        if(hasValue(item.baptism_date)){
+            baptized++;
+        }
+
+        if(hasValue(item.first_communion_date)){
+            communion++;
+        }
+
+        if(hasValue(item.confirmation_date)){
+            confirmation++;
+        }
+
+    });
+
+    document.getElementById("baptizedCount")
+        .textContent = baptized;
+
+    document.getElementById("communionCount")
+        .textContent = communion;
+
+    document.getElementById("confirmationCount")
+        .textContent = confirmation;
+
+}
+
+
+/* ================================
+   GET MEMBER NAME
+================================ */
+
+function getMemberName(memberId){
+
+    const member =
+        members.find(m => m.id === memberId);
+
+    return member
+        ? member.full_name
+        : "Mwanakwaya";
+
+}
+
+
+/* ================================
+   RENDER TABLE
+================================ */
+
+function renderTable(){
+
+    const tbody =
+        document.getElementById("sacramentsTable");
+
+    const search =
+        document.getElementById("searchInput")
+            .value
+            .trim()
+            .toLowerCase();
+
+    let rows = sacraments;
+
+    if(search){
+
+        rows = rows.filter(item => {
+
+            const name =
+                getMemberName(item.member_id)
+                    .toLowerCase();
+
+            return name.includes(search);
+
+        });
+
+    }
+
+    if(rows.length === 0){
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty">
+                    Hakuna taarifa zilizopatikana.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    tbody.innerHTML = rows.map(item => {
+
+        const baptism =
+            hasValue(item.baptism_date)
+                ? `<span class="badge badge-yes">✓ ${formatDate(item.baptism_date)}</span>`
+                : `<span class="badge badge-no">Haijawekwa</span>`;
+
+        const communion =
+            hasValue(item.first_communion_date)
+                ? `<span class="badge badge-yes">✓ ${formatDate(item.first_communion_date)}</span>`
+                : `<span class="badge badge-no">Haijawekwa</span>`;
+
+        const confirmation =
+            hasValue(item.confirmation_date)
+                ? `<span class="badge badge-yes">✓ ${formatDate(item.confirmation_date)}</span>`
+                : `<span class="badge badge-no">Haijawekwa</span>`;
+
+        const marriage =
+            hasValue(item.marriage_date)
+                ? `<span class="badge badge-yes">✓ ${formatDate(item.marriage_date)}</span>`
+                : `<span class="badge badge-no">Haijawekwa</span>`;
+
+        return `
+            <tr>
+
+                <td>
+                    <strong>
+                        ${escapeHTML(
+                            getMemberName(item.member_id)
+                        )}
+                    </strong>
+                </td>
+
+                <td>${baptism}</td>
+
+                <td>${communion}</td>
+
+                <td>${confirmation}</td>
+
+                <td>${marriage}</td>
+
+                <td>
+
+                    <button
+                        class="btn btn-secondary"
+                        onclick="editSacrament('${item.member_id}')"
+                    >
+                        ✏️ Hariri
+                    </button>
+
+                </td>
+
+            </tr>
+        `;
+
+    }).join("");
+
+}
+
+
+/* ================================
+   EDIT
+================================ */
+
+function editSacrament(memberId){
+
+    const item =
+        sacraments.find(
+            s => s.member_id === memberId
+        );
+
+    if(!item){
+        return;
+    }
+
+    editingMemberId = memberId;
+
+    document.getElementById("memberSelect")
+        .value = memberId;
+
+    document.getElementById("baptismDate")
+        .value = item.baptism_date || "";
+
+    document.getElementById("baptismPlace")
+        .value = item.baptism_place || "";
+
+    document.getElementById("communionDate")
+        .value = item.first_communion_date || "";
+
+    document.getElementById("communionPlace")
+        .value = item.first_communion_place || "";
+
+    document.getElementById("confirmationDate")
+        .value = item.confirmation_date || "";
+
+    document.getElementById("confirmationPlace")
+        .value = item.confirmation_place || "";
+
+    document.getElementById("marriageDate")
+        .value = item.marriage_date || "";
+
+    document.getElementById("marriagePlace")
+        .value = item.marriage_place || "";
+
+    document.getElementById("formTitle")
+        .textContent = "✏️ Hariri Taarifa za Sakramenti";
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+/* ================================
+   SAVE
+================================ */
+
+async function saveSacraments(){
+
+    const memberId =
+        document.getElementById("memberSelect").value;
+
+    if(!memberId){
+
+        showToast(
+            "Tafadhali chagua mwanakwaya."
+        );
+
+        return;
+    }
+
+
+    const payload = {
+
+        member_id: memberId,
+
+        baptism_date:
+            document.getElementById("baptismDate").value
+            || null,
+
+        baptism_place:
+            document.getElementById("baptismPlace").value.trim()
+            || null,
+
+        first_communion_date:
+            document.getElementById("communionDate").value
+            || null,
+
+        first_communion_place:
+            document.getElementById("communionPlace").value.trim()
+            || null,
+
+        confirmation_date:
+            document.getElementById("confirmationDate").value
+            || null,
+
+        confirmation_place:
+            document.getElementById("confirmationPlace").value.trim()
+            || null,
+
+        marriage_date:
+            document.getElementById("marriageDate").value
+            || null,
+
+        marriage_place:
+            document.getElementById("marriagePlace").value.trim()
+            || null
+
+    };
+
+
+    const existing =
+        sacraments.find(
+            item => item.member_id === memberId
+        );
+
+
+    let result;
+
+    if(existing){
+
+        result =
+            await supabaseClient
+                .from("sacraments")
+                .update(payload)
+                .eq("member_id",memberId);
+
+    }else{
+
+        result =
+            await supabaseClient
+                .from("sacraments")
+                .insert(payload);
+
+    }
+
+
+    if(result.error){
+
+        console.error(result.error);
+
+        showToast(
+            "Taarifa hazijahifadhiwa."
+        );
+
+        return;
+    }
+
+
+    showToast(
+        existing
+            ? "Taarifa zimehaririwa kikamilifu."
+            : "Taarifa zimehifadhiwa kikamilifu."
+    );
+
+
+    clearForm();
+
+    await loadSacraments();
+
+}
+
+
+/* ================================
+   CLEAR FORM
+================================ */
+
+function clearForm(){
+
+    editingMemberId = null;
+
+    document.getElementById("memberSelect")
+        .value = "";
+
+    document.getElementById("baptismDate")
+        .value = "";
+
+    document.getElementById("baptismPlace")
+        .value = "";
+
+    document.getElementById("communionDate")
+        .value = "";
+
+    document.getElementById("communionPlace")
+        .value = "";
+
+    document.getElementById("confirmationDate")
+        .value = "";
+
+    document.getElementById("confirmationPlace")
+        .value = "";
+
+    document.getElementById("marriageDate")
+        .value = "";
+
+    document.getElementById("marriagePlace")
+        .value = "";
+
+    document.getElementById("formTitle")
+        .textContent =
+            "➕ Weka Taarifa za Sakramenti";
+
+}
+
+
+/* ================================
+   SEARCH
+================================ */
+
+document.getElementById("searchInput")
+    .addEventListener("input",renderTable);
+
+
+/* ================================
+   MOBILE MENU
+================================ */
+
+const mobileMenu =
+    document.getElementById("mobileMenu");
+
+const sidebar =
+    document.getElementById("sidebar");
+
+const overlay =
+    document.getElementById("overlay");
+
+
+mobileMenu.addEventListener("click",() => {
+
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
+
+});
+
+
+overlay.addEventListener("click",() => {
+
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+
+});
+
+
+/* ================================
+   LOGOUT
+================================ */
+
+document.getElementById("logoutBtn")
+    .addEventListener("click",async e => {
+
+        e.preventDefault();
+
+        await supabaseClient.auth.signOut();
+
+        window.location.href = "login.html";
+
+    });
+
+
+/* ================================
+   START
+================================ */
+
+loadData();
+
+</script>
+
+</body>
+</html>
