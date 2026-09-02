@@ -22,22 +22,24 @@ jobs:
           p=Path('mass-programmes.html')
           s=p.read_text(encoding='utf-8')
 
-          # Remove the accidental duplicate <script> block that broke JavaScript.
+          # Remove any accidental duplicate renderSlots script block.
           s=re.sub(r'<script>\s*function renderSlots\(data\)\{.*?</script>newProgramme\(\);load\(\);</script>', 'newProgramme();load();</script>', s, count=1, flags=re.S)
 
-          # Replace the real renderSlots function using a non-greedy boundary.
           start=s.find('function renderSlots(values={}){')
           if start<0: raise SystemExit('renderSlots start not found')
           end=s.find('function toggleManual', start)
           if end<0: raise SystemExit('toggleManual marker not found')
 
-          new_render=r'''function renderSlots(values={}){values=values||{};let html='';const group=(k,label,n)=>{const a=Array.isArray(values[k])?values[k]:[];return `<div class="section"><div class="sectionTitle"><h3>${label}</h3><small>${n} nafasi</small></div>${Array.from({length:n},(_,i)=>renderSongField(k,i,a[i]||{})).join('')}</div>`};const single=(k,label)=>renderSingle(k,label,values[k]||{});html+=group('opening','🎵 1. Mwanzo / Kuingia',6);html+=single('penitential','🙏 2. Kyrie / Bwana Utuhurumie / Toba');html+=single('psalm','📖 3. Zaburi');html+=single('alleluia','📣 4. Shangilio / Aleluya');html+=group('offertory','🍞 5. Sadaka',10);html+=single('holy','⛪ 6. Mtakatifu');html+=single('lamb','🐑 7. Mwana Kondoo wa Mungu');html+=group('communion','🍷 8. Komunio',10);html+=group('thanksgiving','🙏 9. Shukrani',10);html+=single('closing','🚪 10. Mwisho / Kutoka');for(const [k,label,n] of special){if($(k)?.checked)html+=group(k,label,n||10)}$('slots').innerHTML=html}function toggleManual'''
+          new_render=r'''function renderSlots(values={}){values=values||{};let html='';const group=(k,label,n)=>{const a=Array.isArray(values[k])?values[k]:[];return `<div class="section"><div class="sectionTitle"><h3>${label}</h3><small>${n} nafasi</small></div>${Array.from({length:n},(_,i)=>field(k,i,a[i]||{})).join('')}</div>`};const single=(k,label)=>single(k,label,values[k]||{});html+=group('opening','🎵 1. Mwanzo / Kuingia',6);html+=single('penitential','🙏 2. Kyrie / Bwana Utuhurumie / Toba');html+=single('psalm','📖 3. Zaburi');html+=single('alleluia','📣 4. Shangilio / Aleluya');html+=group('offertory','🍞 5. Sadaka',10);html+=single('holy','⛪ 6. Mtakatifu');html+=single('lamb','🐑 7. Mwana Kondoo wa Mungu');html+=group('communion','🍷 8. Komunio',10);html+=group('thanksgiving','🙏 9. Shukrani',10);html+=single('closing','🚪 10. Mwisho / Kutoka');for(const [k,label,n] of special){if($(k)?.checked)html+=group(k,label,n||10)}$('slots').innerHTML=html}function toggleManual'''
+          # The helper function is named `single`, so use it directly rather than a nonexistent alias.
+          new_render=new_render.replace("const single=(k,label)=>single(k,label,values[k]||{});", "const one=(k,label)=>single(k,label,values[k]||{});")
+          new_render=new_render.replace("html+=single('penitential'", "html+=one('penitential'").replace("html+=single('psalm'", "html+=one('psalm'").replace("html+=single('alleluia'", "html+=one('alleluia'").replace("html+=single('holy'", "html+=one('holy'").replace("html+=single('lamb'", "html+=one('lamb'").replace("html+=single('closing'", "html+=one('closing'")
           s=s[:start]+new_render+s[end+len('function toggleManual'):]
 
           # Keep all special-event slots at 10 everywhere in the form logic.
-          s=s.replace("special.forEach(([k])=>o[k]=Array.from({length:6},(_,i)=>readSongField(k,i)))", "special.forEach(([k,,n])=>o[k]=Array.from({length:n||10},(_,i)=>readSongField(k,i)))")
+          s=s.replace("special.forEach(([k])=>o[k]=Array.from({length:6},(_,i)=>readSongField(k,i)))", "special.forEach(([k,,n])=>o[k]=Array.from({length:n||10},(_,i)=>readField(k,i)))")
           s=s.replace("special.forEach(([k])=>{const a=Array.isArray(raw[k])?raw[k]:[];out[k]=Array.from({length:6},(_,i)=>typeof a[i]==='string'?{id:a[i],key:null}:a[i]||{id:null,key:null})})", "special.forEach(([k,,n])=>{const a=Array.isArray(raw[k])?raw[k]:[];out[k]=Array.from({length:n||10},(_,i)=>typeof a[i]==='string'?{id:a[i],key:null}:a[i]||{id:null,key:null})})")
-          s=s.replace("special.forEach(([k,label])=>{if($(k).checked){const rows=previewRows(Array.from({length:6},(_,i)=>readSongField(k,i)));", "special.forEach(([k,label,n])=>{if($(k).checked){const rows=previewRows(Array.from({length:n||10},(_,i)=>readSongField(k,i)));")
+          s=s.replace("special.forEach(([k,label])=>{if($(k).checked){const rows=previewRows(Array.from({length:6},(_,i)=>readSongField(k,i)));", "special.forEach(([k,label,n])=>{if($(k).checked){const rows=previewRows(Array.from({length:n||10},(_,i)=>readField(k,i)));")
 
           p.write_text(s,encoding='utf-8')
           PY
@@ -50,7 +52,11 @@ jobs:
           assert s.count('function renderSlots(values={}){')==1, 'duplicate renderSlots'
           assert 'function renderSlots(data){' not in s, 'duplicate renderSlots(data) remains'
           assert '<script>\nfunction renderSlots' not in s, 'nested script remains'
-          for text in ['1. Mwanzo / Kuingia','5. Sadaka','8. Komunio','9. Shukrani','10. Mwisho / Kutoka']:
+          assert 'function field(k,i,v={})' in s, 'field helper missing'
+          assert 'function single(k,label,v={})' in s, 'single helper missing'
+          assert 'renderSongField(' not in s, 'obsolete renderSongField remains'
+          assert 'renderSingle(' not in s, 'obsolete renderSingle remains'
+          for text in ['1. Mwanzo / Kuingia','2. Kyrie / Bwana Utuhurumie / Toba','3. Zaburi','4. Shangilio / Aleluya','5. Sadaka','6. Mtakatifu','7. Mwana Kondoo wa Mungu','8. Komunio','9. Shukrani','10. Mwisho / Kutoka']:
               assert text in s, text+' missing'
           print('Mass programme form validation OK')
           PY
