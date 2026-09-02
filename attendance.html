@@ -9,7 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-
 *{
     box-sizing:border-box;
     margin:0;
@@ -21,7 +20,7 @@
     --primary-dark:#4c1d95;
     --secondary:#8b5cf6;
     --bg:#f5f6fa;
-    --card:#ffffff;
+    --card:#fff;
     --text:#1f2937;
     --muted:#6b7280;
     --border:#e5e7eb;
@@ -39,7 +38,6 @@ body{
 }
 
 /* SIDEBAR */
-
 .sidebar{
     position:fixed;
     left:0;
@@ -47,7 +45,7 @@ body{
     width:260px;
     height:100vh;
     background:var(--sidebar);
-    color:white;
+    color:#fff;
     z-index:1000;
     overflow-y:auto;
     transition:.3s;
@@ -66,11 +64,7 @@ body{
     width:45px;
     height:45px;
     border-radius:12px;
-    background:linear-gradient(
-        135deg,
-        var(--primary),
-        var(--secondary)
-    );
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
     display:flex;
     align-items:center;
     justify-content:center;
@@ -116,7 +110,7 @@ body{
 .nav a:hover,
 .nav a.active{
     background:rgba(139,92,246,.18);
-    color:white;
+    color:#fff;
 }
 
 .nav a.active{
@@ -129,7 +123,6 @@ body{
 }
 
 /* MAIN */
-
 .main{
     margin-left:260px;
     min-height:100vh;
@@ -137,7 +130,7 @@ body{
 
 .topbar{
     height:80px;
-    background:white;
+    background:#fff;
     border-bottom:1px solid var(--border);
     display:flex;
     align-items:center;
@@ -162,6 +155,7 @@ body{
     border-radius:10px;
     background:#f3f4f6;
     font-size:20px;
+    cursor:pointer;
 }
 
 .page-title h1{
@@ -184,15 +178,11 @@ body{
     width:38px;
     height:38px;
     border-radius:50%;
-    background:linear-gradient(
-        135deg,
-        var(--primary),
-        var(--secondary)
-    );
+    background:linear-gradient(135deg,var(--primary),var(--secondary));
     display:flex;
     align-items:center;
     justify-content:center;
-    color:white;
+    color:#fff;
     font-weight:bold;
 }
 
@@ -207,7 +197,6 @@ body{
 }
 
 /* CONTENT */
-
 .content{
     padding:28px;
 }
@@ -217,7 +206,6 @@ body{
     justify-content:space-between;
     align-items:center;
     margin-bottom:22px;
-    gap:15px;
 }
 
 .page-header h2{
@@ -231,7 +219,6 @@ body{
 }
 
 /* BUTTONS */
-
 .btn{
     border:0;
     border-radius:9px;
@@ -243,7 +230,7 @@ body{
 
 .btn-primary{
     background:var(--primary);
-    color:white;
+    color:#fff;
 }
 
 .btn-primary:hover{
@@ -252,7 +239,7 @@ body{
 
 .btn-success{
     background:var(--success);
-    color:white;
+    color:#fff;
 }
 
 .btn-secondary{
@@ -262,13 +249,12 @@ body{
 
 .btn-danger{
     background:var(--danger);
-    color:white;
+    color:#fff;
 }
 
 /* DATE PANEL */
-
 .date-panel{
-    background:white;
+    background:#fff;
     border:1px solid var(--border);
     border-radius:15px;
     padding:18px;
@@ -298,7 +284,7 @@ select{
     border-radius:9px;
     padding:0 12px;
     outline:none;
-    background:white;
+    background:#fff;
     color:#374151;
     font-size:13px;
 }
@@ -310,7 +296,6 @@ select:focus{
 }
 
 /* STATS */
-
 .stats{
     display:grid;
     grid-template-columns:repeat(5,1fr);
@@ -319,7 +304,7 @@ select:focus{
 }
 
 .stat{
-    background:white;
+    background:#fff;
     border:1px solid var(--border);
     border-radius:13px;
     padding:15px;
@@ -356,10 +341,9 @@ select:focus{
     color:#6b7280;
 }
 
-/* REGISTER */
-
+/* CARD */
 .card{
-    background:white;
+    background:#fff;
     border:1px solid var(--border);
     border-radius:15px;
     overflow:hidden;
@@ -401,7 +385,7 @@ select:focus{
 table{
     width:100%;
     border-collapse:collapse;
-    min-width:850px;
+    min-width:950px;
 }
 
 th{
@@ -441,6 +425,13 @@ tbody tr:hover{
     align-items:center;
     justify-content:center;
     font-weight:bold;
+    overflow:hidden;
+}
+
+.member-avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
 }
 
 .member-name strong{
@@ -453,8 +444,7 @@ tbody tr:hover{
     font-size:10px;
 }
 
-/* STATUS BUTTONS */
-
+/* STATUS */
 .status-buttons{
     display:flex;
     gap:5px;
@@ -463,16 +453,11 @@ tbody tr:hover{
 
 .status-btn{
     border:1px solid #ddd;
-    background:white;
+    background:#fff;
     border-radius:7px;
     padding:7px 9px;
     font-size:10px;
     cursor:pointer;
-    transition:.2s;
-}
-
-.status-btn:hover{
-    transform:translateY(-1px);
 }
 
 .status-btn.present{
@@ -511,8 +496,6 @@ tbody tr:hover{
     border-color:#fca5a5;
 }
 
-/* CURRENT STATUS */
-
 .current-status{
     display:inline-flex;
     align-items:center;
@@ -547,8 +530,7 @@ tbody tr:hover{
     color:#6b7280;
 }
 
-/* FOOTER ACTIONS */
-
+/* FOOTER */
 .register-footer{
     padding:17px 20px;
     display:flex;
@@ -569,7 +551,6 @@ tbody tr:hover{
 }
 
 /* EMPTY */
-
 .empty{
     text-align:center;
     padding:40px 20px;
@@ -577,14 +558,21 @@ tbody tr:hover{
     font-size:13px;
 }
 
-/* TOAST */
+/* LOADING */
+.loading{
+    text-align:center;
+    padding:35px;
+    color:var(--muted);
+    font-size:13px;
+}
 
+/* TOAST */
 .toast{
     position:fixed;
     right:20px;
     bottom:20px;
     background:#111827;
-    color:white;
+    color:#fff;
     padding:13px 17px;
     border-radius:10px;
     font-size:12px;
@@ -606,7 +594,6 @@ tbody tr:hover{
 }
 
 /* OVERLAY */
-
 .overlay{
     display:none;
     position:fixed;
@@ -616,7 +603,6 @@ tbody tr:hover{
 }
 
 /* MOBILE */
-
 @media(max-width:1100px){
 
     .stats{
@@ -673,6 +659,7 @@ tbody tr:hover{
     .page-header{
         align-items:flex-start;
         flex-direction:column;
+        gap:12px;
     }
 
     .date-panel{
@@ -697,7 +684,6 @@ tbody tr:hover{
         flex:1;
     }
 }
-
 </style>
 </head>
 
@@ -706,20 +692,15 @@ tbody tr:hover{
 <div class="overlay" id="overlay"></div>
 
 <!-- SIDEBAR -->
-
 <aside class="sidebar" id="sidebar">
 
     <div class="brand">
-
-        <div class="brand-icon">
-            ♫
-        </div>
+        <div class="brand-icon">♫</div>
 
         <div class="brand-text">
             <h2>KWAYA MANAGEMENT</h2>
             <small>MFUMO WA USIMAMIZI WA KWAYA</small>
         </div>
-
     </div>
 
     <div class="menu-title">
@@ -797,370 +778,291 @@ tbody tr:hover{
         </a>
 
     </nav>
-
 </aside>
 
 
 <!-- MAIN -->
-
 <main class="main">
 
-    <header class="topbar">
+<header class="topbar">
 
-        <div class="top-left">
+    <div class="top-left">
 
-            <button
-                class="mobile-menu"
-                id="mobileMenu"
+        <button class="mobile-menu" id="mobileMenu">
+            ☰
+        </button>
+
+        <div class="page-title">
+            <h1>Mahudhurio</h1>
+            <p>Register ya mahudhurio ya waimbaji</p>
+        </div>
+
+    </div>
+
+    <div class="profile">
+
+        <div class="avatar">
+            ♫
+        </div>
+
+        <div class="profile-text">
+            <strong>Mwanakwaya</strong>
+            <small>Mtumiaji wa Mfumo</small>
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="content">
+
+    <div class="page-header">
+
+        <div>
+            <h2>Register ya Mahudhurio</h2>
+
+            <p>
+                Chagua tarehe na aina ya shughuli, kisha weka hali ya kila mwimbaji.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- DATE PANEL -->
+
+    <div class="date-panel">
+
+        <div class="field">
+
+            <label>Tarehe ya Mahudhurio *</label>
+
+            <input
+                type="date"
+                id="attendanceDate"
             >
-                ☰
-            </button>
-
-            <div class="page-title">
-
-                <h1>Mahudhurio</h1>
-
-                <p>
-                    Register ya mahudhurio ya waimbaji
-                </p>
-
-            </div>
 
         </div>
 
-        <div class="profile">
 
-            <div class="avatar">
-                ♫
-            </div>
+        <div class="field">
 
-            <div class="profile-text">
+            <label>Aina ya Shughuli</label>
 
-                <strong>
-                    Mwanakwaya
-                </strong>
+            <select id="meetingType">
 
-                <small>
-                    Mtumiaji wa Mfumo
-                </small>
+                <option value="rehearsal">
+                    Mazoezi
+                </option>
 
-            </div>
+                <option value="mass">
+                    Ibada / Misa
+                </option>
+
+                <option value="meeting">
+                    Mkutano
+                </option>
+
+                <option value="concert">
+                    Tamasha / Konseti
+                </option>
+
+                <option value="event">
+                    Tukio
+                </option>
+
+                <option value="other">
+                    Nyingine
+                </option>
+
+            </select>
 
         </div>
 
-    </header>
+
+        <div class="field">
+
+            <label>Kichwa cha Shughuli</label>
+
+            <input
+                type="text"
+                id="sessionTitle"
+                placeholder="Mfano: Mazoezi ya Jumapili"
+            >
+
+        </div>
 
 
-    <section class="content">
+        <button
+            class="btn btn-primary"
+            id="openRegisterBtn"
+        >
+            📋 Fungua Register
+        </button>
 
-        <div class="page-header">
+    </div>
+
+
+    <!-- STATS -->
+
+    <div class="stats">
+
+        <div class="stat">
+            <small>WAIMBAJI</small>
+            <strong id="totalMembers">0</strong>
+        </div>
+
+        <div class="stat present">
+            <small>YUPO</small>
+            <strong id="presentCount">0</strong>
+        </div>
+
+        <div class="stat late">
+            <small>AMECHELEWA</small>
+            <strong id="lateCount">0</strong>
+        </div>
+
+        <div class="stat permission">
+            <small>RUHUSA</small>
+            <strong id="permissionCount">0</strong>
+        </div>
+
+        <div class="stat absent">
+            <small>HAYUPO</small>
+            <strong id="absentCount">0</strong>
+        </div>
+
+    </div>
+
+
+    <!-- REGISTER -->
+
+    <div class="card">
+
+        <div class="card-header">
 
             <div>
-
-                <h2>
+                <h3 id="registerTitle">
                     Register ya Mahudhurio
-                </h2>
-
-                <p>
-                    Chagua tarehe na weka hali ya kila mwimbaji.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <!-- DATE PANEL -->
-
-        <div class="date-panel">
-
-            <div class="field">
-
-                <label>
-                    Tarehe ya Mahudhurio *
-                </label>
-
-                <input
-                    type="date"
-                    id="attendanceDate"
-                >
-
-            </div>
-
-
-            <div class="field">
-
-                <label>
-                    Aina ya Mkutano
-                </label>
-
-                <select id="meetingType">
-
-                    <option value="Mazoezi">
-                        Mazoezi
-                    </option>
-
-                    <option value="Ibada">
-                        Ibada
-                    </option>
-
-                    <option value="Mkutano">
-                        Mkutano
-                    </option>
-
-                    <option value="Tukio">
-                        Tukio
-                    </option>
-
-                    <option value="Nyingine">
-                        Nyingine
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="field">
-
-                <label>
-                    Tafuta Mwimbaji
-                </label>
-
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Andika jina..."
-                >
-
-            </div>
-
-
-            <button
-                class="btn btn-primary"
-                id="loadDateBtn"
-            >
-                📋 Fungua Register
-            </button>
-
-        </div>
-
-
-        <!-- STATISTICS -->
-
-        <div class="stats">
-
-            <div class="stat">
-
-                <small>
-                    Waimbaji
-                </small>
-
-                <strong id="totalCount">
-                    0
-                </strong>
-
-            </div>
-
-
-            <div class="stat present">
-
-                <small>
-                    Yupo
-                </small>
-
-                <strong id="presentCount">
-                    0
-                </strong>
-
-            </div>
-
-
-            <div class="stat late">
-
-                <small>
-                    Amechelewa
-                </small>
-
-                <strong id="lateCount">
-                    0
-                </strong>
-
-            </div>
-
-
-            <div class="stat permission">
-
-                <small>
-                    Ruhusa
-                </small>
-
-                <strong id="permissionCount">
-                    0
-                </strong>
-
-            </div>
-
-
-            <div class="stat absent">
-
-                <small>
-                    Hayupo
-                </small>
-
-                <strong id="absentCount">
-                    0
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <!-- REGISTER -->
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <h3>
-                    📝 Orodha ya Waimbaji
                 </h3>
-
-                <div class="header-actions">
-
-                    <button
-                        class="btn btn-success"
-                        id="markAllPresentBtn"
-                    >
-                        ✓ Wote Yupo
-                    </button>
-
-                    <button
-                        class="btn btn-secondary"
-                        id="clearAllBtn"
-                    >
-                        Safisha
-                    </button>
-
-                </div>
-
             </div>
 
+            <div class="header-actions">
 
-            <div class="search-box">
-
-                <input
-                    type="text"
-                    id="tableSearch"
-                    placeholder="🔎 Tafuta jina la mwimbaji kwenye register..."
+                <button
+                    class="btn btn-success"
+                    id="allPresentBtn"
                 >
+                    ✓ Wote Yupo
+                </button>
 
-            </div>
-
-
-            <div class="table-wrap">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                # 
-                            </th>
-
-                            <th>
-                                MWIMBAJI
-                            </th>
-
-                            <th>
-                                SAUTI
-                            </th>
-
-                            <th>
-                                HALI YA MAHUDHURIO
-                            </th>
-
-                            <th>
-                                HALI
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="attendanceTable">
-
-                        <tr>
-
-                            <td
-                                colspan="5"
-                                class="empty"
-                            >
-                                Chagua tarehe ili kufungua register.
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
-            <div class="register-footer">
-
-                <div class="footer-info">
-
-                    <span id="footerInfo">
-                        Hakuna mahudhurio yaliyopakiwa.
-                    </span>
-
-                </div>
-
-                <div class="footer-actions">
-
-                    <button
-                        class="btn btn-secondary"
-                        id="refreshBtn"
-                    >
-                        🔄 Refresh
-                    </button>
-
-                    <button
-                        class="btn btn-primary"
-                        id="saveBtn"
-                    >
-                        💾 Hifadhi Mahudhurio
-                    </button>
-
-                </div>
+                <button
+                    class="btn btn-secondary"
+                    id="refreshBtn"
+                >
+                    ↻ Refresh
+                </button>
 
             </div>
 
         </div>
 
-    </section>
+
+        <div class="search-box">
+
+            <input
+                type="search"
+                id="searchMember"
+                placeholder="🔎 Tafuta mwimbaji kwa jina..."
+            >
+
+        </div>
+
+
+        <div id="loading" class="loading">
+            Chagua tarehe kisha bonyeza "Fungua Register".
+        </div>
+
+
+        <div
+            class="table-wrap"
+            id="tableContainer"
+            style="display:none;"
+        >
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>#</th>
+
+                        <th>MWIMBAJI</th>
+
+                        <th>SAUTI</th>
+
+                        <th>WEKA HALI</th>
+
+                        <th>HALI YA SASA</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="membersTableBody"></tbody>
+
+            </table>
+
+        </div>
+
+
+        <div class="register-footer">
+
+            <div class="footer-info">
+
+                <span id="sessionInfo">
+                    Hakuna register iliyofunguliwa.
+                </span>
+
+            </div>
+
+            <div class="footer-actions">
+
+                <button
+                    class="btn btn-secondary"
+                    id="clearBtn"
+                >
+                    Safisha
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    id="saveBtn"
+                >
+                    💾 Hifadhi Mahudhurio
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
 
 </main>
 
 
-<!-- TOAST -->
-
-<div
-    class="toast"
-    id="toast"
-></div>
+<div class="toast" id="toast"></div>
 
 
 <script>
 
-/* ================================
+/* =========================================================
    SUPABASE
-================================ */
+========================================================= */
 
 const SUPABASE_URL =
     "https://xulnkdrgjgajmcqntwga.supabase.co";
@@ -1175,1203 +1077,1236 @@ const supabaseClient =
     );
 
 
-/* ================================
-   VARIABLES
-================================ */
+/* =========================================================
+   GLOBAL VARIABLES
+========================================================= */
 
 let members = [];
+let voiceParts = [];
+
+let currentSession = null;
 
 let attendanceMap = {};
 
-let selectedDate = "";
-
-let saving = false;
+let isRegisterOpen = false;
 
 
-/* ================================
-   HELPERS
-================================ */
+/* =========================================================
+   ELEMENTS
+========================================================= */
 
-function escapeHTML(value){
+const attendanceDate =
+    document.getElementById("attendanceDate");
 
-    if(
-        value === null ||
-        value === undefined
-    ){
-        return "";
-    }
+const meetingType =
+    document.getElementById("meetingType");
 
-    return String(value)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+const sessionTitle =
+    document.getElementById("sessionTitle");
+
+const openRegisterBtn =
+    document.getElementById("openRegisterBtn");
+
+const searchMember =
+    document.getElementById("searchMember");
+
+const membersTableBody =
+    document.getElementById("membersTableBody");
+
+const tableContainer =
+    document.getElementById("tableContainer");
+
+const loading =
+    document.getElementById("loading");
+
+const registerTitle =
+    document.getElementById("registerTitle");
+
+const sessionInfo =
+    document.getElementById("sessionInfo");
+
+const totalMembers =
+    document.getElementById("totalMembers");
+
+const presentCount =
+    document.getElementById("presentCount");
+
+const lateCount =
+    document.getElementById("lateCount");
+
+const permissionCount =
+    document.getElementById("permissionCount");
+
+const absentCount =
+    document.getElementById("absentCount");
+
+const toast =
+    document.getElementById("toast");
+
+
+/* =========================================================
+   INITIAL DATE
+========================================================= */
+
+function setToday(){
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    attendanceDate.value = today;
 }
 
 
-function showToast(
-    message,
-    type = "success"
-){
+/* =========================================================
+   TOAST
+========================================================= */
 
-    const toast =
-        document.getElementById(
-            "toast"
-        );
+function showToast(message, type="success"){
 
-    toast.textContent =
-        message;
+    toast.textContent = message;
 
     toast.className =
         "toast show " + type;
 
-    setTimeout(
-        () => {
+    setTimeout(() => {
 
-            toast.className =
-                "toast";
+        toast.className = "toast";
 
-        },
-        3000
-    );
+    }, 3500);
 }
 
 
-function getToday(){
+/* =========================================================
+   MEMBER NAME
+========================================================= */
 
-    const now =
-        new Date();
+function getMemberName(member){
 
-    const year =
-        now.getFullYear();
-
-    const month =
-        String(
-            now.getMonth() + 1
-        ).padStart(2,"0");
-
-    const day =
-        String(
-            now.getDate()
-        ).padStart(2,"0");
-
-    return (
-        year +
-        "-" +
-        month +
-        "-" +
-        day
-    );
+    return [
+        member.first_name,
+        member.middle_name,
+        member.last_name
+    ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 
-function getInitials(name){
+/* =========================================================
+   VOICE NAME
+========================================================= */
 
-    if(!name){
-        return "?";
-    }
-
-    const words =
-        name.trim().split(/\s+/);
-
-    if(words.length === 1){
-        return words[0]
-            .charAt(0)
-            .toUpperCase();
-    }
-
-    return (
-        words[0].charAt(0) +
-        words[1].charAt(0)
-    ).toUpperCase();
-}
-
-
-function getVoiceName(
-    voiceId
-){
-
-    if(!voiceId){
-        return "—";
-    }
+function getVoiceName(member){
 
     const voice =
-        window.voiceParts?.find(
-            item =>
-                String(item.id) ===
-                String(voiceId)
+        voiceParts.find(
+            v => v.id === member.voice_part_id
         );
 
     return voice
         ? voice.name
-        : "—";
+        : "Haijawekwa";
 }
 
 
-/* ================================
+/* =========================================================
+   INITIALS
+========================================================= */
+
+function getInitials(name){
+
+    return name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0,2)
+        .map(x => x.charAt(0).toUpperCase())
+        .join("");
+}
+
+
+/* =========================================================
    LOAD VOICE PARTS
-================================ */
+========================================================= */
 
 async function loadVoiceParts(){
 
-    const { data,error } =
+    const { data, error } =
         await supabaseClient
-            .from("voice_parts")
-            .select("*")
-            .order(
-                "sort_order",
-                {
-                    ascending:true
-                }
-            );
+        .from("voice_parts")
+        .select("*")
+        .order("sort_order", {
+            ascending:true
+        });
 
     if(error){
 
-        console.error(
-            "Voice parts:",
-            error
-        );
+        console.error(error);
 
-        window.voiceParts = [];
+        showToast(
+            "Imeshindikana kupakia sauti za waimbaji.",
+            "error"
+        );
 
         return;
     }
 
-    window.voiceParts =
-        data || [];
+    voiceParts = data || [];
 }
 
 
-/* ================================
+/* =========================================================
    LOAD MEMBERS
-================================ */
+========================================================= */
 
 async function loadMembers(){
 
-    const { data,error } =
+    const { data, error } =
         await supabaseClient
-            .from("members")
-            .select("*")
-            .order(
-                "full_name",
-                {
-                    ascending:true
-                }
-            );
+        .from("members")
+        .select(`
+            id,
+            first_name,
+            middle_name,
+            last_name,
+            gender,
+            photo_url,
+            voice_part_id,
+            choir_role,
+            joined_date,
+            status
+        `)
+        .eq("status","active")
+        .order("first_name", {
+            ascending:true
+        });
 
     if(error){
 
-        console.error(
-            "Members:",
-            error
+        console.error(error);
+
+        showToast(
+            "Imeshindikana kupakia waimbaji.",
+            "error"
         );
 
-        document.getElementById(
-            "attendanceTable"
-        ).innerHTML = `
+        return;
+    }
+
+    members = data || [];
+
+    totalMembers.textContent =
+        members.length;
+
+}
+
+
+/* =========================================================
+   FIND EXISTING SESSION
+========================================================= */
+
+async function findSession(){
+
+    const date =
+        attendanceDate.value;
+
+    const activity =
+        meetingType.value;
+
+    const { data, error } =
+        await supabaseClient
+        .from("attendance_sessions")
+        .select("*")
+        .eq("attendance_date", date)
+        .eq("activity_type", activity)
+        .order("created_at", {
+            ascending:false
+        })
+        .limit(1);
+
+    if(error){
+
+        console.error(error);
+
+        throw error;
+    }
+
+    if(data && data.length > 0){
+
+        return data[0];
+
+    }
+
+    return null;
+}
+
+
+/* =========================================================
+   CREATE SESSION
+========================================================= */
+
+async function createSession(){
+
+    const date =
+        attendanceDate.value;
+
+    const activity =
+        meetingType.value;
+
+    const title =
+        sessionTitle.value.trim()
+        || getActivityLabel(activity);
+
+    const { data, error } =
+        await supabaseClient
+        .from("attendance_sessions")
+        .insert({
+
+            attendance_date:date,
+
+            activity_type:activity,
+
+            title:title
+
+        })
+        .select()
+        .single();
+
+    if(error){
+
+        console.error(error);
+
+        throw error;
+    }
+
+    return data;
+}
+
+
+/* =========================================================
+   ACTIVITY LABEL
+========================================================= */
+
+function getActivityLabel(type){
+
+    const labels = {
+
+        rehearsal:"Mazoezi",
+
+        mass:"Ibada / Misa",
+
+        meeting:"Mkutano",
+
+        concert:"Tamasha / Konseti",
+
+        event:"Tukio",
+
+        other:"Nyingine"
+
+    };
+
+    return labels[type] || "Shughuli";
+}
+
+
+/* =========================================================
+   GET OR CREATE SESSION
+========================================================= */
+
+async function getOrCreateSession(){
+
+    let session =
+        await findSession();
+
+    if(!session){
+
+        session =
+            await createSession();
+
+    }
+
+    return session;
+}
+
+
+/* =========================================================
+   LOAD ATTENDANCE RECORDS
+========================================================= */
+
+async function loadAttendanceRecords(){
+
+    attendanceMap = {};
+
+    if(!currentSession){
+
+        return;
+    }
+
+    const { data, error } =
+        await supabaseClient
+        .from("attendance_records")
+        .select(`
+            id,
+            session_id,
+            member_id,
+            status,
+            reason,
+            marked_at,
+            notes
+        `)
+        .eq(
+            "session_id",
+            currentSession.id
+        );
+
+    if(error){
+
+        console.error(error);
+
+        throw error;
+    }
+
+    (data || []).forEach(record => {
+
+        attendanceMap[
+            record.member_id
+        ] = record;
+
+    });
+
+}
+
+
+/* =========================================================
+   OPEN REGISTER
+========================================================= */
+
+async function openRegister(){
+
+    if(!attendanceDate.value){
+
+        showToast(
+            "Tafadhali chagua tarehe.",
+            "error"
+        );
+
+        return;
+    }
+
+    try{
+
+        loading.style.display = "block";
+
+        loading.textContent =
+            "Inafungua register...";
+
+        tableContainer.style.display =
+            "none";
+
+        isRegisterOpen = false;
+
+        currentSession =
+            await getOrCreateSession();
+
+        await loadAttendanceRecords();
+
+        renderMembers();
+
+        updateStats();
+
+        const activityLabel =
+            getActivityLabel(
+                currentSession.activity_type
+            );
+
+        registerTitle.textContent =
+            "Register • " +
+            activityLabel;
+
+        sessionInfo.textContent =
+            `${currentSession.attendance_date} • ${activityLabel}`;
+
+        loading.style.display =
+            "none";
+
+        tableContainer.style.display =
+            "block";
+
+        isRegisterOpen = true;
+
+        showToast(
+            "Register imefunguliwa.",
+            "success"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        loading.textContent =
+            "Imeshindikana kufungua register.";
+
+        showToast(
+            error.message ||
+            "Kuna tatizo kwenye database.",
+            "error"
+        );
+    }
+}
+
+
+/* =========================================================
+   RENDER MEMBERS
+========================================================= */
+
+function renderMembers(){
+
+    const search =
+        searchMember.value
+        .trim()
+        .toLowerCase();
+
+    const filtered =
+        members.filter(member => {
+
+            const name =
+                getMemberName(member)
+                .toLowerCase();
+
+            const voice =
+                getVoiceName(member)
+                .toLowerCase();
+
+            return (
+                name.includes(search) ||
+                voice.includes(search)
+            );
+
+        });
+
+    if(filtered.length === 0){
+
+        membersTableBody.innerHTML = `
             <tr>
-                <td colspan="5" class="empty">
-                    Imeshindikana kupakia waimbaji.
+                <td colspan="5">
+                    <div class="empty">
+                        Hakuna mwimbaji aliyepatikana.
+                    </div>
                 </td>
             </tr>
         `;
 
-        showToast(
-            "Imeshindikana kusoma waimbaji.",
-            "error"
-        );
-
         return;
     }
 
-    members =
-        data || [];
 
-    updateStats();
+    membersTableBody.innerHTML =
+        filtered.map((member,index) => {
 
-    renderTable();
+            const name =
+                getMemberName(member);
+
+            const record =
+                attendanceMap[member.id];
+
+            const status =
+                record
+                ? record.status
+                : "pending";
+
+            const photo =
+                member.photo_url;
+
+            const avatar =
+                photo
+
+                ? `
+                    <div class="member-avatar">
+                        <img
+                            src="${escapeHtml(photo)}"
+                            alt=""
+                        >
+                    </div>
+                  `
+
+                : `
+                    <div class="member-avatar">
+                        ${getInitials(name)}
+                    </div>
+                  `;
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+
+                        <div class="member">
+
+                            ${avatar}
+
+                            <div class="member-name">
+
+                                <strong>
+                                    ${escapeHtml(name)}
+                                </strong>
+
+                                <small>
+                                    ${escapeHtml(
+                                        member.choir_role || "member"
+                                    )}
+                                </small>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+                        <strong>
+                            ${escapeHtml(
+                                getVoiceName(member)
+                            )}
+                        </strong>
+                    </td>
+
+
+                    <td>
+
+                        <div class="status-buttons">
+
+                            <button
+                                class="status-btn present
+                                ${status === "present" ? "selected" : ""}"
+                                onclick="setStatus('${member.id}','present')"
+                            >
+                                ✓ Yupo
+                            </button>
+
+
+                            <button
+                                class="status-btn late
+                                ${status === "late" ? "selected" : ""}"
+                                onclick="setStatus('${member.id}','late')"
+                            >
+                                ⏰ Amechelewa
+                            </button>
+
+
+                            <button
+                                class="status-btn permission
+                                ${status === "permission" ? "selected" : ""}"
+                                onclick="setStatus('${member.id}','permission')"
+                            >
+                                📝 Ruhusa
+                            </button>
+
+
+                            <button
+                                class="status-btn absent
+                                ${status === "absent" ? "selected" : ""}"
+                                onclick="setStatus('${member.id}','absent')"
+                            >
+                                ✕ Hayupo
+                            </button>
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+
+                        ${renderCurrentStatus(status)}
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
 }
 
 
-/* ================================
-   LOAD ATTENDANCE FOR DATE
-================================ */
+/* =========================================================
+   CURRENT STATUS
+========================================================= */
 
-async function loadAttendanceForDate(){
+function renderCurrentStatus(status){
 
-    if(!selectedDate){
+    const map = {
+
+        present:{
+            label:"Yupo",
+            class:"status-yupo"
+        },
+
+        late:{
+            label:"Amechelewa",
+            class:"status-late"
+        },
+
+        permission:{
+            label:"Ruhusa",
+            class:"status-permission"
+        },
+
+        absent:{
+            label:"Hayupo",
+            class:"status-absent"
+        },
+
+        pending:{
+            label:"Haijawekwa",
+            class:"status-pending"
+        }
+
+    };
+
+    const item =
+        map[status] || map.pending;
+
+    return `
+        <span class="current-status ${item.class}">
+            ${item.label}
+        </span>
+    `;
+}
+
+
+/* =========================================================
+   SET STATUS
+========================================================= */
+
+function setStatus(memberId,status){
+
+    if(!currentSession){
 
         showToast(
-            "Chagua tarehe kwanza.",
+            "Fungua kwanza register.",
             "error"
         );
 
         return;
     }
 
+    attendanceMap[memberId] = {
 
-    attendanceMap = {};
+        ...(attendanceMap[memberId] || {}),
+
+        member_id:memberId,
+
+        session_id:currentSession.id,
+
+        status:status,
+
+        marked_at:new Date().toISOString()
+
+    };
+
+    renderMembers();
+
+    updateStats();
+
+}
 
 
-    const { data,error } =
-        await supabaseClient
+/* =========================================================
+   UPDATE STATS
+========================================================= */
+
+function updateStats(){
+
+    let present = 0;
+    let late = 0;
+    let permission = 0;
+    let absent = 0;
+
+    members.forEach(member => {
+
+        const record =
+            attendanceMap[member.id];
+
+        const status =
+            record
+            ? record.status
+            : "pending";
+
+        if(status === "present"){
+            present++;
+        }
+
+        else if(status === "late"){
+            late++;
+        }
+
+        else if(status === "permission"){
+            permission++;
+        }
+
+        else if(status === "absent"){
+            absent++;
+        }
+
+    });
+
+    presentCount.textContent =
+        present;
+
+    lateCount.textContent =
+        late;
+
+    permissionCount.textContent =
+        permission;
+
+    absentCount.textContent =
+        absent;
+
+}
+
+
+/* =========================================================
+   SAVE RECORD
+========================================================= */
+
+async function saveRecord(memberId,record){
+
+    const existing =
+        attendanceMap[memberId];
+
+    if(existing && existing.id){
+
+        const { error } =
+            await supabaseClient
             .from("attendance_records")
-            .select("*")
+            .update({
+
+                status:record.status,
+
+                marked_at:
+                    record.marked_at
+                    || new Date().toISOString()
+
+            })
             .eq(
-                "attendance_date",
-                selectedDate
+                "id",
+                existing.id
             );
 
+        if(error){
+
+            throw error;
+
+        }
+
+        return;
+    }
+
+
+    const { data, error } =
+        await supabaseClient
+        .from("attendance_records")
+        .insert({
+
+            session_id:
+                currentSession.id,
+
+            member_id:
+                memberId,
+
+            status:
+                record.status,
+
+            marked_at:
+                record.marked_at
+                || new Date().toISOString()
+
+        })
+        .select()
+        .single();
 
     if(error){
 
-        /*
-          Some databases may use
-          "date" instead of
-          "attendance_date".
+        throw error;
 
-          We intentionally stop here
-          rather than writing into a
-          wrong column.
-        */
+    }
 
-        console.error(
-            "Attendance:",
-            error
-        );
+    attendanceMap[memberId] =
+        data;
+
+}
+
+
+/* =========================================================
+   SAVE ALL
+========================================================= */
+
+async function saveAttendance(){
+
+    if(!currentSession){
 
         showToast(
-            "Imeshindikana kusoma mahudhurio ya tarehe hii.",
+            "Fungua kwanza register.",
             "error"
         );
-
-        renderTable();
 
         return;
     }
 
 
     const records =
-        data || [];
+        members.filter(member => {
+
+            const record =
+                attendanceMap[member.id];
+
+            return (
+                record &&
+                record.status &&
+                record.status !== "pending"
+            );
+
+        });
 
 
-    records.forEach(
-        record => {
+    if(records.length === 0){
 
-            const memberId =
-                record.member_id;
+        showToast(
+            "Weka angalau hali moja ya mwimbaji.",
+            "error"
+        );
 
-            if(memberId){
+        return;
+    }
 
-                attendanceMap[
-                    String(memberId)
-                ] = {
 
-                    id:record.id,
+    const saveBtn =
+        document.getElementById("saveBtn");
 
-                    status:
-                        normalizeStatus(
-                            record.status
-                        ),
+    const oldText =
+        saveBtn.textContent;
 
-                    meeting_type:
-                        record.meeting_type ||
-                        ""
+    saveBtn.disabled = true;
 
-                };
+    saveBtn.textContent =
+        "⏳ Inahifadhi...";
 
-            }
+
+    try{
+
+        for(const member of records){
+
+            await saveRecord(
+                member.id,
+                attendanceMap[member.id]
+            );
 
         }
-    );
 
 
-    renderTable();
+        await loadAttendanceRecords();
 
-}
-
-
-/* ================================
-   NORMALIZE STATUS
-================================ */
-
-function normalizeStatus(
-    status
-){
-
-    const value =
-        String(
-            status || ""
-        )
-        .toLowerCase()
-        .trim();
-
-
-    if(
-        value === "present" ||
-        value === "yupo"
-    ){
-
-        return "yupo";
-
-    }
-
-
-    if(
-        value === "late" ||
-        value === "amechelewa"
-    ){
-
-        return "amechelewa";
-
-    }
-
-
-    if(
-        value === "permission" ||
-        value === "ruhusa"
-    ){
-
-        return "ruhusa";
-
-    }
-
-
-    if(
-        value === "absent" ||
-        value === "hayupo"
-    ){
-
-        return "hayupo";
-
-    }
-
-
-    return "";
-}
-
-
-/* ================================
-   RENDER TABLE
-================================ */
-
-function renderTable(){
-
-    const table =
-        document.getElementById(
-            "attendanceTable"
-        );
-
-    const search =
-        document.getElementById(
-            "tableSearch"
-        ).value
-        .toLowerCase()
-        .trim();
-
-
-    const filtered =
-        members.filter(
-            member => {
-
-                const name =
-                    String(
-                        member.full_name ||
-                        ""
-                    ).toLowerCase();
-
-                return (
-                    !search ||
-                    name.includes(search)
-                );
-
-            }
-        );
-
-
-    if(!members.length){
-
-        table.innerHTML = `
-            <tr>
-                <td colspan="5" class="empty">
-                    Hakuna waimbaji waliosajiliwa.
-                </td>
-            </tr>
-        `;
+        renderMembers();
 
         updateStats();
 
+
+        showToast(
+            `Mahudhurio ${records.length} yamehifadhiwa.`,
+            "success"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Imeshindikana kuhifadhi mahudhurio.",
+            "error"
+        );
+
+    }finally{
+
+        saveBtn.disabled = false;
+
+        saveBtn.textContent =
+            oldText;
+
+    }
+
+}
+
+
+/* =========================================================
+   ALL PRESENT
+========================================================= */
+
+function markAllPresent(){
+
+    if(!currentSession){
+
+        showToast(
+            "Fungua kwanza register.",
+            "error"
+        );
+
         return;
     }
 
+    members.forEach(member => {
 
-    if(!filtered.length){
+        attendanceMap[member.id] = {
 
-        table.innerHTML = `
-            <tr>
-                <td colspan="5" class="empty">
-                    Hakuna mwimbaji aliyepatikana.
-                </td>
-            </tr>
-        `;
+            ...(attendanceMap[member.id] || {}),
 
-        return;
-    }
+            member_id:member.id,
 
+            session_id:
+                currentSession.id,
 
-    table.innerHTML =
-        filtered.map(
-            (member,index) => {
+            status:"present",
 
-                const id =
-                    String(
-                        member.id
-                    );
+            marked_at:
+                new Date().toISOString()
 
+        };
 
-                const record =
-                    attendanceMap[id];
+    });
 
-
-                const status =
-                    record
-                        ? record.status
-                        : "";
-
-
-                let statusHTML = `
-                    <span class="current-status status-pending">
-                        Haijawekwa
-                    </span>
-                `;
-
-
-                if(status === "yupo"){
-
-                    statusHTML = `
-                        <span class="current-status status-yupo">
-                            ✓ Yupo
-                        </span>
-                    `;
-
-                }
-
-
-                if(status === "amechelewa"){
-
-                    statusHTML = `
-                        <span class="current-status status-late">
-                            ⏰ Amechelewa
-                        </span>
-                    `;
-
-                }
-
-
-                if(status === "ruhusa"){
-
-                    statusHTML = `
-                        <span class="current-status status-permission">
-                            ℹ Ruhusa
-                        </span>
-                    `;
-
-                }
-
-
-                if(status === "hayupo"){
-
-                    statusHTML = `
-                        <span class="current-status status-absent">
-                            ✕ Hayupo
-                        </span>
-                    `;
-
-                }
-
-
-                const name =
-                    member.full_name ||
-                    "Jina halijawekwa";
-
-
-                const voice =
-                    getVoiceName(
-                        member.voice_part_id
-                    );
-
-
-                return `
-
-                    <tr data-member-id="${escapeHTML(id)}">
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-
-                            <div class="member">
-
-                                <div class="member-avatar">
-                                    ${escapeHTML(
-                                        getInitials(
-                                            name
-                                        )
-                                    )}
-                                </div>
-
-                                <div class="member-name">
-
-                                    <strong>
-                                        ${escapeHTML(
-                                            name
-                                        )}
-                                    </strong>
-
-                                    <small>
-                                        Mwimbaji
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                        </td>
-
-                        <td>
-                            ${escapeHTML(
-                                voice
-                            )}
-                        </td>
-
-                        <td>
-
-                            <div class="status-buttons">
-
-                                <button
-                                    type="button"
-                                    class="status-btn present ${
-                                        status === "yupo"
-                                            ? "selected"
-                                            : ""
-                                    }"
-                                    onclick="setStatus('${escapeHTML(id)}','yupo')"
-                                >
-                                    ✓ Yupo
-                                </button>
-
-                                <button
-                                    type="button"
-                                    class="status-btn late ${
-                                        status === "amechelewa"
-                                            ? "selected"
-                                            : ""
-                                    }"
-                                    onclick="setStatus('${escapeHTML(id)}','amechelewa')"
-                                >
-                                    ⏰ Amechelewa
-                                </button>
-
-                                <button
-                                    type="button"
-                                    class="status-btn permission ${
-                                        status === "ruhusa"
-                                            ? "selected"
-                                            : ""
-                                    }"
-                                    onclick="setStatus('${escapeHTML(id)}','ruhusa')"
-                                >
-                                    ℹ Ruhusa
-                                </button>
-
-                                <button
-                                    type="button"
-                                    class="status-btn absent ${
-                                        status === "hayupo"
-                                            ? "selected"
-                                            : ""
-                                    }"
-                                    onclick="setStatus('${escapeHTML(id)}','hayupo')"
-                                >
-                                    ✕ Hayupo
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                        <td>
-                            ${statusHTML}
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        ).join("");
-
+    renderMembers();
 
     updateStats();
 
-}
-
-
-/* ================================
-   SET STATUS
-================================ */
-
-function setStatus(
-    memberId,
-    status
-){
-
-    attendanceMap[
-        String(memberId)
-    ] = {
-
-        ...(attendanceMap[
-            String(memberId)
-        ] || {}),
-
-        status:status
-
-    };
-
-
-    renderTable();
+    showToast(
+        "Waimbaji wote wamewekwa Yupo.",
+        "success"
+    );
 
 }
 
 
-/* ================================
-   UPDATE STATS
-================================ */
+/* =========================================================
+   CLEAR
+========================================================= */
 
-function updateStats(){
+function clearRegister(){
 
-    const total =
-        members.length;
+    if(!currentSession){
+
+        return;
+    }
+
+    attendanceMap = {};
+
+    renderMembers();
+
+    updateStats();
+
+    showToast(
+        "Hali za mahudhurio zimesafishwa.",
+        "success"
+    );
+
+}
 
 
-    let yupo = 0;
-    let late = 0;
-    let ruhusa = 0;
-    let hayupo = 0;
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(value){
+
+    if(value === null ||
+       value === undefined){
+
+        return "";
+
+    }
+
+    return String(value)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+}
 
 
-    Object.values(
-        attendanceMap
-    ).forEach(
-        record => {
+/* =========================================================
+   MOBILE MENU
+========================================================= */
 
-            if(
-                record.status ===
-                "yupo"
-            ){
-                yupo++;
+const sidebar =
+    document.getElementById("sidebar");
+
+const mobileMenu =
+    document.getElementById("mobileMenu");
+
+const overlay =
+    document.getElementById("overlay");
+
+
+mobileMenu.addEventListener(
+    "click",
+    () => {
+
+        sidebar.classList.add("open");
+
+        overlay.classList.add("show");
+
+    }
+);
+
+
+overlay.addEventListener(
+    "click",
+    () => {
+
+        sidebar.classList.remove("open");
+
+        overlay.classList.remove("show");
+
+    }
+);
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+searchMember.addEventListener(
+    "input",
+    renderMembers
+);
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+openRegisterBtn.addEventListener(
+    "click",
+    openRegister
+);
+
+document
+    .getElementById("saveBtn")
+    .addEventListener(
+        "click",
+        saveAttendance
+    );
+
+document
+    .getElementById("allPresentBtn")
+    .addEventListener(
+        "click",
+        markAllPresent
+    );
+
+document
+    .getElementById("clearBtn")
+    .addEventListener(
+        "click",
+        clearRegister
+);
+
+document
+    .getElementById("refreshBtn")
+    .addEventListener(
+        "click",
+        async () => {
+
+            if(currentSession){
+
+                await loadMembers();
+
+                await loadAttendanceRecords();
+
+                renderMembers();
+
+                updateStats();
+
+            }else{
+
+                await loadMembers();
+
             }
 
-            if(
-                record.status ===
-                "amechelewa"
-            ){
-                late++;
-            }
+            showToast(
+                "Taarifa zime-refresh.",
+                "success"
+            );
 
-            if(
-                record.status ===
-                "ruhusa"
-            ){
-                ruhusa++;
-            }
+        }
+);
 
-            if(
-                record.status ===
-                "hayupo"
-            ){
-                hayupo++;
-            }
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+document
+    .getElementById("logoutBtn")
+    .addEventListener(
+        "click",
+        async (e) => {
+
+            e.preventDefault();
+
+            await supabaseClient.auth.signOut();
+
+            window.location.href =
+                "index.html";
 
         }
     );
 
 
-    document.getElementById(
-        "totalCount"
-    ).textContent =
-        total;
-
-
-    document.getElementById(
-        "presentCount"
-    ).textContent =
-        yupo;
-
-
-    document.getElementById(
-        "lateCount"
-    ).textContent =
-        late;
-
-
-    document.getElementById(
-        "permissionCount"
-    ).textContent =
-        ruhusa;
-
-
-    document.getElementById(
-        "absentCount"
-    ).textContent =
-        hayupo;
-
-
-    const completed =
-        yupo +
-        late +
-        ruhusa +
-        hayupo;
-
-
-    document.getElementById(
-        "footerInfo"
-    ).textContent =
-        selectedDate
-            ? `${completed} kati ya ${total} wamewekewa hali ya mahudhurio.`
-            : "Chagua tarehe ya mahudhurio.";
-
-}
-
-
-/* ================================
-   MARK ALL PRESENT
-================================ */
-
-document.getElementById(
-    "markAllPresentBtn"
-).addEventListener(
-    "click",
-    () => {
-
-        if(!members.length){
-
-            showToast(
-                "Hakuna waimbaji.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        members.forEach(
-            member => {
-
-                attendanceMap[
-                    String(member.id)
-                ] = {
-
-                    ...(attendanceMap[
-                        String(member.id)
-                    ] || {}),
-
-                    status:"yupo"
-
-                };
-
-            }
-        );
-
-
-        renderTable();
-
-
-        showToast(
-            "Waimbaji wote wamewekwa Yupo."
-        );
-
-    }
-);
-
-
-/* ================================
-   CLEAR ALL
-================================ */
-
-document.getElementById(
-    "clearAllBtn"
-).addEventListener(
-    "click",
-    () => {
-
-        if(
-            !confirm(
-                "Una uhakika unataka kusafisha hali zote za mahudhurio?"
-            )
-        ){
-
-            return;
-
-        }
-
-
-        attendanceMap = {};
-
-        renderTable();
-
-        showToast(
-            "Hali za mahudhurio zimesafishwa."
-        );
-
-    }
-);
-
-
-/* ================================
-   LOAD DATE
-================================ */
-
-document.getElementById(
-    "loadDateBtn"
-).addEventListener(
-    "click",
-    async () => {
-
-        selectedDate =
-            document.getElementById(
-                "attendanceDate"
-            ).value;
-
-
-        if(!selectedDate){
-
-            showToast(
-                "Chagua tarehe kwanza.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        await loadAttendanceForDate();
-
-    }
-);
-
-
-/* ================================
-   SAVE ATTENDANCE
-================================ */
-
-document.getElementById(
-    "saveBtn"
-).addEventListener(
-    "click",
-    async () => {
-
-        if(saving){
-            return;
-        }
-
-
-        selectedDate =
-            document.getElementById(
-                "attendanceDate"
-            ).value;
-
-
-        if(!selectedDate){
-
-            showToast(
-                "Chagua tarehe kwanza.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        const meetingType =
-            document.getElementById(
-                "meetingType"
-            ).value;
-
-
-        const statuses =
-            Object.entries(
-                attendanceMap
-            );
-
-
-        if(!statuses.length){
-
-            showToast(
-                "Weka hali ya angalau mwimbaji mmoja.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        saving = true;
-
-
-        const saveButton =
-            document.getElementById(
-                "saveBtn"
-            );
-
-
-        saveButton.disabled =
-            true;
-
-        saveButton.textContent =
-            "Inahifadhi...";
-
-
-        try{
-
-
-            /*
-              We use UPSERT so that
-              saving the same date again
-              updates the existing record
-              instead of creating duplicates.
-
-              This requires a UNIQUE constraint
-              on member_id + attendance_date
-              in Supabase.
-            */
-
-
-            const records =
-                statuses.map(
-                    ([memberId,record]) => ({
-
-                        member_id:
-                            memberId,
-
-                        attendance_date:
-                            selectedDate,
-
-                        status:
-                            record.status,
-
-                        meeting_type:
-                            meetingType
-
-                    })
-                );
-
-
-            const { error } =
-                await supabaseClient
-                    .from(
-                        "attendance_records"
-                    )
-                    .upsert(
-                        records,
-                        {
-                            onConflict:
-                                "member_id,attendance_date"
-                        }
-                    );
-
-
-            if(error){
-
-                console.error(
-                    "Save attendance:",
-                    error
-                );
-
-                showToast(
-                    "Imeshindikana kuhifadhi mahudhurio: " +
-                    error.message,
-                    "error"
-                );
-
-                return;
-            }
-
-
-            showToast(
-                "Mahudhurio yamehifadhiwa kikamilifu."
-            );
-
-
-            await loadAttendanceForDate();
-
-
-        }finally{
-
-            saving = false;
-
-            saveButton.disabled =
-                false;
-
-            saveButton.textContent =
-                "💾 Hifadhi Mahudhurio";
-
-        }
-
-    }
-);
-
-
-/* ================================
-   REFRESH
-================================ */
-
-document.getElementById(
-    "refreshBtn"
-).addEventListener(
-    "click",
-    async () => {
-
-        await loadMembers();
-
-        if(selectedDate){
-
-            await loadAttendanceForDate();
-
-        }
-
-        showToast(
-            "Register imesasishwa."
-        );
-
-    }
-);
-
-
-/* ================================
-   SEARCH
-================================ */
-
-document.getElementById(
-    "tableSearch"
-).addEventListener(
-    "input",
-    renderTable
-);
-
-document.getElementById(
-    "searchInput"
-).addEventListener(
-    "input",
-    function(){
-
-        document.getElementById(
-            "tableSearch"
-        ).value =
-            this.value;
-
-        renderTable();
-
-    }
-);
-
-
-/* ================================
-   MOBILE MENU
-================================ */
-
-document.getElementById(
-    "mobileMenu"
-).addEventListener(
-    "click",
-    () => {
-
-        document.getElementById(
-            "sidebar"
-        ).classList.toggle(
-            "open"
-        );
-
-        document.getElementById(
-            "overlay"
-        ).classList.toggle(
-            "show"
-        );
-
-    }
-);
-
-
-document.getElementById(
-    "overlay"
-).addEventListener(
-    "click",
-    () => {
-
-        document.getElementById(
-            "sidebar"
-        ).classList.remove(
-            "open"
-        );
-
-        document.getElementById(
-            "overlay"
-        ).classList.remove(
-            "show"
-        );
-
-    }
-);
-
-
-/* ================================
-   LOGOUT
-================================ */
-
-document.getElementById(
-    "logoutBtn"
-).addEventListener(
-    "click",
-    async function(event){
-
-        event.preventDefault();
-
-        await supabaseClient
-            .auth
-            .signOut();
-
-        window.location.href =
-            "login.html";
-
-    }
-);
-
-
-/* ================================
+/* =========================================================
    INITIALIZE
-================================ */
+========================================================= */
 
 async function init(){
 
-    document.getElementById(
-        "attendanceDate"
-    ).value =
-        getToday();
+    setToday();
 
+    loading.style.display =
+        "block";
 
-    await loadVoiceParts();
+    loading.textContent =
+        "Inapakia waimbaji...";
 
-    await loadMembers();
+    try{
+
+        await loadVoiceParts();
+
+        await loadMembers();
+
+        loading.textContent =
+            "Chagua tarehe kisha bonyeza \"Fungua Register\".";
+
+    }catch(error){
+
+        console.error(error);
+
+        loading.textContent =
+            "Imeshindikana kupakia taarifa.";
+
+    }
 
 }
 
 
-document.addEventListener(
-    "DOMContentLoaded",
-    init
-);
+init();
 
 </script>
 
