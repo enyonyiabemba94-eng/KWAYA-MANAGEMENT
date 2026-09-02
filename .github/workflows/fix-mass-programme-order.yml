@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch mass programme order
+      - name: Fix mass programme form
         run: |
           python3 <<'PY'
           from pathlib import Path
@@ -22,29 +22,38 @@ jobs:
           p = Path('mass-programmes.html')
           s = p.read_text(encoding='utf-8')
 
-          marker = 'Mass Programme order applied'
-          if marker in s:
-              raise SystemExit(0)
+          new_render = r'''function renderSlots(values={}){values=values||{};let html='';const group=(k,label,n)=>{const a=Array.isArray(values[k])?values[k]:[];return `<div class="section"><div class="sectionTitle"><h3>${label}</h3><small>${n} nafasi</small></div>${Array.from({length:n},(_,i)=>renderSongField(k,i,a[i]||{})).join('')}</div>`};const single=(k,label)=>{const v=values[k]||{};return renderSingle(k,label,v)};html+=group('opening','🎵 1. Mwanzo / Kuingia',6);html+=single('penitential','🙏 2. Kyrie / Bwana Utuhurumie / Toba');html+=single('psalm','📖 3. Zaburi');html+=single('alleluia','📣 4. Shangilio / Aleluya');html+=group('offertory','🍞 5. Sadaka',10);html+=single('holy','⛪ 6. Mtakatifu');html+=single('lamb','🐑 7. Mwana Kondoo wa Mungu');html+=group('communion','🍷 8. Komunio',10);html+=group('thanksgiving','🙏 9. Shukrani',10);html+=single('closing','🚪 10. Mwisho / Kutoka');for(const [k,label,n] of special){if($(k)?.checked)html+=group(k,label,n||10)}$('slots').innerHTML=html}function toggleManual'''
 
-          new_render = r'''function renderSlots(values={}){values=values||{};let html='';html+=`<div class="section"><div class="sectionTitle"><h3>🎵 Mwanzo</h3><small>3 nafasi</small></div>${Array.from({length:3},(_,i)=>renderSongField('opening',i,values.opening?.[i]||{})).join('')}</div>`;html+=renderSingle('penitential','Kyrie / Bwana Utuhurumie',values.penitential||{});html+=renderSingle('psalm','Zaburi',values.psalm||{});html+=renderSingle('alleluia','Shangilio / Alleluia',values.alleluia||{});html+=`<div class="section"><div class="sectionTitle"><h3>🍞 Sadaka</h3><small>6 nafasi</small></div>${Array.from({length:6},(_,i)=>renderSongField('offertory',i,values.offertory?.[i]||{})).join('')}</div>`;html+=renderSingle('holy','Mtakatifu',values.holy||{});html+=renderSingle('lamb','Mwana Kondoo',values.lamb||{});html+=`<div class="section"><div class="sectionTitle"><h3>🍷 Komunio</h3><small>6 nafasi</small></div>${Array.from({length:6},(_,i)=>renderSongField('communion',i,values.communion?.[i]||{})).join('')}</div>`;html+=`<div class="section"><div class="sectionTitle"><h3>🙏 Shukrani</h3><small>4 nafasi</small></div>${Array.from({length:4},(_,i)=>renderSongField('thanksgiving',i,values.thanksgiving?.[i]||{})).join('')}</div>`;html+=renderSingle('closing','Wimbo wa Mwisho / Kutoka',values.closing||{});special.forEach(([k,label])=>{const active=$(k)?.checked;const arr=Array.isArray(values[k])?values[k]:[];html+=`<div class="section" id="section_${k}" style="display:${active?'block':'none'}"><div class="sectionTitle"><h3>${label}</h3><small>6 nafasi</small></div>${Array.from({length:6},(_,i)=>renderSongField(k,i,arr[i]||{})).join('')}</div>`});$('slots').innerHTML=html}function toggleManual'''
+          start = s.find('function renderSlots(values={}){')
+          if start < 0:
+              raise SystemExit('renderSlots start not found')
+          end = s.find('function toggleManual', start)
+          if end < 0:
+              raise SystemExit('toggleManual marker not found')
+          s = s[:start] + new_render + s[end+len('function toggleManual'):]
 
-          # Replace only the renderSlots function, preserving the rest of the existing page.
-          s2, n = re.subn(r'function renderSlots\(values=\{\}\)\{.*?\}function toggleManual', new_render, s, count=1)
-          if n != 1:
-              raise SystemExit('Could not locate renderSlots function')
+          # Remove the accidental nested duplicate script block introduced by the previous patch.
+          s = s.replace('}<script>\nfunction renderSlots(data){', '}\nfunction renderSlots(data){')
+          s = s.replace('</script>newProgramme();load();</script></body>', 'newProgramme();load();</script></body>')
+          s = s.replace('function renderSlots(data){', '')
 
-          # Make the displayed labels unambiguous in the existing single-song fields.
-          s2 = s2.replace('🎼 Nyimbo za Kuingia', '🎵 Mwanzo')
-          s2 = s2.replace('💰 Nyimbo za Sadaka', '🍞 Sadaka')
-          s2 = s2.replace('🍞 Nyimbo za Komunio', '🍷 Komunio')
-          s2 = s2.replace('🙏 Nyimbo za Shukrani', '🙏 Shukrani')
-          s2 = s2.replace('Wimbo wa Kumaliza', 'Wimbo wa Mwisho / Kutoka')
-          s2 = s2.replace('Mwanakondoo wa Mungu', 'Mwana Kondoo')
+          # Ensure the existing data model also uses the requested slot counts.
+          s = s.replace("const groups=[['opening','🎵 Mwanzo / Kuingia',6],['offertory','🍞 Sadaka',10],['communion','🍷 Komunio',10],['thanksgiving','🙏 Shukrani',10]]", "const groups=[['opening','🎵 Mwanzo / Kuingia',6],['offertory','🍞 Sadaka',10],['communion','🍷 Komunio',10],['thanksgiving','🙏 Shukrani',10]]")
+          s = s.replace("special.forEach(([k])=>o[k]=Array.from({length:6},(_,i)=>readSongField(k,i)))", "special.forEach(([k,,n])=>o[k]=Array.from({length:n||10},(_,i)=>readSongField(k,i)))")
+          s = s.replace("special.forEach(([k])=>{const a=Array.isArray(raw[k])?raw[k]:[];out[k]=Array.from({length:6},(_,i)=>typeof a[i]==='string'?{id:a[i],key:null}:a[i]||{id:null,key:null})})", "special.forEach(([k,,n])=>{const a=Array.isArray(raw[k])?raw[k]:[];out[k]=Array.from({length:n||10},(_,i)=>typeof a[i]==='string'?{id:a[i],key:null}:a[i]||{id:null,key:null})})")
+          s = s.replace("special.forEach(([k,label])=>{if($(k).checked){const rows=previewRows(Array.from({length:6},(_,i)=>readSongField(k,i)));", "special.forEach(([k,label,n])=>{if($(k).checked){const rows=previewRows(Array.from({length:n||10},(_,i)=>readSongField(k,i)));" )
 
-          p.write_text(s2, encoding='utf-8')
+          p.write_text(s,encoding='utf-8')
           PY
-      - name: Commit patch
+      - name: Validate and commit
         run: |
+          python3 -m py_compile /dev/stdin <<'PY'
+          print('ok')
+          PY
+          grep -q '1. Mwanzo / Kuingia' mass-programmes.html
+          grep -q '5. Sadaka' mass-programmes.html
+          grep -q '8. Komunio' mass-programmes.html
+          grep -q '9. Shukrani' mass-programmes.html
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mass-programmes.html
