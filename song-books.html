@@ -78,18 +78,70 @@ function litInfo(s){if((s.category==='Zaburi'||s.category==='Shangilio')&&(s.lit
 function resources(s){let a=[];if(s.score_url)a.push(`<a class="resource" target="_blank" href="${esc(s.score_url)}">🎼 Noti</a>`);if(s.midi_url)a.push(`<a class="resource" target="_blank" href="${esc(s.midi_url)}">🎹 MIDI</a>`);if(s.audio_url)a.push(`<a class="resource" target="_blank" href="${esc(s.audio_url)}">🔊 Audio</a>`);return a.join('')}
 function previewBook(){let arr=orderedSongs();if(!arr.length)return toast('Chagua angalau wimbo mmoja.',true);let title=$('title').value.trim()||'Kitabu cha Nyimbo';let sub=$('sub').value.trim();$('preview').innerHTML=`<div class="preview-cover"><h3>📖 ${esc(title)}</h3>${sub?`<p>${esc(sub)}</p>`:''}<small>Kwaya Kristo Mfalme</small></div>${arr.map((s,i)=>`<div class="preview-song"><h4>${i+1}. ${esc(s.title)}</h4><div class="meta">${s.composer?'Mtunzi: '+esc(s.composer)+' • ':''}${s.language?'Lugha: '+esc(s.language)+' • ':''}${s.category?'Kundi: '+esc(s.category):''}${s.key_signature?' • Key: '+esc(s.key_signature):''}</div>${litInfo(s)}<div class="lyrics">${esc(s.lyrics||'Maneno ya wimbo hayajawekwa.')}</div><div>${resources(s)}</div></div>`).join('')}`;$('preview').style.display='block';$('preview').scrollIntoView({behavior:'smooth',block:'start'})}
 function drawFooter(doc,w,h){let pages=doc.getNumberOfPages();for(let i=1;i<=pages;i++){doc.setPage(i);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(110);doc.text(`Kwaya Kristo Mfalme • ${i}/${pages}`,w/2,h-8,{align:'center'});doc.setTextColor(31)}}
-function addWrapped(doc,text,x,y,maxW,lineH,h){let lines=doc.splitTextToSize(text,maxW);for(const line of lines){if(y>h-18){doc.addPage();y=18}doc.text(line,x,y);y+=lineH}return y}
-function makePDF(){let arr=orderedSongs();if(!arr.length)return toast('Chagua angalau wimbo mmoja.',true);const {jsPDF}=window.jspdf;let size=$('pageSize').value||'A4',orientation=$('orientation').value||'portrait';let doc=new jsPDF({format:size.toLowerCase(),orientation,unit:'mm'});let w=doc.internal.pageSize.getWidth(),h=doc.internal.pageSize.getHeight(),margin=18,maxW=w-margin*2,title=$('title').value.trim()||'Kitabu cha Nyimbo',sub=$('sub').value.trim(),desc=$('desc').value.trim();
+function addFlowText(doc,text,x,y,maxW,lineH,h,bottom){let lines=doc.splitTextToSize(text,maxW);for(const line of lines){if(y>bottom){doc.addPage();y=18}doc.text(line,x,y);y+=lineH}return y}
+function addFlowBlock(doc,text,x,y,maxW,lineH,h,bottom,spaceAfter=0){if(!text)return y;let lines=doc.splitTextToSize(text,maxW);if(y+lines.length*lineH>bottom&&y>18){doc.addPage();y=18}for(const line of lines){if(y>bottom){doc.addPage();y=18}doc.text(line,x,y);y+=lineH}return y+spaceAfter}
+function makePDF(){
+let arr=orderedSongs();if(!arr.length)return toast('Chagua angalau wimbo mmoja.',true);
+const {jsPDF}=window.jspdf;
+let size=$('pageSize').value||'A4',orientation=$('orientation').value||'portrait';
+let doc=new jsPDF({format:size.toLowerCase(),orientation,unit:'mm'});
+let w=doc.internal.pageSize.getWidth(),h=doc.internal.pageSize.getHeight(),margin=18,maxW=w-margin*2,bottom=h-18;
+let title=$('title').value.trim()||'Kitabu cha Nyimbo',sub=$('sub').value.trim(),desc=$('desc').value.trim();
 // Jalada
-doc.setFont('helvetica','bold');doc.setFontSize(24);doc.text(title,w/2,45,{align:'center',maxWidth:maxW});if(sub){doc.setFont('helvetica','normal');doc.setFontSize(13);doc.text(sub,w/2,58,{align:'center',maxWidth:maxW})}if(desc){doc.setFontSize(10);doc.text(doc.splitTextToSize(desc,maxW),w/2,72,{align:'center',maxWidth:maxW})}doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('KWAYA KRISTO MFALME',w/2,h-55,{align:'center'});doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('Kitabu cha Maneno ya Nyimbo',w/2,h-45,{align:'center'});
-// Yaliyomo
-doc.addPage();doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text('YALIYOMO',margin,25);let tocStart=35;let starts=[];
-// Song pages
+ doc.setFont('helvetica','bold');doc.setFontSize(24);doc.text(title,w/2,45,{align:'center',maxWidth:maxW});
+ if(sub){doc.setFont('helvetica','normal');doc.setFontSize(13);doc.text(sub,w/2,58,{align:'center',maxWidth:maxW})}
+ if(desc){doc.setFontSize(10);doc.text(doc.splitTextToSize(desc,maxW),w/2,72,{align:'center',maxWidth:maxW})}
+ doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('KWAYA KRISTO MFALME',w/2,h-55,{align:'center'});
+ doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('Kitabu cha Maneno ya Nyimbo',w/2,h-45,{align:'center'});
+// Reserve TOC pages before song pages so song start pages remain stable.
+let tocLinesPerPage=Math.max(8,Math.floor((h-52)/7));
+let tocPages=Math.max(1,Math.ceil(arr.length/tocLinesPerPage));
+for(let p=0;p<tocPages;p++)doc.addPage();
+// Song content flows continuously across pages.
 doc.addPage();
-arr.forEach((s,i)=>{if(i>0)doc.addPage();starts.push(doc.getNumberOfPages());let y=22;doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text(`${i+1}. ${s.title}`,margin,y,{maxWidth:maxW});y+=9;doc.setFont('helvetica','normal');doc.setFontSize(8);let meta=[s.composer?'Mtunzi: '+s.composer:'',s.language?'Lugha: '+s.language:'',s.category?'Kundi: '+s.category:'',s.key_signature?'Key: '+s.key_signature:''].filter(Boolean).join(' • ');if(meta){doc.text(meta,margin,y,{maxWidth:maxW});y+=8}if((s.category==='Zaburi'||s.category==='Shangilio')&&(s.liturgical_period||s.sunday_name||s.liturgical_year)){doc.setFontSize(8);let li=[s.liturgical_period,s.liturgical_year?'Mwaka '+s.liturgical_year:'',s.sunday_name].filter(Boolean).join(' • ');doc.text('Liturujia: '+li,margin,y,{maxWidth:maxW});y+=8}doc.setFont('helvetica','normal');doc.setFontSize(11);let lyrics=s.lyrics||'Maneno ya wimbo hayajawekwa.';y=addWrapped(doc,lyrics,margin,y,maxW,6.2,h);y+=5;if(s.score_url||s.midi_url||s.audio_url){doc.setFontSize(8);doc.setFont('helvetica','bold');doc.text('Rasilimali:',margin,y);y+=5;doc.setFont('helvetica','normal');if(s.score_url){doc.textWithLink('Noti (PDF)',margin,y,{url:s.score_url});y+=5}if(s.midi_url){doc.textWithLink('MIDI',margin,y,{url:s.midi_url});y+=5}if(s.audio_url){doc.textWithLink('Audio',margin,y,{url:s.audio_url});y+=5}}});
-// Jaza yaliyomo kwenye ukurasa 2
-doc.setPage(2);doc.setFont('helvetica','normal');doc.setFontSize(11);let ty=tocStart;arr.forEach((s,i)=>{let line=`${i+1}. ${s.title}`;if(ty>h-18){doc.addPage();ty=20}doc.text(line,margin,ty,{maxWidth:maxW-25});doc.text(String(starts[i]),w-margin,ty,{align:'right'});ty+=7});
-drawFooter(doc,w,h);let filename=title.replace(/[^a-z0-9\-_ ]/gi,'').trim().replace(/\s+/g,'_')||'Kitabu_cha_Nyimbo';doc.save(filename+'.pdf');toast('PDF ya maneno ya nyimbo imetengenezwa.')}
+let starts=[],y=22;
+arr.forEach((s,i)=>{
+ let heading=`${i+1}. ${s.title}`;
+ doc.setFont('helvetica','bold');doc.setFontSize(16);
+ let headingLines=doc.splitTextToSize(heading,maxW);
+ let meta=[s.composer?'Mtunzi: '+s.composer:'',s.language?'Lugha: '+s.language:'',s.category?'Kundi: '+s.category:'',s.key_signature?'Key: '+s.key_signature:''].filter(Boolean).join(' • ');
+ let lit=(s.category==='Zaburi'||s.category==='Shangilio')&&(s.liturgical_period||s.sunday_name||s.liturgical_year)?'Liturujia: '+[s.liturgical_period,s.liturgical_year?'Mwaka '+s.liturgical_year:'',s.sunday_name].filter(Boolean).join(' • '):'';
+ let lyrics=doc.splitTextToSize(s.lyrics||'Maneno ya wimbo hayajawekwa.',maxW);
+ let resourceCount=(s.score_url?1:0)+(s.midi_url?1:0)+(s.audio_url?1:0);
+ let estimated=headingLines.length*7+(meta?9:0)+(lit?9:0)+Math.min(lyrics.length,3)*6.2+(resourceCount?10:0)+8;
+ if(y+Math.min(estimated,40)>bottom){doc.addPage();y=22}
+ starts.push(doc.getNumberOfPages());
+ doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text(headingLines,margin,y,{lineHeightFactor:1.15});y+=headingLines.length*7;
+ if(meta){doc.setFont('helvetica','normal');doc.setFontSize(8);y=addFlowBlock(doc,meta,margin,y,maxW,4.5,h,bottom,4)}
+ if(lit){doc.setFont('helvetica','normal');doc.setFontSize(8);y=addFlowBlock(doc,lit,margin,y,maxW,4.5,h,bottom,4)}
+ doc.setFont('helvetica','normal');doc.setFontSize(11);
+ for(const line of lyrics){if(y>bottom){doc.addPage();y=22}doc.text(line,margin,y);y+=6.2}
+ y+=3;
+ if(resourceCount){
+   if(y+7>bottom){doc.addPage();y=22}
+   doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text('Rasilimali:',margin,y);y+=5;
+   doc.setFont('helvetica','normal');
+   if(s.score_url){if(y>bottom){doc.addPage();y=22}doc.textWithLink('Noti (PDF)',margin,y,{url:s.score_url});y+=5}
+   if(s.midi_url){if(y>bottom){doc.addPage();y=22}doc.textWithLink('MIDI',margin,y,{url:s.midi_url});y+=5}
+   if(s.audio_url){if(y>bottom){doc.addPage();y=22}doc.textWithLink('Audio',margin,y,{url:s.audio_url});y+=5}
+ }
+ y+=7;
+});
+// Fill reserved TOC pages with the actual start page of every song.
+doc.setPage(2);let index=0;
+for(let p=0;p<tocPages;p++){
+ if(p>0)doc.setPage(2+p);
+ doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text('YALIYOMO',margin,25);
+ doc.setFont('helvetica','normal');doc.setFontSize(10);let ty=36;
+ for(let n=0;n<tocLinesPerPage&&index<arr.length;n++,index++){
+   let s=arr[index],line=`${index+1}. ${s.title}`,page=starts[index];
+   doc.text(line,margin,ty,{maxWidth:maxW-24});doc.text(String(page),w-margin,ty,{align:'right'});ty+=7;
+ }
+}
+drawFooter(doc,w,h);
+let filename=title.replace(/[^a-z0-9\-_ ]/gi,'').trim().replace(/\s+/g,'_')||'Kitabu_cha_Nyimbo';
+doc.save(filename+'.pdf');toast('PDF ya kitabu imetengenezwa kwa mpangilio unaoendelea.');
+}
 async function logout(){await db.auth.signOut();location.href='index.html'}
 newBook();load();
 </script>
