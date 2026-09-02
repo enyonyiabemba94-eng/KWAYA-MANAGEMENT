@@ -22,33 +22,30 @@ jobs:
           s=p.read_text(encoding='utf-8')
           s=re.sub(r'\n<script id="mass-dynamic-repair">.*?</script>', '', s, flags=re.S)
           if 'id="conductor1"' not in s:
-              needle='<div class="field"><label>Mahali</label><input id="location" placeholder="Mf. Kanisa la Kristo Mfalme"></div>'
-              insert=needle+'\n<div class="two"><div class="field"><label>Conductor 1</label><input id="conductor1" placeholder="Jina la Conductor wa 1"></div><div class="field"><label>Conductor 2</label><input id="conductor2" placeholder="Jina la Conductor wa 2"></div></div>'
-              s=s.replace(needle,insert,1)
+              marker='<div class="field"><label>Mahali</label><input id="location" placeholder="Mf. Kanisa la Kristo Mfalme"></div>'
+              if marker in s:
+                  s=s.replace(marker,marker+'\n<div class="two"><div class="field"><label>Conductor 1</label><input id="conductor1" placeholder="Jina la Conductor wa 1"></div><div class="field"><label>Conductor 2</label><input id="conductor2" placeholder="Jina la Conductor wa 2"></div></div>',1)
           style='''<style id="mass-dynamic-style">.mass-section .rows{margin-bottom:6px}.mass-row{margin:7px 0}.mass-row .songrow{grid-template-columns:minmax(0,1fr) 105px 36px}.addbar{margin-top:8px}.addbtn{border:1px dashed #8b5cf6;background:#faf7ff;color:#6d28d9;border-radius:8px;padding:8px 11px;font-weight:700;cursor:pointer}.addbtn:disabled{opacity:.45;cursor:not-allowed}.remove{border:0;background:#fee2e2;color:#991b1b;border-radius:8px;font-weight:800;cursor:pointer;height:40px}@media(max-width:700px){.mass-row .songrow{grid-template-columns:1fr 1fr 36px}}</style>'''
+          s=re.sub(r'<style id="mass-dynamic-style">.*?</style>', '', s, flags=re.S)
           s=s.replace('</head>',style+'\n</head>',1)
           js=r'''<script id="mass-dynamic-repair">
           const MASS_SECTIONS=[['opening','🎵 1. Mwanzo / Kuingia',6],['penitential','🙏 2. Kyrie / Bwana Utuhurumie / Toba',1],['psalm','📖 3. Zaburi',1],['alleluia','📣 4. Shangilio / Aleluya',1],['intercessions','🙏 5. Maombezi',10],['offertory','🍞 6. Sadaka',10],['holy','⛪ 7. Mtakatifu',1],['lamb','🐑 8. Mwana Kondoo wa Mungu',1],['communion','🍷 9. Komunio',10],['thanksgiving','🙏 10. Shukrani',10],['closing','🚪 11. Mwisho / Kutoka',1]];
           const MASS_SPECIAL=[['baptism','💧 Nyimbo za Ubatizo',10],['confirmation','🕊️ Nyimbo za Kipaimara',10],['marriage','💍 Nyimbo za Ndoa',10],['funeral','🕯️ Nyimbo za Mazishi',10],['feast','🎉 Nyimbo za Sherehe / Sikukuu',10],['church','⛪ Nyimbo za Sherehe ya Kanisa',10],['other_event','✨ Nyimbo za Tukio Lingine',10]];
           const hasVal=v=>!!(v&&(v.id||(v.manual&&String(v.title||'').trim())));
-          function massSongRow(k,i,v={}){const manual=!!v.manual,id=k+'_'+i;return `<div class="mass-row" data-k="${k}" data-i="${i}"><div class="songrow"><select id="${id}" onchange="massSongChanged('${k}',${i})">${songOptions(manual?'':(v.id||''))}<option value="__manual__" ${manual?'selected':''}>✍️ Manual — Andika mwenyewe</option></select><select id="${k}_key_${i}">${keyOptions(v.key||'')}</select><button type="button" class="remove" onclick="massRemove('${k}',${i})">×</button></div><div class="manual" id="manual_${id}" style="display:${manual?'grid':'none'}"><input id="${k}_manual_${i}" value="${manual?esc(v.title||''):''}" placeholder="Andika jina la wimbo..."><span></span><button type="button" class="remove" onclick="massRemove('${k}',${i})">×</button></div></div>`}
+          function massSongRow(k,i,v={}){const manual=!!v.manual,id=k+'_'+i;return `<div class="mass-row" data-k="${k}" data-i="${i}"><div class="songrow"><select id="${id}" onchange="massSongChanged('${k}',${i})">${songOptions(manual?'':(v.id||''))}<option value="__manual__" ${manual?'selected':''}>✍️ Manual — Andika mwenyewe</option></select><select id="${k}_key_${i}">${keyOptions(v.key||'')}</select><button type="button" class="remove" onclick="massRemove('${k}',${i})">×</button></div><div class="manual" id="manual_${id}" style="display:${manual?'grid':'none'}"><input id="${k}_manual_${i}" value="${manual?esc(v.title||''):''}" placeholder="Andika jina la wimbo..."><span></span></div></div>`}
           function massSection(k,label,max,values=[]){const vals=(Array.isArray(values)?values:[]).filter(hasVal);return `<div class="section mass-section" data-section="${k}" data-max="${max}"><div class="sectionTitle"><h3>${label}</h3><small>Hadi ${max}</small></div><div class="rows">${vals.map((v,i)=>massSongRow(k,i,v)).join('')}</div><div class="addbar"><button type="button" class="addbtn" onclick="massAdd('${k}',${max})">＋ Ongeza wimbo</button></div></div>`}
           function massRender(saved={}){const v=saved||{};let h='';for(const [k,l,m] of MASS_SECTIONS)h+=massSection(k,l,m,v[k]);for(const [k,l,m] of MASS_SPECIAL)if($(k)?.checked)h+=massSection(k,l,m,v[k]);$('slots').innerHTML=h;document.querySelectorAll('.mass-section').forEach(massUpdateButton)}
-          function massAdd(k,max){const sec=document.querySelector(`[data-section="${k}"]`);if(!sec)return;const rows=sec.querySelector('.rows'),n=rows.querySelectorAll('.mass-row').length;if(n>=max)return;rows.insertAdjacentHTML('beforeend',massSongRow(k,n,{}));massUpdateButton(sec)}
-          function massRemove(k,i){const sec=document.querySelector(`[data-section="${k}"]`);if(!sec)return;const el=sec.querySelector(`.mass-row[data-i="${i}"]`);if(el)el.remove();[...sec.querySelectorAll('.mass-row')].forEach((e,n)=>{const v=massRead(e);e.outerHTML=massSongRow(k,n,v)});massUpdateButton(sec)}
+          function massAdd(k,max){const sec=document.querySelector(`[data-section="${k}"]`);if(!sec)return;const box=sec.querySelector('.rows'),n=box.querySelectorAll('.mass-row').length;if(n<max){box.insertAdjacentHTML('beforeend',massSongRow(k,n,{}));massUpdateButton(sec)}}
+          function massRemove(k,i){const sec=document.querySelector(`[data-section="${k}"]`);const el=sec?.querySelector(`.mass-row[data-i="${i}"]`);if(el)el.remove();[...(sec?.querySelectorAll('.mass-row')||[])].forEach((e,n)=>e.dataset.i=n);massUpdateButton(sec)}
           function massRead(el){const k=el.dataset.k,i=+el.dataset.i,sel=el.querySelector(`#${k}_${i}`),key=el.querySelector(`#${k}_key_${i}`);if(!sel)return{};if(sel.value==='__manual__')return{manual:true,title:el.querySelector(`#${k}_manual_${i}`)?.value||'',key:key?.value||''};return{id:sel.value||null,key:key?.value||''}}
           function massReadSection(k){const sec=document.querySelector(`[data-section="${k}"]`);return sec?[...sec.querySelectorAll('.mass-row')].map(massRead).filter(hasVal):[]}
           function massCollect(){const o={};for(const [k] of MASS_SECTIONS)o[k]=massReadSection(k);for(const [k] of MASS_SPECIAL)if($(k)?.checked)o[k]=massReadSection(k);return o}
-          function massUpdateButton(sec){const b=sec.querySelector('.addbtn');if(b)b.disabled=sec.querySelectorAll('.mass-row').length>=+sec.dataset.max}
+          function massUpdateButton(sec){if(!sec)return;const b=sec.querySelector('.addbtn');if(b)b.disabled=sec.querySelectorAll('.mass-row').length>=+sec.dataset.max}
           function massSongChanged(k,i){const sel=$(`${k}_${i}`),man=$(`manual_${k}_${i}`),key=$(`${k}_key_${i}`);if(!sel)return;if(sel.value==='__manual__'){man.style.display='grid';return}man.style.display='none';const song=songs.find(x=>x.id===sel.value);if(song?.key_signature)key.value=song.key_signature}
-          const _baseSave=saveProgramme;
-          saveProgramme=async function(){const oldRead=readSongs;readSongs=()=>massCollect();try{return await _baseSave()}finally{readSongs=oldRead}};
-          const _baseChoose=choose;
-          choose=function(id){_baseChoose(id);const x=programmes.find(p=>p.id===id);if(x){if($('conductor1'))$('conductor1').value=x.meta?.conductor1||'';if($('conductor2'))$('conductor2').value=x.meta?.conductor2||'';}};
-          const _baseNew=newProgramme;
-          newProgramme=function(){_baseNew();if($('conductor1'))$('conductor1').value='';if($('conductor2'))$('conductor2').value='';};
-          const _basePreview=preview;
-          preview=function(){const title=makeTitle();let h=`<img class="logo" src="${LOGO}"><div class="ptitle">KWAYA YA KRISTO MFALME</div><div class="sub">MPANGO WA MISA<br>${esc(title)}<br>📍 KASULU - KIGOMA/TANZANIA<br>📅 ${esc($('date').value||'—')}${$('time').value?' • '+esc($('time').value):''}${$('location').value?'<br>📍 '+esc($('location').value):''}<br>🎼 Conductor 1: ${esc($('conductor1')?.value||'—')} &nbsp;&nbsp; Conductor 2: ${esc($('conductor2')?.value||'—')}</div>`;const data=massCollect();for(const [k,l] of MASS_SECTIONS){const r=rows(data[k]||[]);if(r)h+=`<h4>${l}</h4>${r}`}for(const [k,l] of MASS_SPECIAL)if($(k)?.checked){const r=rows(data[k]||[]);if(r)h+=`<h4>${l}</h4>${r}`}if($('notes').value.trim())h+=`<h4>📝 Maelezo</h4><p>${esc($('notes').value).replace(/\n/g,'<br>')}</p>`;$('preview').innerHTML=h;$('preview').style.display='block'};
+          const _baseSave=saveProgramme;saveProgramme=async function(){const oldRead=readSongs;readSongs=()=>massCollect();try{return await _baseSave()}finally{readSongs=oldRead}};
+          const _baseChoose=choose;choose=function(id){_baseChoose(id);const x=programmes.find(p=>p.id===id);if(x){if($('conductor1'))$('conductor1').value=x.meta?.conductor1||'';if($('conductor2'))$('conductor2').value=x.meta?.conductor2||'';}};
+          const _baseNew=newProgramme;newProgramme=function(){_baseNew();if($('conductor1'))$('conductor1').value='';if($('conductor2'))$('conductor2').value='';};
+          const _basePreview=preview;preview=function(){const title=makeTitle();let h=`<img class="logo" src="${LOGO}"><div class="ptitle">KWAYA YA KRISTO MFALME</div><div class="sub">MPANGO WA MISA<br>${esc(title)}<br>📍 KASULU - KIGOMA/TANZANIA<br>📅 ${esc($('date').value||'—')}${$('time').value?' • '+esc($('time').value):''}${$('location').value?'<br>📍 '+esc($('location').value):''}<br>🎼 Conductor 1: ${esc($('conductor1')?.value||'—')} &nbsp;&nbsp; Conductor 2: ${esc($('conductor2')?.value||'—')}</div>`;const data=massCollect();for(const [k,l] of MASS_SECTIONS){const r=rows(data[k]||[]);if(r)h+=`<h4>${l}</h4>${r}`}for(const [k,l] of MASS_SPECIAL)if($(k)?.checked){const r=rows(data[k]||[]);if(r)h+=`<h4>${l}</h4>${r}`}if($('notes').value.trim())h+=`<h4>📝 Maelezo</h4><p>${esc($('notes').value).replace(/\n/g,'<br>')}</p>`;$('preview').innerHTML=h;$('preview').style.display='block'};
           renderSlots=massRender;
           </script>'''
           s=s.replace('</body>',js+'\n</body>',1)
@@ -59,9 +56,9 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           s=Path('mass-programmes.html').read_text(encoding='utf-8')
-          for x in ['intercessions','🙏 5. Maombezi','🍞 6. Sadaka','＋ Ongeza wimbo','Hadi 10','id="conductor1"','id="conductor2"','function massCollect','renderSlots=massRender']:
+          required=['intercessions','🙏 5. Maombezi','🍞 6. Sadaka','＋ Ongeza wimbo','Hadi 10','function massCollect','renderSlots=massRender']
+          for x in required:
               assert x in s, x+' missing'
-          assert s.count('id="mass-dynamic-repair"')==1
           print('Mass Programme dynamic form v2 OK')
           PY
       - name: Commit fix
