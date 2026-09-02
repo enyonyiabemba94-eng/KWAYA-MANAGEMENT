@@ -15,45 +15,78 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Apply choir branding and mass programme settings
+      - name: Apply choir branding and mass programme form
         run: |
           python3 - <<'PY'
           from pathlib import Path
 
-          logo='https://raw.githubusercontent.com/enyonyiab94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg'
+          logo='https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg'
 
           for p in Path('.').glob('*.html'):
               s=p.read_text(encoding='utf-8')
               old=s
               s=s.replace('🎶 KWAYA MANAGEMENT','🎶 KWAYA YA KRISTO MFALME')
-              s=s.replace('Usimamizi wa Kwaya Kristo Mfalme','📍 NYARUGUSU CAMP')
               s=s.replace('KWAYA MANAGEMENT','KWAYA YA KRISTO MFALME')
 
               if 'class="brand"' in s and logo not in s:
                   s=s.replace('<div class="brand">','<div class="brand"><img class="brand-logo" src="'+logo+'" alt="Kwaya ya Kristo Mfalme">',1)
                   s=s.replace('</style>',' .brand{display:flex;align-items:center;gap:10px}.brand-logo{width:44px;height:44px;object-fit:cover;border-radius:50%;background:#fff;flex:none} </style>',1)
 
-              s=s.replace('<small>Usimamizi wa Kwaya</small>','<small>Usimamizi wa Kwaya</small><span class="brand-location">📍 NYARUGUSU CAMP</span>')
-              if 'brand-location' in s:
-                  s=s.replace('</style>',' .brand-location{display:block;color:#d8ccf0;font-size:10px;margin-top:3px;font-weight:600} </style>',1)
-
               if p.name == 'mass-programmes.html':
-                  # Requested song-slot counts.
                   s=s.replace("['opening','🎵 Nyimbo za Kuingia',3]", "['opening','🎵 Nyimbo za Kuingia',6]")
                   s=s.replace("['offertory','🍞 Sadaka',6]", "['offertory','🍞 Sadaka',10]")
                   s=s.replace("['communion','🍷 Komunio',6]", "['communion','🍷 Komunio',10]")
                   s=s.replace("['thanksgiving','🙏 Shukrani',4]", "['thanksgiving','🙏 Shukrani',10]")
-
-                  # Special-event song sections: 10 slots for every event type.
                   s=s.replace("const special=[['baptism','💧 Nyimbo za Ubatizo'],['confirmation','🕊️ Nyimbo za Kipaimara'],['marriage','💍 Nyimbo za Ndoa']]", "const special=[['baptism','💧 Nyimbo za Ubatizo',10],['confirmation','🕊️ Nyimbo za Kipaimara',10],['marriage','💍 Nyimbo za Ndoa',10],['funeral','🕯️ Nyimbo za Mazishi',10],['feast','🎉 Nyimbo za Sherehe / Sikukuu',10],['church','⛪ Nyimbo za Sherehe ya Kanisa',10],['other_event','✨ Nyimbo za Tukio Lingine',10]]")
 
-                  # Add missing special-event checkboxes while preserving the existing three.
                   old_checks='<label class="check"><input type="checkbox" id="baptism" onchange="specialChanged()"> 💧 Ubatizo</label><label class="check"><input type="checkbox" id="confirmation" onchange="specialChanged()"> 🕊️ Kipaimara</label><label class="check"><input type="checkbox" id="marriage" onchange="specialChanged()"> 💍 Ndoa</label>'
                   new_checks='<label class="check"><input type="checkbox" id="baptism" onchange="specialChanged()"> 💧 Ubatizo</label><label class="check"><input type="checkbox" id="confirmation" onchange="specialChanged()"> 🕊️ Kipaimara</label><label class="check"><input type="checkbox" id="marriage" onchange="specialChanged()"> 💍 Ndoa</label><label class="check"><input type="checkbox" id="funeral" onchange="specialChanged()"> 🕯️ Mazishi</label><label class="check"><input type="checkbox" id="feast" onchange="specialChanged()"> 🎉 Sherehe / Sikukuu</label><label class="check"><input type="checkbox" id="church" onchange="specialChanged()"> ⛪ Sherehe ya Kanisa</label><label class="check"><input type="checkbox" id="other_event" onchange="specialChanged()"> ✨ Tukio Lingine</label>'
                   s=s.replace(old_checks,new_checks)
 
-                  # Remove duplicate old location/logo artifacts from the mass-programme sidebar.
-                  s=s.replace('<span class="brand-location">📍 NYARUGUSU CAMP</span><span class="brand-location">📍 NYARUGUSU CAMP</span><span class="brand-location">📍 KASULU - KIGOMA/TANZANIA</span>', '<span class="brand-location">📍 KASULU - KIGOMA/TANZANIA</span>')
+                  # Correct the visual and functional song-entry form. The order follows the Catholic Mass.
+                  override=r'''<script>
+          function renderSlots(data){
+            const root=$('slots');
+            if(!root)return;
+            data=data||{};
+            const getVals=(key)=>{
+              const v=data[key];
+              return Array.isArray(v)?v:[];
+            };
+            const section=(key,label,count)=>{
+              const vals=getVals(key);
+              let h='<div class="section"><div class="sectionTitle"><h3>'+label+'</h3><small>'+count+' nafasi</small></div>';
+              for(let i=0;i<count;i++) h+=renderSongField(key,i,vals[i]||{});
+              return h+'</div>';
+            };
+            const single=(key,label)=>section(key,label,1);
+            let html='';
+            html+=section('opening','🎵 1. Mwanzo / Kuingia',6);
+            html+=single('penitential','🙏 2. Kyrie / Bwana Utuhurumie / Toba');
+            html+=single('psalm','📖 3. Zaburi');
+            html+=single('alleluia','📣 4. Shangilio / Aleluya');
+            html+=section('offertory','🍞 5. Sadaka',10);
+            html+=single('holy','⛪ 6. Mtakatifu');
+            html+=single('lamb','🐑 7. Mwana Kondoo wa Mungu');
+            html+=section('communion','🍷 8. Komunio',10);
+            html+=section('thanksgiving','🙏 9. Shukrani',10);
+            html+=single('closing','🚪 10. Mwisho / Kutoka');
+            const checkedSpecial=(typeof special!=='undefined'?special:[]).filter(x=>$(x[0])&&$(x[0]).checked);
+            for(const x of checkedSpecial) html+=section(x[0],x[1],x[2]||10);
+            root.innerHTML=html;
+          }
+          function specialChanged(){ renderSlots(); }
+          </script>'''
+                  marker='newProgramme();load();</script>'
+                  if marker in s and 'function renderSlots(data){' not in s:
+                      s=s.replace(marker,override+'newProgramme();load();</script>',1)
+                  elif marker in s:
+                      # Replace the previously injected override if this workflow runs again.
+                      import re
+                      s=re.sub(r'<script>\s*function renderSlots\(data\)\{.*?</script>newProgramme\(\);load\(\);</script>',override+'newProgramme();load();</script>',s,count=1,flags=re.S)
+
+                  # Keep the correct Kasulu branding on this page.
+                  s=s.replace('<span class="brand-location">📍 NYARUGUSU CAMP</span><span class="brand-location">📍 KASULU - KIGOMA/TANZANIA</span>', '<span class="brand-location">📍 KASULU - KIGOMA/TANZANIA</span>')
 
               if s != old:
                   p.write_text(s,encoding='utf-8')
@@ -67,6 +100,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes needed.'
           else
-            git commit -m 'Update mass programme song slot counts'
+            git commit -m 'Fix mass programme song entry form'
             git push
           fi
