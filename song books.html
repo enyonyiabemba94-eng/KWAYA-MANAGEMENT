@@ -1,0 +1,2980 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Vitabu vya Nyimbo | Kwaya Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f4f6f9;
+    color:#172033;
+}
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    width:250px;
+    height:100vh;
+    background:#111827;
+    color:white;
+    padding:20px 14px;
+    overflow-y:auto;
+    z-index:1000;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 8px 25px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+    margin-bottom:15px;
+}
+
+.brand-icon{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+    background:white;
+    color:#111827;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:23px;
+}
+
+.brand-text h2{
+    font-size:16px;
+    margin-bottom:4px;
+}
+
+.brand-text span{
+    font-size:11px;
+    color:#9ca3af;
+}
+
+.nav-title{
+    font-size:11px;
+    color:#6b7280;
+    margin:18px 10px 8px;
+}
+
+.nav a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 13px;
+    color:#d1d5db;
+    text-decoration:none;
+    border-radius:9px;
+    margin-bottom:4px;
+    font-size:14px;
+}
+
+.nav a:hover{
+    background:#1f2937;
+    color:white;
+}
+
+.nav a.active{
+    background:#2563eb;
+    color:white;
+}
+
+.nav-icon{
+    width:22px;
+    text-align:center;
+}
+
+.main{
+    margin-left:250px;
+    min-height:100vh;
+}
+
+.topbar{
+    height:70px;
+    background:white;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:500;
+}
+
+.menu-btn{
+    display:none;
+    border:0;
+    background:#111827;
+    color:white;
+    width:40px;
+    height:40px;
+    border-radius:8px;
+    font-size:20px;
+}
+
+.page-title h1{
+    font-size:21px;
+    margin-bottom:4px;
+}
+
+.page-title p{
+    font-size:12px;
+    color:#6b7280;
+}
+
+.user-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.user-avatar{
+    width:38px;
+    height:38px;
+    background:#2563eb;
+    color:white;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.content{
+    padding:25px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-bottom:22px;
+}
+
+.stat-card{
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:13px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.stat-icon{
+    width:48px;
+    height:48px;
+    border-radius:12px;
+    background:#eff6ff;
+    color:#2563eb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+}
+
+.stat-card h3{
+    font-size:23px;
+    margin-bottom:3px;
+}
+
+.stat-card p{
+    font-size:12px;
+    color:#6b7280;
+}
+
+.layout{
+    display:grid;
+    grid-template-columns:360px 1fr;
+    gap:18px;
+}
+
+.card{
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:13px;
+    overflow:hidden;
+}
+
+.card-header{
+    padding:18px 20px;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.card-header h2{
+    font-size:16px;
+}
+
+.card-header span{
+    font-size:12px;
+    color:#6b7280;
+}
+
+.card-body{
+    padding:18px;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+.form-group label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:#374151;
+    margin-bottom:7px;
+}
+
+.form-group input,
+.form-group textarea{
+    width:100%;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    padding:11px 12px;
+    outline:none;
+    font-size:13px;
+    font-family:inherit;
+}
+
+.form-group textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus{
+    border-color:#2563eb;
+}
+
+.btn{
+    border:0;
+    border-radius:9px;
+    height:42px;
+    padding:0 14px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:700;
+}
+
+.btn-primary{
+    background:#2563eb;
+    color:white;
+}
+
+.btn-primary:hover{
+    background:#1d4ed8;
+}
+
+.btn-secondary{
+    background:#f3f4f6;
+    color:#374151;
+}
+
+.btn-success{
+    background:#166534;
+    color:white;
+}
+
+.btn-danger{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.btn:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.full-btn{
+    width:100%;
+}
+
+.book-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.book-item{
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    padding:13px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.book-item:hover{
+    background:#f9fafb;
+}
+
+.book-item.selected{
+    border-color:#2563eb;
+    background:#eff6ff;
+}
+
+.book-name{
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:5px;
+}
+
+.book-meta{
+    color:#6b7280;
+    font-size:11px;
+}
+
+.empty{
+    text-align:center;
+    padding:35px 15px;
+    color:#6b7280;
+}
+
+.empty-icon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+.search{
+    position:relative;
+    margin-bottom:12px;
+}
+
+.search input{
+    width:100%;
+    height:42px;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    padding:0 12px 0 38px;
+    outline:none;
+}
+
+.search span{
+    position:absolute;
+    left:13px;
+    top:12px;
+    color:#6b7280;
+}
+
+.song-picker{
+    max-height:470px;
+    overflow-y:auto;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+}
+
+.song-option{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 12px;
+    border-bottom:1px solid #f0f1f3;
+}
+
+.song-option:last-child{
+    border-bottom:0;
+}
+
+.song-option:hover{
+    background:#f9fafb;
+}
+
+.song-option input{
+    width:18px;
+    height:18px;
+    cursor:pointer;
+}
+
+.song-number{
+    width:34px;
+    height:30px;
+    background:#eff6ff;
+    color:#2563eb;
+    border-radius:7px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    font-size:12px;
+    flex-shrink:0;
+}
+
+.song-info{
+    flex:1;
+}
+
+.song-title{
+    font-weight:700;
+    font-size:13px;
+}
+
+.song-composer{
+    font-size:11px;
+    color:#6b7280;
+    margin-top:3px;
+}
+
+.selected-songs{
+    margin-top:18px;
+}
+
+.selected-song{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:11px;
+    background:#f9fafb;
+    border:1px solid #e5e7eb;
+    border-radius:9px;
+    margin-bottom:7px;
+}
+
+.order-number{
+    width:28px;
+    height:28px;
+    background:#111827;
+    color:white;
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.selected-song-info{
+    flex:1;
+}
+
+.selected-song-info strong{
+    font-size:13px;
+    display:block;
+}
+
+.selected-song-info small{
+    color:#6b7280;
+    font-size:10px;
+}
+
+.remove-song{
+    border:0;
+    width:30px;
+    height:30px;
+    border-radius:7px;
+    background:#fee2e2;
+    color:#dc2626;
+    cursor:pointer;
+}
+
+.toolbar{
+    display:flex;
+    gap:8px;
+    margin-bottom:15px;
+    flex-wrap:wrap;
+}
+
+.toolbar .btn{
+    flex:1;
+    min-width:140px;
+}
+
+.book-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.book-actions .btn{
+    flex:1;
+    min-width:150px;
+}
+
+.cover-preview{
+    background:#111827;
+    color:white;
+    min-height:190px;
+    border-radius:10px;
+    padding:25px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    margin-bottom:18px;
+}
+
+.cover-preview .music{
+    font-size:38px;
+    margin-bottom:15px;
+}
+
+.cover-preview h2{
+    font-size:20px;
+    margin-bottom:8px;
+}
+
+.cover-preview p{
+    color:#d1d5db;
+    font-size:12px;
+}
+
+.selected-count{
+    font-size:12px;
+    color:#6b7280;
+    margin-bottom:10px;
+}
+
+.loading{
+    text-align:center;
+    padding:35px;
+    color:#6b7280;
+}
+
+.spinner{
+    width:28px;
+    height:28px;
+    border:3px solid #e5e7eb;
+    border-top-color:#2563eb;
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    margin:0 auto 10px;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    background:#111827;
+    color:white;
+    padding:13px 18px;
+    border-radius:9px;
+    font-size:13px;
+    opacity:0;
+    transform:translateY(80px);
+    transition:.3s;
+    z-index:3000;
+}
+
+.toast.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.toast.success{
+    background:#166534;
+}
+
+.toast.error{
+    background:#b91c1c;
+}
+
+@media(max-width:1000px){
+
+    .layout{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:900px){
+
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.3s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .menu-btn{
+        display:block;
+    }
+
+    .topbar{
+        padding:0 15px;
+    }
+
+    .content{
+        padding:15px;
+    }
+
+}
+
+@media(max-width:600px){
+
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .user-box span{
+        display:none;
+    }
+
+    .page-title h1{
+        font-size:17px;
+    }
+
+    .book-actions{
+        flex-direction:column;
+    }
+
+    .book-actions .btn{
+        width:100%;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">🎵</div>
+
+        <div class="brand-text">
+            <h2>KWAYA MANAGEMENT</h2>
+            <span>Usimamizi wa Kwaya</span>
+        </div>
+    </div>
+
+    <div class="nav-title">MENYU KUU</div>
+
+    <nav class="nav">
+
+        <a href="index.html">
+            <span class="nav-icon">🏠</span>
+            Dashboard
+        </a>
+
+        <a href="members.html">
+            <span class="nav-icon">👥</span>
+            Waimbaji
+        </a>
+
+        <a href="attendance.html">
+            <span class="nav-icon">📋</span>
+            Mahudhurio
+        </a>
+
+        <a href="songs.html">
+            <span class="nav-icon">🎵</span>
+            Nyimbo
+        </a>
+
+        <a href="song-books.html" class="active">
+            <span class="nav-icon">📚</span>
+            Vitabu vya Nyimbo
+        </a>
+
+        <a href="sacraments.html">
+            <span class="nav-icon">✝️</span>
+            Sakramenti
+        </a>
+
+        <a href="reports.html">
+            <span class="nav-icon">📊</span>
+            Ripoti
+        </a>
+
+        <a href="events.html">
+            <span class="nav-icon">📅</span>
+            Ratiba
+        </a>
+
+        <a href="announcements.html">
+            <span class="nav-icon">📢</span>
+            Taarifa
+        </a>
+
+        <a href="documents.html">
+            <span class="nav-icon">📄</span>
+            Nyaraka / PDF
+        </a>
+
+    </nav>
+
+    <div class="nav-title">MFUMO</div>
+
+    <nav class="nav">
+
+        <a href="settings.html">
+            <span class="nav-icon">⚙️</span>
+            Settings
+        </a>
+
+        <a href="#" onclick="logout();return false;">
+            <span class="nav-icon">🚪</span>
+            Toka
+        </a>
+
+    </nav>
+
+</aside>
+
+
+<!-- MAIN -->
+<main class="main">
+
+<header class="topbar">
+
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+    <div class="page-title">
+        <h1>Vitabu vya Nyimbo</h1>
+        <p>Unda na toa kitabu kizima cha nyimbo kwa PDF</p>
+    </div>
+
+    <div class="user-box">
+        <span>Mwanakwaya</span>
+        <div class="user-avatar">M</div>
+    </div>
+
+</header>
+
+
+<section class="content">
+
+    <!-- STATS -->
+    <div class="stats">
+
+        <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div>
+                <h3 id="totalBooks">0</h3>
+                <p>Vitabu</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🎵</div>
+            <div>
+                <h3 id="totalSongs">0</h3>
+                <p>Nyimbo Zilizopo</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📖</div>
+            <div>
+                <h3 id="selectedCount">0</h3>
+                <p>Nyimbo Kwenye Kitabu</p>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="layout">
+
+        <!-- LEFT -->
+        <div>
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h2>📚 Vitabu Vyangu</h2>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="newBook()"
+                    >
+                        ＋ Kitabu
+                    </button>
+                </div>
+
+                <div class="card-body">
+
+                    <div id="booksList">
+
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Inapakia vitabu...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT -->
+        <div>
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div>
+                        <h2 id="editorTitle">
+                            Tengeneza Kitabu
+                        </h2>
+
+                        <span id="editorSubtitle">
+                            Chagua nyimbo zako
+                        </span>
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <!-- COVER -->
+                    <div class="cover-preview">
+
+                        <div class="music">🎵</div>
+
+                        <h2 id="coverTitle">
+                            KITABU CHA NYIMBO
+                        </h2>
+
+                        <p id="coverSubtitle">
+                            KWAYA
+                        </p>
+
+                    </div>
+
+
+                    <!-- BOOK FORM -->
+                    <div class="form-group">
+
+                        <label>Jina la Kitabu *</label>
+
+                        <input
+                            type="text"
+                            id="bookName"
+                            placeholder="Mfano: Kitabu cha Nyimbo za Misa"
+                            oninput="updateCover()"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Maelezo ya Kitabu</label>
+
+                        <textarea
+                            id="bookDescription"
+                            placeholder="Maelezo mafupi ya kitabu..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="toolbar">
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="saveBook()"
+                        >
+                            💾 Hifadhi Kitabu
+                        </button>
+
+                        <button
+                            class="btn btn-secondary"
+                            onclick="newBook()"
+                        >
+                            🆕 Kitabu Kipya
+                        </button>
+
+                    </div>
+
+
+                    <hr style="
+                        border:0;
+                        border-top:1px solid #e5e7eb;
+                        margin:20px 0;
+                    ">
+
+
+                    <!-- SONG SELECTOR -->
+                    <div class="card-header" style="
+                        padding:0 0 14px;
+                        border:0;
+                    ">
+
+                        <h2>🎵 Chagua Nyimbo</h2>
+
+                        <span id="selectedLabel">
+                            0 zimechaguliwa
+                        </span>
+
+                    </div>
+
+
+                    <div class="search">
+
+                        <span>🔎</span>
+
+                        <input
+                            type="text"
+                            id="songSearch"
+                            placeholder="Tafuta wimbo..."
+                            oninput="filterAvailableSongs()"
+                        >
+
+                    </div>
+
+
+                    <div
+                        class="song-picker"
+                        id="songPicker"
+                    >
+
+                        <div class="loading">
+                            Inapakia nyimbo...
+                        </div>
+
+                    </div>
+
+
+                    <!-- SELECTED SONGS -->
+                    <div class="selected-songs">
+
+                        <div class="card-header" style="
+                            padding:0 0 12px;
+                            border:0;
+                        ">
+
+                            <h2>📖 Mpangilio wa Kitabu</h2>
+
+                            <span id="orderLabel">
+                                0 nyimbo
+                            </span>
+
+                        </div>
+
+
+                        <div id="selectedSongsList">
+
+                            <div class="empty">
+
+                                <div class="empty-icon">
+                                    🎵
+                                </div>
+
+                                <p>
+                                    Chagua nyimbo hapo juu.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTIONS -->
+                    <div
+                        class="book-actions"
+                        style="margin-top:20px;"
+                    >
+
+                        <button
+                            class="btn btn-success"
+                            onclick="saveBookSongs()"
+                        >
+                            💾 Hifadhi Nyimbo
+                        </button>
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="generateBookPDF()"
+                        >
+                            📄 Pakua PDF ya Kitabu
+                        </button>
+
+                        <button
+                            class="btn btn-secondary"
+                            onclick="printBook()"
+                        >
+                            🖨️ Chapisha Kitabu
+                        </button>
+
+                        <button
+                            class="btn btn-danger"
+                            onclick="deleteCurrentBook()"
+                        >
+                            🗑️ Futa Kitabu
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* =========================================
+   SUPABASE
+========================================= */
+
+const SUPABASE_URL =
+    "https://xulnkdrgjgajmcqntwga.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+let allBooks = [];
+let allSongs = [];
+let selectedSongs = [];
+let currentBookId = null;
+
+
+/* =========================================
+   INIT
+========================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        await loadSongs();
+
+        await loadBooks();
+
+        newBook();
+
+    }
+);
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+function toggleSidebar(){
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+
+}
+
+
+/* =========================================
+   LOAD SONGS
+========================================= */
+
+async function loadSongs(){
+
+    const picker =
+        document.getElementById("songPicker");
+
+    try{
+
+        const { data, error } =
+            await supabaseClient
+                .from("songs")
+                .select("*")
+                .order(
+                    "song_number",
+                    {
+                        ascending:true
+                    }
+                );
+
+        if(error)
+            throw error;
+
+        allSongs = data || [];
+
+        document.getElementById(
+            "totalSongs"
+        ).textContent =
+            allSongs.length;
+
+        renderSongPicker(allSongs);
+
+    }catch(error){
+
+        console.error(error);
+
+        picker.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">⚠️</div>
+                <p>
+                    Imeshindikana kupakia nyimbo.
+                </p>
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =========================================
+   RENDER SONG PICKER
+========================================= */
+
+function renderSongPicker(songs){
+
+    const picker =
+        document.getElementById(
+            "songPicker"
+        );
+
+    if(!songs.length){
+
+        picker.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">🎵</div>
+                <p>Hakuna nyimbo zilizopo.</p>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    picker.innerHTML =
+        songs.map(song => {
+
+            const checked =
+                selectedSongs.some(
+                    item =>
+                        String(item.id) ===
+                        String(song.id)
+                );
+
+            return `
+
+                <label class="song-option">
+
+                    <input
+                        type="checkbox"
+                        ${
+                            checked
+                            ?
+                            "checked"
+                            :
+                            ""
+                        }
+                        onchange="
+                            toggleSong(
+                                '${song.id}'
+                            )
+                        "
+                    >
+
+                    <div class="song-number">
+                        ${escapeHtml(
+                            String(
+                                song.song_number ?? "-"
+                            )
+                        )}
+                    </div>
+
+                    <div class="song-info">
+
+                        <div class="song-title">
+                            ${escapeHtml(
+                                song.title ||
+                                "Bila jina"
+                            )}
+                        </div>
+
+                        <div class="song-composer">
+                            ${escapeHtml(
+                                song.composer ||
+                                "Mtunzi hajatajwa"
+                            )}
+                        </div>
+
+                    </div>
+
+                </label>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =========================================
+   SEARCH SONGS
+========================================= */
+
+function filterAvailableSongs(){
+
+    const query =
+        document
+            .getElementById("songSearch")
+            .value
+            .toLowerCase()
+            .trim();
+
+    if(!query){
+
+        renderSongPicker(allSongs);
+
+        return;
+
+    }
+
+    const filtered =
+        allSongs.filter(song => {
+
+            const title =
+                String(song.title || "")
+                    .toLowerCase();
+
+            const composer =
+                String(song.composer || "")
+                    .toLowerCase();
+
+            const number =
+                String(song.song_number || "")
+                    .toLowerCase();
+
+            return (
+                title.includes(query) ||
+                composer.includes(query) ||
+                number.includes(query)
+            );
+
+        });
+
+    renderSongPicker(filtered);
+
+}
+
+
+/* =========================================
+   TOGGLE SONG
+========================================= */
+
+function toggleSong(id){
+
+    const index =
+        selectedSongs.findIndex(
+            song =>
+                String(song.id) === String(id)
+        );
+
+
+    if(index >= 0){
+
+        selectedSongs.splice(index,1);
+
+    }else{
+
+        const song =
+            allSongs.find(
+                item =>
+                    String(item.id) ===
+                    String(id)
+            );
+
+        if(song){
+
+            selectedSongs.push(song);
+
+        }
+
+    }
+
+
+    updateSelectedSongs();
+
+    renderSongPicker(
+        getFilteredSongs()
+    );
+
+}
+
+
+/* =========================================
+   GET FILTERED SONGS
+========================================= */
+
+function getFilteredSongs(){
+
+    const query =
+        document
+            .getElementById("songSearch")
+            .value
+            .toLowerCase()
+            .trim();
+
+    if(!query)
+        return allSongs;
+
+    return allSongs.filter(song => {
+
+        return (
+            String(song.title || "")
+                .toLowerCase()
+                .includes(query)
+            ||
+            String(song.composer || "")
+                .toLowerCase()
+                .includes(query)
+            ||
+            String(song.song_number || "")
+                .toLowerCase()
+                .includes(query)
+        );
+
+    });
+
+}
+
+
+/* =========================================
+   UPDATE SELECTED SONGS
+========================================= */
+
+function updateSelectedSongs(){
+
+    const container =
+        document.getElementById(
+            "selectedSongsList"
+        );
+
+    document.getElementById(
+        "selectedCount"
+    ).textContent =
+        selectedSongs.length;
+
+    document.getElementById(
+        "selectedLabel"
+    ).textContent =
+        `${selectedSongs.length} zimechaguliwa`;
+
+    document.getElementById(
+        "orderLabel"
+    ).textContent =
+        `${selectedSongs.length} nyimbo`;
+
+
+    if(!selectedSongs.length){
+
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">🎵</div>
+                <p>
+                    Chagua nyimbo hapo juu.
+                </p>
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        selectedSongs.map(
+            (song,index) => `
+
+                <div class="selected-song">
+
+                    <div class="order-number">
+                        ${index + 1}
+                    </div>
+
+                    <div class="selected-song-info">
+
+                        <strong>
+                            ${escapeHtml(
+                                song.title ||
+                                "Bila jina"
+                            )}
+                        </strong>
+
+                        <small>
+                            Wimbo #${
+                                escapeHtml(
+                                    String(
+                                        song.song_number ??
+                                        "-"
+                                    )
+                                )
+                            }
+
+                            ${
+                                song.composer
+                                ?
+                                " • " +
+                                escapeHtml(
+                                    song.composer
+                                )
+                                :
+                                ""
+                            }
+                        </small>
+
+                    </div>
+
+                    <button
+                        class="remove-song"
+                        onclick="
+                            removeSelectedSong(
+                                '${song.id}'
+                            )
+                        "
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+            `
+        ).join("");
+
+}
+
+
+/* =========================================
+   REMOVE SELECTED
+========================================= */
+
+function removeSelectedSong(id){
+
+    selectedSongs =
+        selectedSongs.filter(
+            song =>
+                String(song.id) !==
+                String(id)
+        );
+
+    updateSelectedSongs();
+
+    renderSongPicker(
+        getFilteredSongs()
+    );
+
+}
+
+
+/* =========================================
+   LOAD BOOKS
+========================================= */
+
+async function loadBooks(){
+
+    const list =
+        document.getElementById(
+            "booksList"
+        );
+
+    try{
+
+        const { data, error } =
+            await supabaseClient
+                .from("song_books")
+                .select("*")
+                .order(
+                    "created_at",
+                    {
+                        ascending:false
+                    }
+                );
+
+        if(error)
+            throw error;
+
+        allBooks = data || [];
+
+        document.getElementById(
+            "totalBooks"
+        ).textContent =
+            allBooks.length;
+
+        renderBooks();
+
+    }catch(error){
+
+        console.error(error);
+
+        list.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">⚠️</div>
+                <p>
+                    Imeshindikana kupakia vitabu.
+                </p>
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =========================================
+   RENDER BOOKS
+========================================= */
+
+function renderBooks(){
+
+    const list =
+        document.getElementById(
+            "booksList"
+        );
+
+    if(!allBooks.length){
+
+        list.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">📚</div>
+                <h3>Hakuna vitabu</h3>
+                <p>
+                    Anza kwa kutengeneza kitabu kipya.
+                </p>
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    list.innerHTML =
+        allBooks.map(book => {
+
+            const selected =
+                String(book.id) ===
+                String(currentBookId);
+
+            return `
+
+                <div
+                    class="
+                        book-item
+                        ${
+                            selected
+                            ?
+                            "selected"
+                            :
+                            ""
+                        }
+                    "
+                    onclick="
+                        openBook(
+                            '${book.id}'
+                        )
+                    "
+                >
+
+                    <div class="book-name">
+                        📖
+                        ${escapeHtml(
+                            book.name ||
+                            "Kitabu bila jina"
+                        )}
+                    </div>
+
+                    <div class="book-meta">
+                        ${
+                            book.description
+                            ?
+                            escapeHtml(
+                                book.description
+                            )
+                            :
+                            "Hakuna maelezo"
+                        }
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =========================================
+   NEW BOOK
+========================================= */
+
+function newBook(){
+
+    currentBookId = null;
+
+    selectedSongs = [];
+
+    document.getElementById(
+        "bookName"
+    ).value = "";
+
+    document.getElementById(
+        "bookDescription"
+    ).value = "";
+
+    document.getElementById(
+        "editorTitle"
+    ).textContent =
+        "Tengeneza Kitabu";
+
+    document.getElementById(
+        "editorSubtitle"
+    ).textContent =
+        "Chagua nyimbo zako";
+
+    updateCover();
+
+    updateSelectedSongs();
+
+    renderSongPicker(
+        getFilteredSongs()
+    );
+
+    renderBooks();
+
+}
+
+
+/* =========================================
+   OPEN BOOK
+========================================= */
+
+async function openBook(id){
+
+    const book =
+        allBooks.find(
+            item =>
+                String(item.id) ===
+                String(id)
+        );
+
+    if(!book)
+        return;
+
+    currentBookId = book.id;
+
+    document.getElementById(
+        "bookName"
+    ).value =
+        book.name || "";
+
+    document.getElementById(
+        "bookDescription"
+    ).value =
+        book.description || "";
+
+    document.getElementById(
+        "editorTitle"
+    ).textContent =
+        book.name || "Kitabu";
+
+    document.getElementById(
+        "editorSubtitle"
+    ).textContent =
+        "Hariri kitabu";
+
+    updateCover();
+
+
+    try{
+
+        const { data, error } =
+            await supabaseClient
+                .from("song_book_items")
+                .select(`
+                    *,
+                    songs (*)
+                `)
+                .eq(
+                    "book_id",
+                    id
+                )
+                .order(
+                    "sort_order",
+                    {
+                        ascending:true
+                    }
+                );
+
+        if(error)
+            throw error;
+
+
+        selectedSongs =
+            (data || [])
+                .map(item =>
+                    item.songs
+                )
+                .filter(Boolean);
+
+
+        updateSelectedSongs();
+
+        renderSongPicker(
+            getFilteredSongs()
+        );
+
+        renderBooks();
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Kitabu kimefunguka lakini nyimbo hazikupatikana.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   SAVE BOOK
+========================================= */
+
+async function saveBook(){
+
+    const name =
+        document
+            .getElementById("bookName")
+            .value
+            .trim();
+
+    const description =
+        document
+            .getElementById("bookDescription")
+            .value
+            .trim();
+
+
+    if(!name){
+
+        showToast(
+            "Weka jina la kitabu kwanza.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        if(currentBookId){
+
+            const { error } =
+                await supabaseClient
+                    .from("song_books")
+                    .update({
+                        name:name,
+                        description:
+                            description || null
+                    })
+                    .eq(
+                        "id",
+                        currentBookId
+                    );
+
+            if(error)
+                throw error;
+
+            showToast(
+                "Kitabu kimehaririwa.",
+                "success"
+            );
+
+        }else{
+
+            const { data, error } =
+                await supabaseClient
+                    .from("song_books")
+                    .insert({
+                        name:name,
+                        description:
+                            description || null
+                    })
+                    .select()
+                    .single();
+
+            if(error)
+                throw error;
+
+            currentBookId =
+                data.id;
+
+            showToast(
+                "Kitabu kimeundwa.",
+                "success"
+            );
+
+        }
+
+
+        await loadBooks();
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Imeshindikana kuhifadhi kitabu.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   SAVE BOOK SONGS
+========================================= */
+
+async function saveBookSongs(){
+
+    if(!currentBookId){
+
+        await saveBook();
+
+        if(!currentBookId)
+            return;
+
+    }
+
+
+    try{
+
+        /*
+           Ondoa mpangilio wa zamani
+           kwanza, kisha weka mpya.
+        */
+
+        const { error:deleteError } =
+            await supabaseClient
+                .from("song_book_items")
+                .delete()
+                .eq(
+                    "book_id",
+                    currentBookId
+                );
+
+        if(deleteError)
+            throw deleteError;
+
+
+        if(selectedSongs.length){
+
+            const records =
+                selectedSongs.map(
+                    (song,index) => ({
+                        book_id:
+                            currentBookId,
+
+                        song_id:
+                            song.id,
+
+                        sort_order:
+                            index + 1
+                    })
+                );
+
+
+            const { error:insertError } =
+                await supabaseClient
+                    .from("song_book_items")
+                    .insert(records);
+
+            if(insertError)
+                throw insertError;
+
+        }
+
+
+        showToast(
+            "Nyimbo za kitabu zimehifadhiwa.",
+            "success"
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Imeshindikana kuhifadhi nyimbo.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   DELETE BOOK
+========================================= */
+
+async function deleteCurrentBook(){
+
+    if(!currentBookId){
+
+        showToast(
+            "Chagua kitabu kwanza.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const book =
+        allBooks.find(
+            item =>
+                String(item.id) ===
+                String(currentBookId)
+        );
+
+
+    const confirmed =
+        confirm(
+            `Una uhakika unataka kufuta kitabu "${book?.name || ""}"?`
+        );
+
+
+    if(!confirmed)
+        return;
+
+
+    try{
+
+        /*
+           Futa nyimbo zake kwanza.
+        */
+
+        const { error:itemError } =
+            await supabaseClient
+                .from("song_book_items")
+                .delete()
+                .eq(
+                    "book_id",
+                    currentBookId
+                );
+
+        if(itemError)
+            throw itemError;
+
+
+        const { error:bookError } =
+            await supabaseClient
+                .from("song_books")
+                .delete()
+                .eq(
+                    "id",
+                    currentBookId
+                );
+
+        if(bookError)
+            throw bookError;
+
+
+        showToast(
+            "Kitabu kimefutwa.",
+            "success"
+        );
+
+
+        newBook();
+
+        await loadBooks();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Imeshindikana kufuta kitabu.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   UPDATE COVER
+========================================= */
+
+function updateCover(){
+
+    const name =
+        document
+            .getElementById("bookName")
+            .value
+            .trim();
+
+
+    document.getElementById(
+        "coverTitle"
+    ).textContent =
+        name ||
+        "KITABU CHA NYIMBO";
+
+
+    document.getElementById(
+        "coverSubtitle"
+    ).textContent =
+        "KWAYA";
+
+}
+
+
+/* =========================================
+   GENERATE PDF
+========================================= */
+
+async function generateBookPDF(){
+
+    if(!currentBookId){
+
+        showToast(
+            "Hifadhi kitabu kwanza.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if(!selectedSongs.length){
+
+        showToast(
+            "Kitabu hakina nyimbo.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Hakikisha mabadiliko yamehifadhiwa.
+    */
+
+    await saveBookSongs();
+
+
+    const bookName =
+        document
+            .getElementById("bookName")
+            .value
+            .trim() ||
+        "Kitabu cha Nyimbo";
+
+
+    const bookDescription =
+        document
+            .getElementById("bookDescription")
+            .value
+            .trim();
+
+
+    try{
+
+        const {
+            jsPDF
+        } = window.jspdf;
+
+
+        const pdf =
+            new jsPDF({
+                orientation:"portrait",
+                unit:"mm",
+                format:"a4"
+            });
+
+
+        const pageWidth =
+            pdf.internal.pageSize.getWidth();
+
+        const pageHeight =
+            pdf.internal.pageSize.getHeight();
+
+
+        /* ==============================
+           COVER PAGE
+        ============================== */
+
+        pdf.setFillColor(
+            17,
+            24,
+            39
+        );
+
+        pdf.rect(
+            0,
+            0,
+            pageWidth,
+            pageHeight,
+            "F"
+        );
+
+
+        pdf.setTextColor(
+            255,
+            255,
+            255
+        );
+
+
+        pdf.setFont(
+            "helvetica",
+            "bold"
+        );
+
+        pdf.setFontSize(30);
+
+        pdf.text(
+            "♪",
+            pageWidth / 2,
+            70,
+            {
+                align:"center"
+            }
+        );
+
+
+        pdf.setFontSize(22);
+
+        pdf.text(
+            "KWAYA",
+            pageWidth / 2,
+            100,
+            {
+                align:"center"
+            }
+        );
+
+
+        pdf.setFontSize(27);
+
+        pdf.text(
+            cleanPDFText(
+                bookName
+            ),
+            pageWidth / 2,
+            120,
+            {
+                align:"center",
+                maxWidth:170
+            }
+        );
+
+
+        if(bookDescription){
+
+            pdf.setFont(
+                "helvetica",
+                "normal"
+            );
+
+            pdf.setFontSize(12);
+
+            pdf.text(
+                cleanPDFText(
+                    bookDescription
+                ),
+                pageWidth / 2,
+                140,
+                {
+                    align:"center",
+                    maxWidth:160
+                }
+            );
+
+        }
+
+
+        pdf.setFontSize(11);
+
+        pdf.text(
+            `${selectedSongs.length} NYIMBO`,
+            pageWidth / 2,
+            170,
+            {
+                align:"center"
+            }
+        );
+
+
+        pdf.setFontSize(10);
+
+        pdf.text(
+            new Date()
+                .toLocaleDateString(
+                    "sw-TZ"
+                ),
+            pageWidth / 2,
+            260,
+            {
+                align:"center"
+            }
+        );
+
+
+        /* ==============================
+           TABLE OF CONTENTS
+        ============================== */
+
+        pdf.addPage();
+
+        pdf.setTextColor(
+            20,
+            30,
+            45
+        );
+
+        pdf.setFont(
+            "helvetica",
+            "bold"
+        );
+
+        pdf.setFontSize(20);
+
+        pdf.text(
+            "YALIYOMO",
+            20,
+            25
+        );
+
+
+        let tocY = 40;
+
+
+        selectedSongs.forEach(
+            (song,index) => {
+
+                if(tocY > 275){
+
+                    pdf.addPage();
+
+                    tocY = 25;
+
+                }
+
+
+                pdf.setFontSize(11);
+
+                pdf.setFont(
+                    "helvetica",
+                    "normal"
+                );
+
+
+                const title =
+                    `${index + 1}. ${
+                        cleanPDFText(
+                            song.title ||
+                            "Bila jina"
+                        )
+                    }`;
+
+
+                pdf.text(
+                    title,
+                    20,
+                    tocY
+                );
+
+
+                tocY += 8;
+
+            }
+        );
+
+
+        /* ==============================
+           SONG PAGES
+        ============================== */
+
+        selectedSongs.forEach(
+            (song,index) => {
+
+                pdf.addPage();
+
+                let y = 22;
+
+
+                pdf.setTextColor(
+                    37,
+                    99,
+                    235
+                );
+
+                pdf.setFont(
+                    "helvetica",
+                    "bold"
+                );
+
+                pdf.setFontSize(12);
+
+                pdf.text(
+                    `WIMBO #${index + 1}`,
+                    20,
+                    y
+                );
+
+
+                y += 12;
+
+
+                pdf.setTextColor(
+                    20,
+                    30,
+                    45
+                );
+
+                pdf.setFontSize(19);
+
+                pdf.text(
+                    cleanPDFText(
+                        song.title ||
+                        "Bila jina"
+                    ),
+                    20,
+                    y,
+                    {
+                        maxWidth:170
+                    }
+                );
+
+
+                y += 10;
+
+
+                if(song.composer){
+
+                    pdf.setFont(
+                        "helvetica",
+                        "italic"
+                    );
+
+                    pdf.setFontSize(10);
+
+                    pdf.text(
+                        `Mtunzi: ${
+                            cleanPDFText(
+                                song.composer
+                            )
+                        }`,
+                        20,
+                        y
+                    );
+
+                    y += 10;
+
+                }
+
+
+                /*
+                   Soma lyrics/maneno kwa
+                   column tofauti zinazoweza
+                   kuwepo.
+                */
+
+                const lyrics =
+                    song.lyrics ||
+                    song.content ||
+                    song.words ||
+                    song.text ||
+                    "";
+
+
+                if(lyrics){
+
+                    pdf.setFont(
+                        "helvetica",
+                        "normal"
+                    );
+
+                    pdf.setFontSize(11);
+
+                    const lines =
+                        pdf.splitTextToSize(
+                            cleanPDFText(
+                                lyrics
+                            ),
+                            170
+                        );
+
+
+                    lines.forEach(line => {
+
+                        if(y > 275){
+
+                            pdf.addPage();
+
+                            y = 22;
+
+                        }
+
+
+                        pdf.text(
+                            line,
+                            20,
+                            y
+                        );
+
+                        y += 6;
+
+                    });
+
+                }else{
+
+                    pdf.setTextColor(
+                        107,
+                        114,
+                        128
+                    );
+
+                    pdf.setFont(
+                        "helvetica",
+                        "italic"
+                    );
+
+                    pdf.setFontSize(10);
+
+                    pdf.text(
+                        "Maneno ya wimbo hayajawekwa kwenye mfumo.",
+                        20,
+                        y + 5,
+                        {
+                            maxWidth:170
+                        }
+                    );
+
+                }
+
+
+                /*
+                   FOOTER
+                */
+
+                addFooters(pdf);
+
+            }
+        );
+
+
+        /*
+           Add footer kwenye pages
+           zote, pamoja na cover.
+        */
+
+        addFooters(pdf);
+
+
+        const filename =
+            sanitizeFilename(
+                bookName
+            ) + ".pdf";
+
+
+        pdf.save(filename);
+
+
+        showToast(
+            "PDF ya kitabu imetengenezwa.",
+            "success"
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Imeshindikana kutengeneza PDF.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   FOOTERS
+========================================= */
+
+function addFooters(pdf){
+
+    const totalPages =
+        pdf.internal.getNumberOfPages();
+
+    const width =
+        pdf.internal.pageSize.getWidth();
+
+    const height =
+        pdf.internal.pageSize.getHeight();
+
+
+    for(
+        let i = 1;
+        i <= totalPages;
+        i++
+    ){
+
+        pdf.setPage(i);
+
+        pdf.setFont(
+            "helvetica",
+            "normal"
+        );
+
+        pdf.setFontSize(8);
+
+        pdf.setTextColor(
+            120,
+            120,
+            120
+        );
+
+
+        pdf.text(
+            "KWAYA MANAGEMENT",
+            20,
+            height - 10
+        );
+
+
+        pdf.text(
+            `Ukurasa ${i} / ${totalPages}`,
+            width - 20,
+            height - 10,
+            {
+                align:"right"
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   PRINT BOOK
+========================================= */
+
+function printBook(){
+
+    if(!currentBookId){
+
+        showToast(
+            "Chagua kitabu kwanza.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if(!selectedSongs.length){
+
+        showToast(
+            "Kitabu hakina nyimbo.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const bookName =
+        document
+            .getElementById("bookName")
+            .value
+            .trim();
+
+
+    let html = `
+
+        <!DOCTYPE html>
+
+        <html lang="sw">
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>
+                ${escapeHtml(bookName)}
+            </title>
+
+            <style>
+
+                @page{
+                    size:A4;
+                    margin:20mm;
+                }
+
+                body{
+                    font-family:Arial,sans-serif;
+                    color:#111827;
+                }
+
+                .cover{
+                    height:257mm;
+                    display:flex;
+                    flex-direction:column;
+                    align-items:center;
+                    justify-content:center;
+                    text-align:center;
+                    page-break-after:always;
+                }
+
+                .cover h1{
+                    font-size:30px;
+                    margin:15px 0;
+                }
+
+                .cover p{
+                    color:#555;
+                }
+
+                .toc{
+                    page-break-after:always;
+                }
+
+                .toc h2{
+                    font-size:22px;
+                    margin-bottom:20px;
+                }
+
+                .song{
+                    page-break-before:always;
+                }
+
+                .song h2{
+                    font-size:22px;
+                    margin-bottom:8px;
+                }
+
+                .composer{
+                    color:#555;
+                    font-style:italic;
+                    margin-bottom:18px;
+                }
+
+                .lyrics{
+                    white-space:pre-wrap;
+                    line-height:1.7;
+                    font-size:12pt;
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <div class="cover">
+
+                <div style="font-size:55px">
+                    ♪
+                </div>
+
+                <h1>
+                    ${escapeHtml(bookName)}
+                </h1>
+
+                <p>
+                    KWAYA
+                </p>
+
+                <p>
+                    ${selectedSongs.length} NYIMBO
+                </p>
+
+            </div>
+
+
+            <div class="toc">
+
+                <h2>YALIYOMO</h2>
+
+                ${selectedSongs.map(
+                    (song,index) => `
+                        <p>
+                            ${index + 1}.
+                            ${escapeHtml(
+                                song.title ||
+                                "Bila jina"
+                            )}
+                        </p>
+                    `
+                ).join("")}
+
+            </div>
+
+
+            ${selectedSongs.map(
+                (song,index) => {
+
+                    const lyrics =
+                        song.lyrics ||
+                        song.content ||
+                        song.words ||
+                        song.text ||
+                        "Maneno ya wimbo hayajawekwa kwenye mfumo.";
+
+                    return `
+
+                        <div class="song">
+
+                            <h2>
+                                WIMBO #${index + 1}
+                                -
+                                ${escapeHtml(
+                                    song.title ||
+                                    "Bila jina"
+                                )}
+                            </h2>
+
+                            ${
+                                song.composer
+                                ?
+                                `
+                                <div class="composer">
+                                    Mtunzi:
+                                    ${escapeHtml(
+                                        song.composer
+                                    )}
+                                </div>
+                                `
+                                :
+                                ""
+                            }
+
+                            <div class="lyrics">
+                                ${escapeHtml(
+                                    lyrics
+                                )}
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }
+            ).join("")}
+
+        </body>
+
+        </html>
+
+    `;
+
+
+    const win =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    win.document.write(html);
+
+    win.document.close();
+
+    setTimeout(
+        () => {
+            win.print();
+        },
+        500
+    );
+
+}
+
+
+/* =========================================
+   PDF TEXT CLEANING
+========================================= */
+
+function cleanPDFText(value){
+
+    return String(value || "")
+        .replace(/[^\x00-\x7F]/g, function(char){
+
+            const map = {
+                "–":"-",
+                "—":"-",
+                "’":"' ",
+                "‘":"' ",
+                "“":'"',
+                "”":'"',
+                "…":"...",
+                "♪":""
+            };
+
+            return map[char] || "";
+
+        });
+
+}
+
+
+/* =========================================
+   FILENAME
+========================================= */
+
+function sanitizeFilename(name){
+
+    return String(name || "kitabu-cha-nyimbo")
+        .replace(/[<>:"/\\|?*]+/g,"")
+        .replace(/\s+/g,"-")
+        .toLowerCase();
+
+}
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHtml(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+function showToast(
+    message,
+    type=""
+){
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    toast.textContent =
+        message;
+
+    toast.className =
+        `toast show ${type}`;
+
+
+    setTimeout(
+        () => {
+            toast.classList.remove(
+                "show"
+            );
+        },
+        3000
+    );
+
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logout(){
+
+    try{
+
+        await supabaseClient
+            .auth
+            .signOut();
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
