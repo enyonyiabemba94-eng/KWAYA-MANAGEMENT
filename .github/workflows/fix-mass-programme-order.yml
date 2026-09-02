@@ -33,7 +33,7 @@ jobs:
           const MASS_SPECIAL=[['baptism','💧 Nyimbo za Ubatizo',10],['confirmation','🕊️ Nyimbo za Kipaimara',10],['marriage','💍 Nyimbo za Ndoa',10],['funeral','🕯️ Nyimbo za Mazishi',10],['feast','🎉 Nyimbo za Sherehe / Sikukuu',10],['church','⛪ Nyimbo za Sherehe ya Kanisa',10],['other_event','✨ Nyimbo za Tukio Lingine',10]];
           const hasVal=v=>!!(v&&(v.id||(v.manual&&String(v.title||'').trim())));
           function massSongRow(k,i,v={}){const manual=!!v.manual,id=k+'_'+i;return `<div class="mass-row" data-k="${k}" data-i="${i}"><div class="songrow"><select id="${id}" onchange="massSongChanged('${k}',${i})">${songOptions(manual?'':(v.id||''))}<option value="__manual__" ${manual?'selected':''}>✍️ Manual — Andika mwenyewe</option></select><select id="${k}_key_${i}">${keyOptions(v.key||'')}</select><button type="button" class="remove" onclick="massRemove('${k}',${i})">×</button></div><div class="manual" id="manual_${id}" style="display:${manual?'grid':'none'}"><input id="${k}_manual_${i}" value="${manual?esc(v.title||''):''}" placeholder="Andika jina la wimbo..."><span></span></div></div>`}
-          function massSection(k,label,max,values=[]){const vals=(Array.isArray(values)?values:[]).filter(hasVal);return `<div class="section mass-section" data-section="${k}" data-max="${max}"><div class="sectionTitle"><h3>${label}</h3><small>Hadi ${max}</small></div><div class="rows">${vals.map((v,i)=>massSongRow(k,i,v)).join('')}</div><div class="addbar"><button type="button" class="addbtn" onclick="massAdd('${k}',${max})">＋ Ongeza wimbo</button></div></div>`}
+          function massSection(k,label,max,values=[]){const vals=(Array.isArray(values)?values:[]).filter(hasVal);return `<div class="section mass-section" data-section="${k}" data-max="${max}"><div class="sectionTitle"><h3>${label}</h3><small>Max ${max}</small></div><div class="rows">${vals.map((v,i)=>massSongRow(k,i,v)).join('')}</div><div class="addbar"><button type="button" class="addbtn" onclick="massAdd('${k}',${max})">＋ Ongeza wimbo</button></div></div>`}
           function massRender(saved={}){const v=saved||{};let h='';for(const [k,l,m] of MASS_SECTIONS)h+=massSection(k,l,m,v[k]);for(const [k,l,m] of MASS_SPECIAL)if($(k)?.checked)h+=massSection(k,l,m,v[k]);$('slots').innerHTML=h;document.querySelectorAll('.mass-section').forEach(massUpdateButton)}
           function massAdd(k,max){const sec=document.querySelector(`[data-section="${k}"]`);if(!sec)return;const box=sec.querySelector('.rows'),n=box.querySelectorAll('.mass-row').length;if(n<max){box.insertAdjacentHTML('beforeend',massSongRow(k,n,{}));massUpdateButton(sec)}}
           function massRemove(k,i){const sec=document.querySelector(`[data-section="${k}"]`);const el=sec?.querySelector(`.mass-row[data-i="${i}"]`);if(el)el.remove();[...(sec?.querySelectorAll('.mass-row')||[])].forEach((e,n)=>e.dataset.i=n);massUpdateButton(sec)}
@@ -55,10 +55,16 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           s=Path('mass-programmes.html').read_text(encoding='utf-8')
-          required=['intercessions','🙏 5. Maombezi','🍞 6. Sadaka','＋ Ongeza wimbo','Hadi 10','function massCollect','renderSlots=massRender']
+          required=['intercessions','🙏 5. Maombezi','🍞 6. Sadaka','＋ Ongeza wimbo','function massCollect','renderSlots=massRender','id="conductor1"','id="conductor2"']
           for x in required:
               assert x in s, x+' missing'
+          m=re.search(r"\['intercessions','🙏 5\. Maombezi',(\d+)\]",s)
+          assert m and int(m.group(1))==10, 'Maombezi limit is not 10'
+          m=re.search(r"\['offertory','🍞 6\. Sadaka',(\d+)\]",s)
+          assert m and int(m.group(1))==10, 'Sadaka limit is not 10'
+          assert s.count('id="mass-dynamic-repair"')==1, 'mass-dynamic-repair script count invalid'
           print('Mass Programme dynamic form v2 OK')
           PY
       - name: Commit fix
