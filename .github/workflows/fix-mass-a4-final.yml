@@ -18,18 +18,41 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fix one-page A4 print layout
+      - name: Apply A4 typography
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p = Path('mass-programmes.html')
           s = p.read_text(encoding='utf-8')
-          marker = 'MASS_A4_ONE_PAGE_FINAL_V4'
-          if marker not in s:
-              css = '''\n/* MASS_A4_ONE_PAGE_FINAL_V4 */\n@page{size:A4 portrait;margin:0}\n@media print{\nhtml,body{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}\nbody *{visibility:hidden!important}\n.a4-overlay,.a4-overlay *{visibility:visible!important}\n.a4-overlay{position:fixed!important;inset:0!important;display:block!important;width:210mm!important;height:297mm!important;padding:0!important;margin:0!important;overflow:hidden!important;background:#fff!important}\n.a4-paper{width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;margin:0!important;padding:6mm 7mm!important;box-sizing:border-box!important;overflow:hidden!important;box-shadow:none!important;border:0!important;page-break-before:avoid!important;page-break-after:avoid!important;break-before:avoid!important;break-after:avoid!important}\n.a4-paper .logo{width:16mm!important;height:16mm!important;margin:0 auto 1mm!important}\n.a4-paper .ptitle{font-size:13px!important;line-height:1.05!important;margin:0 0 1mm!important}\n.a4-paper .sub{font-size:7px!important;line-height:1.1!important;margin:0 0 1.5mm!important}\n.a4-paper h4{font-size:7.5px!important;line-height:1.05!important;margin:1mm 0 .4mm!important;padding:1mm!important}\n.a4-paper .previewSong{font-size:6.8px!important;line-height:1.08!important;margin:.3mm 0!important}\n.a4-paper .notes{font-size:6.5px!important;line-height:1.1!important}\n.a4-footer{font-size:5.5px!important;margin-top:1mm!important;padding-top:1mm!important}\n.a4-toolbar,.a4-paper button{display:none!important}\n.a4-paper .a4-content{column-count:2!important;column-gap:5mm!important}\n.a4-paper .a4-section{break-inside:avoid!important;page-break-inside:avoid!important}\n}\n'''
-              if '</style>' in s:
-                  s = s.replace('</style>', css + '</style>', 1)
-              p.write_text(s, encoding='utf-8')
+          start = s.find('/* MASS_A4_ONE_PAGE_FINAL_V4 */')
+          if start >= 0:
+              end = s.find('</style>', start)
+              if end >= 0:
+                  css = '''/* MASS_A4_ONE_PAGE_FINAL_V5 */
+          @page{size:A4 portrait;margin:0}
+          @media print{
+          html,body{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
+          body *{visibility:hidden!important}
+          .a4-overlay,.a4-overlay *{visibility:visible!important}
+          .a4-overlay{position:fixed!important;inset:0!important;display:block!important;width:210mm!important;height:297mm!important;padding:0!important;margin:0!important;overflow:hidden!important;background:#fff!important}
+          .a4-paper{width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;margin:0!important;padding:5mm 7mm!important;box-sizing:border-box!important;overflow:hidden!important;box-shadow:none!important;border:0!important;page-break-before:avoid!important;page-break-after:avoid!important;break-before:avoid!important;break-after:avoid!important}
+          .a4-paper .logo{width:16mm!important;height:16mm!important;margin:0 auto 1mm!important}
+          .a4-paper .ptitle{font-size:14px!important;line-height:1.05!important;margin:0 0 1mm!important;text-transform:uppercase!important}
+          .a4-paper .sub{font-size:8px!important;line-height:1.1!important;margin:0 0 1.5mm!important}
+          .a4-paper h4{font-size:12px!important;line-height:1.05!important;margin:1.2mm 0 .5mm!important;padding:.8mm 0!important;text-transform:uppercase!important}
+          .a4-paper .previewSong{font-size:11px!important;line-height:1.12!important;margin:.45mm 0!important}
+          .a4-paper .notes{font-size:11px!important;line-height:1.18!important}
+          .a4-footer{font-size:7px!important;margin-top:1mm!important;padding-top:1mm!important}
+          .a4-toolbar,.a4-paper button{display:none!important}
+          .a4-paper .a4-content{column-count:2!important;column-gap:5mm!important}
+          .a4-paper .a4-section{break-inside:avoid!important;page-break-inside:avoid!important}
+          }
+          '''
+                  s = s[:start] + css + s[end:]
+          else:
+              raise SystemExit('Existing A4 CSS marker not found')
+          p.write_text(s, encoding='utf-8')
           PY
 
       - name: Commit fix
@@ -38,5 +61,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mass-programmes.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Apply final one-page A4 Mass Programme layout'
+          git commit -m 'Set Mass Programme A4 text to 11px uppercase headings'
           git push
