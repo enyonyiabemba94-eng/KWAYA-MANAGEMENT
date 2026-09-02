@@ -24,11 +24,22 @@ jobs:
           from pathlib import Path
           p = Path('mass-programmes.html')
           s = p.read_text(encoding='utf-8')
+
+          # V5 is already the current A4 version. Do not fail or rewrite it.
+          if '/* MASS_A4_ONE_PAGE_FINAL_V5 */' in s:
+              print('Mass Programme A4 V5 already applied.')
+              raise SystemExit(0)
+
+          # Upgrade the older V4 block to V5 when necessary.
           start = s.find('/* MASS_A4_ONE_PAGE_FINAL_V4 */')
-          if start >= 0:
-              end = s.find('</style>', start)
-              if end >= 0:
-                  css = '''/* MASS_A4_ONE_PAGE_FINAL_V5 */
+          if start < 0:
+              raise SystemExit('No supported Mass Programme A4 marker found')
+
+          end = s.find('</style>', start)
+          if end < 0:
+              raise SystemExit('Closing </style> not found')
+
+          css = '''/* MASS_A4_ONE_PAGE_FINAL_V5 */
           @page{size:A4 portrait;margin:0}
           @media print{
           html,body{width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
@@ -48,10 +59,9 @@ jobs:
           .a4-paper .a4-section{break-inside:avoid!important;page-break-inside:avoid!important}
           }
           '''
-                  s = s[:start] + css + s[end:]
-          else:
-              raise SystemExit('Existing A4 CSS marker not found')
+          s = s[:start] + css + s[end:]
           p.write_text(s, encoding='utf-8')
+          print('Mass Programme A4 upgraded to V5.')
           PY
 
       - name: Commit fix
