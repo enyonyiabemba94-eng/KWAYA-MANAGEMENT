@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nyimbo | Kwaya Management</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f4f6f9;
+    color:#172033;
+}
+
+/* SIDEBAR */
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    width:250px;
+    height:100vh;
+    background:#111827;
+    color:white;
+    padding:20px 14px;
+    overflow-y:auto;
+    z-index:1000;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 8px 25px;
+    border-bottom:1px solid rgba(255,255,255,.1);
+    margin-bottom:15px;
+}
+
+.brand-icon{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+    background:#fff;
+    color:#111827;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:23px;
+}
+
+.brand-text h2{
+    font-size:16px;
+    margin-bottom:4px;
+}
+
+.brand-text span{
+    font-size:11px;
+    color:#9ca3af;
+}
+
+.nav-title{
+    font-size:11px;
+    color:#6b7280;
+    margin:18px 10px 8px;
+    text-transform:uppercase;
+}
+
+.nav a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 13px;
+    color:#d1d5db;
+    text-decoration:none;
+    border-radius:9px;
+    margin-bottom:4px;
+    font-size:14px;
+    transition:.2s;
+}
+
+.nav a:hover{
+    background:#1f2937;
+    color:white;
+}
+
+.nav a.active{
+    background:#2563eb;
+    color:white;
+}
+
+.nav-icon{
+    width:22px;
+    text-align:center;
+}
+
+/* MAIN */
+.main{
+    margin-left:250px;
+    min-height:100vh;
+}
+
+/* TOPBAR */
+.topbar{
+    height:70px;
+    background:white;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:500;
+}
+
+.menu-btn{
+    display:none;
+    border:0;
+    background:#111827;
+    color:white;
+    width:40px;
+    height:40px;
+    border-radius:8px;
+    font-size:20px;
+}
+
+.page-title h1{
+    font-size:21px;
+    margin-bottom:4px;
+}
+
+.page-title p{
+    font-size:12px;
+    color:#6b7280;
+}
+
+.user-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.user-avatar{
+    width:38px;
+    height:38px;
+    background:#2563eb;
+    color:white;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+/* CONTENT */
+.content{
+    padding:25px;
+}
+
+/* STATS */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:22px;
+}
+
+.stat-card{
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:13px;
+    padding:18px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.stat-icon{
+    width:48px;
+    height:48px;
+    border-radius:12px;
+    background:#eff6ff;
+    color:#2563eb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+}
+
+.stat-card h3{
+    font-size:23px;
+    margin-bottom:3px;
+}
+
+.stat-card p{
+    font-size:12px;
+    color:#6b7280;
+}
+
+/* TOOLBAR */
+.toolbar{
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:13px;
+    padding:16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+}
+
+.search-box{
+    position:relative;
+    flex:1;
+    max-width:430px;
+}
+
+.search-box input{
+    width:100%;
+    height:43px;
+    border:1px solid #d1d5db;
+    border-radius:9px;
+    padding:0 15px 0 42px;
+    outline:none;
+    font-size:14px;
+}
+
+.search-box input:focus{
+    border-color:#2563eb;
+}
+
+.search-icon{
+    position:absolute;
+    left:14px;
+    top:12px;
+    color:#6b7280;
+}
+
+.actions{
+    display:flex;
+    gap:8px;
+}
+
+.btn{
+    border:0;
+    border-radius:9px;
+    height:43px;
+    padding:0 15px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+}
+
+.btn-primary{
+    background:#2563eb;
+    color:white;
+}
+
+.btn-primary:hover{
+    background:#1d4ed8;
+}
+
+.btn-secondary{
+    background:#f3f4f6;
+    color:#374151;
+}
+
+.btn-danger{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.btn-warning{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+/* TABLE */
+.card{
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:13px;
+    overflow:hidden;
+}
+
+.card-header{
+    padding:18px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.card-header h2{
+    font-size:16px;
+}
+
+.card-header span{
+    font-size:12px;
+    color:#6b7280;
+}
+
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:750px;
+}
+
+th{
+    background:#f9fafb;
+    text-align:left;
+    padding:13px 16px;
+    font-size:12px;
+    color:#6b7280;
+    font-weight:700;
+    border-bottom:1px solid #e5e7eb;
+}
+
+td{
+    padding:14px 16px;
+    border-bottom:1px solid #f0f1f3;
+    font-size:13px;
+}
+
+tr:hover td{
+    background:#fafafa;
+}
+
+.song-number{
+    width:42px;
+    height:34px;
+    border-radius:8px;
+    background:#eff6ff;
+    color:#2563eb;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.song-title{
+    font-weight:700;
+    color:#111827;
+}
+
+.composer{
+    color:#6b7280;
+}
+
+.badge{
+    display:inline-flex;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+    background:#eef2ff;
+    color:#4338ca;
+}
+
+.status-active{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.status-inactive{
+    background:#f3f4f6;
+    color:#6b7280;
+}
+
+.row-actions{
+    display:flex;
+    gap:6px;
+}
+
+.icon-btn{
+    width:34px;
+    height:34px;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.edit-btn{
+    background:#eff6ff;
+    color:#2563eb;
+}
+
+.delete-btn{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+/* EMPTY */
+.empty{
+    text-align:center;
+    padding:50px 20px;
+    color:#6b7280;
+}
+
+.empty-icon{
+    font-size:42px;
+    margin-bottom:10px;
+}
+
+.empty h3{
+    color:#374151;
+    margin-bottom:6px;
+}
+
+/* MODAL */
+.modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.55);
+    z-index:2000;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal-overlay.show{
+    display:flex;
+}
+
+.modal{
+    background:white;
+    width:100%;
+    max-width:560px;
+    max-height:90vh;
+    overflow-y:auto;
+    border-radius:15px;
+    box-shadow:0 20px 50px rgba(0,0,0,.2);
+}
+
+.modal-header{
+    padding:19px 20px;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.modal-header h2{
+    font-size:18px;
+}
+
+.close-btn{
+    border:0;
+    background:#f3f4f6;
+    width:34px;
+    height:34px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.modal-body{
+    padding:20px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+.form-group label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:7px;
+    color:#374151;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+    width:100%;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    padding:11px 12px;
+    outline:none;
+    font-size:13px;
+    font-family:inherit;
+}
+
+.form-group textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+    border-color:#2563eb;
+}
+
+.modal-footer{
+    padding:15px 20px;
+    border-top:1px solid #e5e7eb;
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+}
+
+/* TOAST */
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    background:#111827;
+    color:white;
+    padding:13px 18px;
+    border-radius:9px;
+    font-size:13px;
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
+    transform:translateY(100px);
+    opacity:0;
+    transition:.3s;
+    z-index:3000;
+}
+
+.toast.show{
+    transform:translateY(0);
+    opacity:1;
+}
+
+.toast.success{
+    background:#166534;
+}
+
+.toast.error{
+    background:#b91c1c;
+}
+
+/* LOADING */
+.loading{
+    padding:45px;
+    text-align:center;
+    color:#6b7280;
+}
+
+.spinner{
+    width:30px;
+    height:30px;
+    border:3px solid #e5e7eb;
+    border-top-color:#2563eb;
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    margin:0 auto 10px;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+
+/* MOBILE */
+@media(max-width:900px){
+
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.3s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .menu-btn{
+        display:block;
+    }
+
+    .topbar{
+        padding:0 15px;
+        gap:12px;
+    }
+
+    .page-title{
+        flex:1;
+    }
+
+    .page-title h1{
+        font-size:17px;
+    }
+
+    .page-title p{
+        display:none;
+    }
+
+    .content{
+        padding:15px;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .toolbar{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .search-box{
+        max-width:none;
+    }
+
+    .actions{
+        width:100%;
+    }
+
+    .actions .btn{
+        flex:1;
+    }
+}
+
+@media(max-width:550px){
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+    }
+
+    .stat-card{
+        padding:13px;
+    }
+
+    .stat-icon{
+        width:40px;
+        height:40px;
+        font-size:18px;
+    }
+
+    .stat-card h3{
+        font-size:19px;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-group.full{
+        grid-column:auto;
+    }
+
+    .user-box span{
+        display:none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">🎵</div>
+
+        <div class="brand-text">
+            <h2>KWAYA MANAGEMENT</h2>
+            <span>Usimamizi wa Kwaya</span>
+        </div>
+    </div>
+
+    <div class="nav-title">MENYU KUU</div>
+
+    <nav class="nav">
+
+        <a href="index.html">
+            <span class="nav-icon">🏠</span>
+            Dashboard
+        </a>
+
+        <a href="members.html">
+            <span class="nav-icon">👥</span>
+            Waimbaji
+        </a>
+
+        <a href="attendance.html">
+            <span class="nav-icon">📋</span>
+            Mahudhurio
+        </a>
+
+        <a href="songs.html" class="active">
+            <span class="nav-icon">🎵</span>
+            Nyimbo
+        </a>
+
+        <a href="song-books.html">
+            <span class="nav-icon">📚</span>
+            Vitabu vya Nyimbo
+        </a>
+
+        <a href="sacraments.html">
+            <span class="nav-icon">✝️</span>
+            Sakramenti
+        </a>
+
+        <a href="reports.html">
+            <span class="nav-icon">📊</span>
+            Ripoti
+        </a>
+
+        <a href="events.html">
+            <span class="nav-icon">📅</span>
+            Ratiba
+        </a>
+
+        <a href="announcements.html">
+            <span class="nav-icon">📢</span>
+            Taarifa
+        </a>
+
+        <a href="documents.html">
+            <span class="nav-icon">📄</span>
+            Nyaraka / PDF
+        </a>
+
+    </nav>
+
+    <div class="nav-title">MFUMO</div>
+
+    <nav class="nav">
+
+        <a href="settings.html">
+            <span class="nav-icon">⚙️</span>
+            Settings
+        </a>
+
+        <a href="#" onclick="logout();return false;">
+            <span class="nav-icon">🚪</span>
+            Toka
+        </a>
+
+    </nav>
+
+</aside>
+
+
+<!-- MAIN -->
+<main class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+        <div class="page-title">
+            <h1>Nyimbo</h1>
+            <p>Usimamizi wa nyimbo za kwaya</p>
+        </div>
+
+        <div class="user-box">
+            <span>Mwanakwaya</span>
+            <div class="user-avatar">M</div>
+        </div>
+
+    </header>
+
+
+    <section class="content">
+
+        <!-- STATS -->
+        <div class="stats">
+
+            <div class="stat-card">
+                <div class="stat-icon">🎵</div>
+
+                <div>
+                    <h3 id="totalSongs">0</h3>
+                    <p>Nyimbo Zote</p>
+                </div>
+            </div>
+
+
+            <div class="stat-card">
+                <div class="stat-icon">🔢</div>
+
+                <div>
+                    <h3 id="lastNumber">0</h3>
+                    <p>Namba ya Mwisho</p>
+                </div>
+            </div>
+
+
+            <div class="stat-card">
+                <div class="stat-icon">🎼</div>
+
+                <div>
+                    <h3 id="composerCount">0</h3>
+                    <p>Watunzi</p>
+                </div>
+            </div>
+
+
+            <div class="stat-card">
+                <div class="stat-icon">📚</div>
+
+                <div>
+                    <h3 id="bookSongCount">0</h3>
+                    <p>Nyimbo za Vitabu</p>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+
+            <div class="search-box">
+                <span class="search-icon">🔎</span>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Tafuta wimbo, mtunzi..."
+                    oninput="filterSongs()"
+                >
+            </div>
+
+
+            <div class="actions">
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="loadSongs()"
+                >
+                    🔄 Refresh
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    onclick="openSongModal()"
+                >
+                    ＋ Ongeza Wimbo
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- SONG TABLE -->
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Orodha ya Nyimbo</h2>
+                </div>
+
+                <span id="songCountLabel">0 nyimbo</span>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>JINA LA WIMBO</th>
+                            <th>MTUNZI</th>
+                            <th>AINA</th>
+                            <th>HALI</th>
+                            <th>VITENDO</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="songsTable">
+
+                        <tr>
+                            <td colspan="6">
+
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    Inapakia nyimbo...
+                                </div>
+
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- MODAL -->
+<div class="modal-overlay" id="songModal">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">Ongeza Wimbo</h2>
+
+            <button
+                class="close-btn"
+                onclick="closeSongModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="songForm" onsubmit="saveSong(event)">
+
+            <div class="modal-body">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label>Namba ya Wimbo</label>
+
+                        <input
+                            type="number"
+                            id="songNumber"
+                            min="1"
+                            placeholder="Mfano: 1"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Hali</label>
+
+                        <select id="songStatus">
+
+                            <option value="active">
+                                Hai
+                            </option>
+
+                            <option value="inactive">
+                                Haifanyi kazi
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group full">
+
+                        <label>
+                            Jina la Wimbo *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="songTitle"
+                            required
+                            placeholder="Andika jina la wimbo"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Mtunzi</label>
+
+                        <input
+                            type="text"
+                            id="songComposer"
+                            placeholder="Jina la mtunzi"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Aina / Voice</label>
+
+                        <select id="songVoice">
+
+                            <option value="">
+                                -- Chagua --
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group full">
+
+                        <label>Maelezo</label>
+
+                        <textarea
+                            id="songDescription"
+                            placeholder="Maelezo ya ziada kuhusu wimbo..."
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="closeSongModal()"
+                >
+                    Ghairi
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="saveButton"
+                >
+                    Hifadhi Wimbo
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* =========================================
+   SUPABASE
+========================================= */
+
+const SUPABASE_URL =
+    "https://xulnkdrgjgajmcqntwga.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* =========================================
+   GLOBAL VARIABLES
+========================================= */
+
+let allSongs = [];
+let editingSongId = null;
+
+
+/* =========================================
+   INIT
+========================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        await loadVoiceParts();
+
+        await loadSongs();
+
+    }
+);
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+function toggleSidebar(){
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+
+}
+
+
+/* =========================================
+   LOAD VOICE PARTS
+========================================= */
+
+async function loadVoiceParts(){
+
+    const select =
+        document.getElementById("songVoice");
+
+    try{
+
+        const { data, error } =
+            await supabaseClient
+                .from("voice_parts")
+                .select("*")
+                .order("sort_order", {
+                    ascending:true
+                });
+
+        if(error){
+
+            console.warn(
+                "Voice parts hazijapatikana:",
+                error.message
+            );
+
+            return;
+        }
+
+        data.forEach(part => {
+
+            const option =
+                document.createElement("option");
+
+            option.value =
+                part.id;
+
+            option.textContent =
+                part.name;
+
+            select.appendChild(option);
+
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* =========================================
+   LOAD SONGS
+========================================= */
+
+async function loadSongs(){
+
+    const tbody =
+        document.getElementById("songsTable");
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="6">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Inapakia nyimbo...
+                </div>
+            </td>
+        </tr>
+    `;
+
+    try{
+
+        const { data, error } =
+            await supabaseClient
+                .from("songs")
+                .select(`
+                    *,
+                    voice_parts (
+                        name
+                    )
+                `)
+                .order(
+                    "song_number",
+                    {
+                        ascending:true
+                    }
+                );
+
+        if(error)
+            throw error;
+
+        allSongs = data || [];
+
+        renderSongs(allSongs);
+
+        updateStats();
+
+    }catch(error){
+
+        console.error(error);
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            ⚠️
+                        </div>
+
+                        <h3>Imeshindikana kupakia nyimbo</h3>
+
+                        <p>
+                            ${escapeHtml(error.message)}
+                        </p>
+
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        showToast(
+            "Imeshindikana kupakia nyimbo",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   RENDER SONGS
+========================================= */
+
+function renderSongs(songs){
+
+    const tbody =
+        document.getElementById("songsTable");
+
+    document.getElementById(
+        "songCountLabel"
+    ).textContent =
+        `${songs.length} nyimbo`;
+
+    if(!songs.length){
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">
+
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            🎵
+                        </div>
+
+                        <h3>Hakuna nyimbo</h3>
+
+                        <p>
+                            Bado hakuna nyimbo zilizoongezwa.
+                        </p>
+
+                    </div>
+
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tbody.innerHTML =
+        songs.map(song => {
+
+            const number =
+                song.song_number ?? "-";
+
+            const title =
+                song.title || "Bila jina";
+
+            const composer =
+                song.composer || "—";
+
+            const voice =
+                song.voice_parts?.name ||
+                "—";
+
+            const active =
+                song.status !== "inactive";
+
+            return `
+
+                <tr>
+
+                    <td>
+                        <div class="song-number">
+                            ${escapeHtml(String(number))}
+                        </div>
+                    </td>
+
+
+                    <td>
+
+                        <div class="song-title">
+                            ${escapeHtml(title)}
+                        </div>
+
+                        ${
+                            song.description
+                            ?
+                            `
+                            <div style="
+                                color:#9ca3af;
+                                font-size:11px;
+                                margin-top:4px;
+                            ">
+                                ${escapeHtml(
+                                    song.description
+                                )}
+                            </div>
+                            `
+                            :
+                            ""
+                        }
+
+                    </td>
+
+
+                    <td>
+                        <span class="composer">
+                            ${escapeHtml(composer)}
+                        </span>
+                    </td>
+
+
+                    <td>
+
+                        <span class="badge">
+                            ${escapeHtml(voice)}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="badge ${
+                            active
+                            ?
+                            "status-active"
+                            :
+                            "status-inactive"
+                        }">
+
+                            ${
+                                active
+                                ?
+                                "Hai"
+                                :
+                                "Haifanyi kazi"
+                            }
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <div class="row-actions">
+
+                            <button
+                                class="icon-btn edit-btn"
+                                title="Hariri"
+                                onclick="editSong('${song.id}')"
+                            >
+                                ✏️
+                            </button>
+
+
+                            <button
+                                class="icon-btn delete-btn"
+                                title="Futa"
+                                onclick="deleteSong('${song.id}')"
+                            >
+                                🗑️
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* =========================================
+   SEARCH
+========================================= */
+
+function filterSongs(){
+
+    const query =
+        document
+            .getElementById("searchInput")
+            .value
+            .toLowerCase()
+            .trim();
+
+    if(!query){
+
+        renderSongs(allSongs);
+
+        return;
+
+    }
+
+    const filtered =
+        allSongs.filter(song => {
+
+            const title =
+                String(song.title || "")
+                    .toLowerCase();
+
+            const composer =
+                String(song.composer || "")
+                    .toLowerCase();
+
+            const number =
+                String(song.song_number || "")
+                    .toLowerCase();
+
+            const voice =
+                String(
+                    song.voice_parts?.name || ""
+                ).toLowerCase();
+
+            return (
+                title.includes(query) ||
+                composer.includes(query) ||
+                number.includes(query) ||
+                voice.includes(query)
+            );
+
+        });
+
+    renderSongs(filtered);
+
+}
+
+
+/* =========================================
+   STATS
+========================================= */
+
+function updateStats(){
+
+    document.getElementById(
+        "totalSongs"
+    ).textContent =
+        allSongs.length;
+
+
+    const numbers =
+        allSongs
+            .map(song => Number(song.song_number))
+            .filter(number => !isNaN(number));
+
+
+    const lastNumber =
+        numbers.length
+        ?
+        Math.max(...numbers)
+        :
+        0;
+
+
+    document.getElementById(
+        "lastNumber"
+    ).textContent =
+        lastNumber;
+
+
+    const composers =
+        new Set(
+            allSongs
+                .map(song =>
+                    String(song.composer || "")
+                        .trim()
+                )
+                .filter(Boolean)
+        );
+
+
+    document.getElementById(
+        "composerCount"
+    ).textContent =
+        composers.size;
+
+
+    /*
+       Hapa tunatumia taarifa ya vitabu
+       kama ipo.
+    */
+
+    loadBookSongCount();
+
+}
+
+
+/* =========================================
+   BOOK SONG COUNT
+========================================= */
+
+async function loadBookSongCount(){
+
+    const element =
+        document.getElementById(
+            "bookSongCount"
+        );
+
+    try{
+
+        const { count, error } =
+            await supabaseClient
+                .from("song_book_items")
+                .select(
+                    "*",
+                    {
+                        count:"exact",
+                        head:true
+                    }
+                );
+
+        if(error){
+
+            element.textContent = "0";
+
+            return;
+        }
+
+        element.textContent =
+            count || 0;
+
+    }catch(error){
+
+        element.textContent = "0";
+
+    }
+
+}
+
+
+/* =========================================
+   OPEN MODAL
+========================================= */
+
+function openSongModal(song = null){
+
+    editingSongId =
+        song?.id || null;
+
+    document.getElementById(
+        "modalTitle"
+    ).textContent =
+        song
+        ?
+        "Hariri Wimbo"
+        :
+        "Ongeza Wimbo";
+
+
+    document.getElementById(
+        "songTitle"
+    ).value =
+        song?.title || "";
+
+
+    document.getElementById(
+        "songComposer"
+    ).value =
+        song?.composer || "";
+
+
+    document.getElementById(
+        "songDescription"
+    ).value =
+        song?.description || "";
+
+
+    document.getElementById(
+        "songStatus"
+    ).value =
+        song?.status || "active";
+
+
+    document.getElementById(
+        "songVoice"
+    ).value =
+        song?.voice_part_id || "";
+
+
+    /*
+       Kwa wimbo mpya,
+       pendekeza namba inayofuata.
+    */
+
+    document.getElementById(
+        "songNumber"
+    ).value =
+        song?.song_number ||
+        getNextSongNumber();
+
+
+    document
+        .getElementById("songModal")
+        .classList.add("show");
+
+}
+
+
+/* =========================================
+   NEXT SONG NUMBER
+========================================= */
+
+function getNextSongNumber(){
+
+    if(!allSongs.length)
+        return 1;
+
+    const numbers =
+        allSongs
+            .map(song =>
+                Number(song.song_number)
+            )
+            .filter(number =>
+                Number.isFinite(number)
+            );
+
+    if(!numbers.length)
+        return 1;
+
+    return Math.max(...numbers) + 1;
+
+}
+
+
+/* =========================================
+   CLOSE MODAL
+========================================= */
+
+function closeSongModal(){
+
+    document
+        .getElementById("songModal")
+        .classList.remove("show");
+
+    document
+        .getElementById("songForm")
+        .reset();
+
+    editingSongId = null;
+
+}
+
+
+/* =========================================
+   SAVE SONG
+========================================= */
+
+async function saveSong(event){
+
+    event.preventDefault();
+
+
+    const saveButton =
+        document.getElementById(
+            "saveButton"
+        );
+
+    saveButton.disabled = true;
+
+    saveButton.textContent =
+        "Inahifadhi...";
+
+
+    const payload = {
+
+        song_number:
+            Number(
+                document.getElementById(
+                    "songNumber"
+                ).value
+            ),
+
+        title:
+            document.getElementById(
+                "songTitle"
+            ).value.trim(),
+
+        composer:
+            document.getElementById(
+                "songComposer"
+            ).value.trim() || null,
+
+        voice_part_id:
+            document.getElementById(
+                "songVoice"
+            ).value || null,
+
+        description:
+            document.getElementById(
+                "songDescription"
+            ).value.trim() || null,
+
+        status:
+            document.getElementById(
+                "songStatus"
+            ).value
+
+    };
+
+
+    try{
+
+        let result;
+
+
+        if(editingSongId){
+
+            result =
+                await supabaseClient
+                    .from("songs")
+                    .update(payload)
+                    .eq("id", editingSongId);
+
+        }else{
+
+            result =
+                await supabaseClient
+                    .from("songs")
+                    .insert(payload);
+
+        }
+
+
+        if(result.error)
+            throw result.error;
+
+
+        closeSongModal();
+
+        showToast(
+            editingSongId
+            ?
+            "Wimbo umehaririwa kikamilifu"
+            :
+            "Wimbo umeongezwa kikamilifu",
+            "success"
+        );
+
+
+        await loadSongs();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Imeshindikana kuhifadhi wimbo",
+            "error"
+        );
+
+    }finally{
+
+        saveButton.disabled = false;
+
+        saveButton.textContent =
+            "Hifadhi Wimbo";
+
+    }
+
+}
+
+
+/* =========================================
+   EDIT SONG
+========================================= */
+
+function editSong(id){
+
+    const song =
+        allSongs.find(
+            item => String(item.id) === String(id)
+        );
+
+    if(!song){
+
+        showToast(
+            "Wimbo haujapatikana",
+            "error"
+        );
+
+        return;
+    }
+
+    openSongModal(song);
+
+}
+
+
+/* =========================================
+   DELETE SONG
+========================================= */
+
+async function deleteSong(id){
+
+    const song =
+        allSongs.find(
+            item => String(item.id) === String(id)
+        );
+
+    if(!song)
+        return;
+
+
+    const confirmed =
+        confirm(
+            `Una uhakika unataka kufuta wimbo "${song.title}"?`
+        );
+
+
+    if(!confirmed)
+        return;
+
+
+    try{
+
+        const { error } =
+            await supabaseClient
+                .from("songs")
+                .delete()
+                .eq("id", id);
+
+
+        if(error)
+            throw error;
+
+
+        showToast(
+            "Wimbo umefutwa",
+            "success"
+        );
+
+
+        await loadSongs();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Imeshindikana kufuta wimbo",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+function showToast(message, type = ""){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.className =
+        "toast show " + type;
+
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 3000);
+
+}
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHtml(value){
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logout(){
+
+    try{
+
+        await supabaseClient.auth.signOut();
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* =========================================
+   CLOSE MODAL WHEN CLICK OUTSIDE
+========================================= */
+
+document
+    .getElementById("songModal")
+    .addEventListener(
+        "click",
+        function(event){
+
+            if(
+                event.target === this
+            ){
+
+                closeSongModal();
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
