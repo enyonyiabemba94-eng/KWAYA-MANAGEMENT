@@ -15,11 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Apply choir branding
+      - name: Apply choir branding and mass programme settings
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re
 
           logo='https://raw.githubusercontent.com/enyonyiab94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg'
 
@@ -30,15 +29,31 @@ jobs:
               s=s.replace('Usimamizi wa Kwaya Kristo Mfalme','📍 NYARUGUSU CAMP')
               s=s.replace('KWAYA MANAGEMENT','KWAYA YA KRISTO MFALME')
 
-              # Add the official logo to every sidebar brand that does not already have one.
               if 'class="brand"' in s and logo not in s:
                   s=s.replace('<div class="brand">','<div class="brand"><img class="brand-logo" src="'+logo+'" alt="Kwaya ya Kristo Mfalme">',1)
                   s=s.replace('</style>',' .brand{display:flex;align-items:center;gap:10px}.brand-logo{width:44px;height:44px;object-fit:cover;border-radius:50%;background:#fff;flex:none} </style>',1)
 
-              # Ensure the location label is visible in brand blocks where the old subtitle remains.
               s=s.replace('<small>Usimamizi wa Kwaya</small>','<small>Usimamizi wa Kwaya</small><span class="brand-location">📍 NYARUGUSU CAMP</span>')
               if 'brand-location' in s:
                   s=s.replace('</style>',' .brand-location{display:block;color:#d8ccf0;font-size:10px;margin-top:3px;font-weight:600} </style>',1)
+
+              if p.name == 'mass-programmes.html':
+                  # Requested song-slot counts.
+                  s=s.replace("['opening','🎵 Nyimbo za Kuingia',3]", "['opening','🎵 Nyimbo za Kuingia',6]")
+                  s=s.replace("['offertory','🍞 Sadaka',6]", "['offertory','🍞 Sadaka',10]")
+                  s=s.replace("['communion','🍷 Komunio',6]", "['communion','🍷 Komunio',10]")
+                  s=s.replace("['thanksgiving','🙏 Shukrani',4]", "['thanksgiving','🙏 Shukrani',10]")
+
+                  # Special-event song sections: 10 slots for every event type.
+                  s=s.replace("const special=[['baptism','💧 Nyimbo za Ubatizo'],['confirmation','🕊️ Nyimbo za Kipaimara'],['marriage','💍 Nyimbo za Ndoa']]", "const special=[['baptism','💧 Nyimbo za Ubatizo',10],['confirmation','🕊️ Nyimbo za Kipaimara',10],['marriage','💍 Nyimbo za Ndoa',10],['funeral','🕯️ Nyimbo za Mazishi',10],['feast','🎉 Nyimbo za Sherehe / Sikukuu',10],['church','⛪ Nyimbo za Sherehe ya Kanisa',10],['other_event','✨ Nyimbo za Tukio Lingine',10]]")
+
+                  # Add missing special-event checkboxes while preserving the existing three.
+                  old_checks='<label class="check"><input type="checkbox" id="baptism" onchange="specialChanged()"> 💧 Ubatizo</label><label class="check"><input type="checkbox" id="confirmation" onchange="specialChanged()"> 🕊️ Kipaimara</label><label class="check"><input type="checkbox" id="marriage" onchange="specialChanged()"> 💍 Ndoa</label>'
+                  new_checks='<label class="check"><input type="checkbox" id="baptism" onchange="specialChanged()"> 💧 Ubatizo</label><label class="check"><input type="checkbox" id="confirmation" onchange="specialChanged()"> 🕊️ Kipaimara</label><label class="check"><input type="checkbox" id="marriage" onchange="specialChanged()"> 💍 Ndoa</label><label class="check"><input type="checkbox" id="funeral" onchange="specialChanged()"> 🕯️ Mazishi</label><label class="check"><input type="checkbox" id="feast" onchange="specialChanged()"> 🎉 Sherehe / Sikukuu</label><label class="check"><input type="checkbox" id="church" onchange="specialChanged()"> ⛪ Sherehe ya Kanisa</label><label class="check"><input type="checkbox" id="other_event" onchange="specialChanged()"> ✨ Tukio Lingine</label>'
+                  s=s.replace(old_checks,new_checks)
+
+                  # Remove duplicate old location/logo artifacts from the mass-programme sidebar.
+                  s=s.replace('<span class="brand-location">📍 NYARUGUSU CAMP</span><span class="brand-location">📍 NYARUGUSU CAMP</span><span class="brand-location">📍 KASULU - KIGOMA/TANZANIA</span>', '<span class="brand-location">📍 KASULU - KIGOMA/TANZANIA</span>')
 
               if s != old:
                   p.write_text(s,encoding='utf-8')
@@ -50,8 +65,8 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add '*.html'
           if git diff --cached --quiet; then
-            echo 'No branding changes needed.'
+            echo 'No changes needed.'
           else
-            git commit -m 'Brand all choir pages as Kwaya ya Kristo Mfalme'
+            git commit -m 'Update mass programme song slot counts'
             git push
           fi
