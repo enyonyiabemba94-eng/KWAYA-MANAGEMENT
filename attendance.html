@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mahudhurio | KWAYA MANAGEMENT</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+:root{
+    --primary:#6d28d9;
+    --primary-dark:#4c1d95;
+    --secondary:#8b5cf6;
+    --bg:#f5f6fa;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --border:#e5e7eb;
+    --success:#16a34a;
+    --warning:#d97706;
+    --danger:#dc2626;
+    --blue:#2563eb;
+    --sidebar:#18122b;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    width:260px;
+    height:100vh;
+    background:var(--sidebar);
+    color:white;
+    z-index:1000;
+    overflow-y:auto;
+    transition:.3s;
+}
+
+.brand{
+    height:80px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:15px 20px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.brand-icon{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--secondary)
+    );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:23px;
+}
+
+.brand-text h2{
+    font-size:16px;
+}
+
+.brand-text small{
+    display:block;
+    color:#b9aecf;
+    font-size:9px;
+    margin-top:3px;
+}
+
+.menu-title{
+    color:#8e849f;
+    font-size:10px;
+    font-weight:bold;
+    padding:22px 20px 8px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.nav{
+    padding:0 12px 20px;
+}
+
+.nav a{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    padding:12px 14px;
+    border-radius:10px;
+    color:#d7d0e2;
+    font-size:14px;
+    margin-bottom:4px;
+    text-decoration:none;
+}
+
+.nav a:hover,
+.nav a.active{
+    background:rgba(139,92,246,.18);
+    color:white;
+}
+
+.nav a.active{
+    border-left:3px solid #a78bfa;
+}
+
+.nav-icon{
+    width:22px;
+    text-align:center;
+}
+
+/* MAIN */
+
+.main{
+    margin-left:260px;
+    min-height:100vh;
+}
+
+.topbar{
+    height:80px;
+    background:white;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:900;
+}
+
+.top-left{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.mobile-menu{
+    display:none;
+    width:40px;
+    height:40px;
+    border:0;
+    border-radius:10px;
+    background:#f3f4f6;
+    font-size:20px;
+}
+
+.page-title h1{
+    font-size:22px;
+}
+
+.page-title p{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:4px;
+}
+
+.profile{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:linear-gradient(
+        135deg,
+        var(--primary),
+        var(--secondary)
+    );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-weight:bold;
+}
+
+.profile-text strong{
+    display:block;
+    font-size:13px;
+}
+
+.profile-text small{
+    color:var(--muted);
+    font-size:11px;
+}
+
+/* CONTENT */
+
+.content{
+    padding:28px;
+}
+
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:22px;
+    gap:15px;
+}
+
+.page-header h2{
+    font-size:20px;
+}
+
+.page-header p{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:5px;
+}
+
+/* BUTTONS */
+
+.btn{
+    border:0;
+    border-radius:9px;
+    padding:11px 16px;
+    font-size:12px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.btn-primary{
+    background:var(--primary);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:var(--primary-dark);
+}
+
+.btn-success{
+    background:var(--success);
+    color:white;
+}
+
+.btn-secondary{
+    background:#f3f4f6;
+    color:#374151;
+}
+
+.btn-danger{
+    background:var(--danger);
+    color:white;
+}
+
+/* DATE PANEL */
+
+.date-panel{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:18px;
+    margin-bottom:20px;
+    display:grid;
+    grid-template-columns:1.2fr 1fr 1fr auto;
+    gap:12px;
+    align-items:end;
+}
+
+.field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.field label{
+    font-size:11px;
+    font-weight:bold;
+    color:#374151;
+}
+
+input,
+select{
+    height:42px;
+    border:1px solid #dfe3ea;
+    border-radius:9px;
+    padding:0 12px;
+    outline:none;
+    background:white;
+    color:#374151;
+    font-size:13px;
+}
+
+input:focus,
+select:focus{
+    border-color:var(--secondary);
+    box-shadow:0 0 0 3px rgba(139,92,246,.08);
+}
+
+/* STATS */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin-bottom:20px;
+}
+
+.stat{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:13px;
+    padding:15px;
+}
+
+.stat small{
+    display:block;
+    color:var(--muted);
+    font-size:10px;
+    margin-bottom:6px;
+}
+
+.stat strong{
+    font-size:23px;
+}
+
+.stat.present strong{
+    color:var(--success);
+}
+
+.stat.late strong{
+    color:var(--warning);
+}
+
+.stat.permission strong{
+    color:var(--blue);
+}
+
+.stat.absent strong{
+    color:var(--danger);
+}
+
+.stat.pending strong{
+    color:#6b7280;
+}
+
+/* REGISTER */
+
+.card{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:15px;
+    overflow:hidden;
+    margin-bottom:20px;
+}
+
+.card-header{
+    padding:17px 20px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.card-header h3{
+    font-size:15px;
+}
+
+.header-actions{
+    display:flex;
+    gap:7px;
+}
+
+.search-box{
+    padding:15px 20px;
+    border-bottom:1px solid var(--border);
+}
+
+.search-box input{
+    width:100%;
+}
+
+.table-wrap{
+    width:100%;
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:850px;
+}
+
+th{
+    background:#fafafa;
+    color:#6b7280;
+    font-size:10px;
+    text-align:left;
+    padding:13px 15px;
+    border-bottom:1px solid var(--border);
+    white-space:nowrap;
+}
+
+td{
+    padding:11px 15px;
+    border-bottom:1px solid #f0f0f0;
+    font-size:12px;
+    vertical-align:middle;
+}
+
+tbody tr:hover{
+    background:#faf9ff;
+}
+
+.member{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.member-avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:#eee9ff;
+    color:var(--primary);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.member-name strong{
+    display:block;
+    font-size:13px;
+}
+
+.member-name small{
+    color:var(--muted);
+    font-size:10px;
+}
+
+/* STATUS BUTTONS */
+
+.status-buttons{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+}
+
+.status-btn{
+    border:1px solid #ddd;
+    background:white;
+    border-radius:7px;
+    padding:7px 9px;
+    font-size:10px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.status-btn:hover{
+    transform:translateY(-1px);
+}
+
+.status-btn.present{
+    color:var(--success);
+}
+
+.status-btn.late{
+    color:var(--warning);
+}
+
+.status-btn.permission{
+    color:var(--blue);
+}
+
+.status-btn.absent{
+    color:var(--danger);
+}
+
+.status-btn.selected.present{
+    background:#dcfce7;
+    border-color:#86efac;
+}
+
+.status-btn.selected.late{
+    background:#fef3c7;
+    border-color:#fcd34d;
+}
+
+.status-btn.selected.permission{
+    background:#dbeafe;
+    border-color:#93c5fd;
+}
+
+.status-btn.selected.absent{
+    background:#fee2e2;
+    border-color:#fca5a5;
+}
+
+/* CURRENT STATUS */
+
+.current-status{
+    display:inline-flex;
+    align-items:center;
+    padding:6px 9px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:bold;
+}
+
+.status-yupo{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.status-late{
+    background:#fef3c7;
+    color:#b45309;
+}
+
+.status-permission{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.status-absent{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+.status-pending{
+    background:#f3f4f6;
+    color:#6b7280;
+}
+
+/* FOOTER ACTIONS */
+
+.register-footer{
+    padding:17px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    border-top:1px solid var(--border);
+}
+
+.footer-info{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.footer-actions{
+    display:flex;
+    gap:8px;
+}
+
+/* EMPTY */
+
+.empty{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--muted);
+    font-size:13px;
+}
+
+/* TOAST */
+
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    background:#111827;
+    color:white;
+    padding:13px 17px;
+    border-radius:10px;
+    font-size:12px;
+    display:none;
+    z-index:3000;
+    max-width:350px;
+}
+
+.toast.show{
+    display:block;
+}
+
+.toast.success{
+    background:#166534;
+}
+
+.toast.error{
+    background:#991b1b;
+}
+
+/* OVERLAY */
+
+.overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.45);
+    z-index:999;
+}
+
+/* MOBILE */
+
+@media(max-width:1100px){
+
+    .stats{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .date-panel{
+        grid-template-columns:1fr 1fr;
+    }
+}
+
+@media(max-width:768px){
+
+    .sidebar{
+        transform:translateX(-100%);
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .overlay.show{
+        display:block;
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .mobile-menu{
+        display:block;
+    }
+
+    .topbar{
+        padding:0 15px;
+    }
+
+    .content{
+        padding:15px;
+    }
+
+    .page-title h1{
+        font-size:18px;
+    }
+
+    .page-title p{
+        display:none;
+    }
+
+    .profile-text{
+        display:none;
+    }
+
+    .page-header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .date-panel{
+        grid-template-columns:1fr;
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+        gap:9px;
+    }
+
+    .register-footer{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .footer-actions{
+        width:100%;
+    }
+
+    .footer-actions .btn{
+        flex:1;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            ♫
+        </div>
+
+        <div class="brand-text">
+            <h2>KWAYA MANAGEMENT</h2>
+            <small>MFUMO WA USIMAMIZI WA KWAYA</small>
+        </div>
+
+    </div>
+
+    <div class="menu-title">
+        Menyu Kuu
+    </div>
+
+    <nav class="nav">
+
+        <a href="index.html">
+            <span class="nav-icon">🏠</span>
+            Dashboard
+        </a>
+
+        <a href="members.html">
+            <span class="nav-icon">👥</span>
+            Waimbaji
+        </a>
+
+        <a href="attendance.html" class="active">
+            <span class="nav-icon">📋</span>
+            Mahudhurio
+        </a>
+
+        <a href="songs.html">
+            <span class="nav-icon">🎵</span>
+            Nyimbo
+        </a>
+
+        <a href="song-books.html">
+            <span class="nav-icon">📚</span>
+            Vitabu vya Nyimbo
+        </a>
+
+        <a href="sacraments.html">
+            <span class="nav-icon">✝️</span>
+            Sakramenti
+        </a>
+
+        <a href="reports.html">
+            <span class="nav-icon">📊</span>
+            Ripoti
+        </a>
+
+        <div class="menu-title">
+            Mawasiliano
+        </div>
+
+        <a href="events.html">
+            <span class="nav-icon">📅</span>
+            Ratiba
+        </a>
+
+        <a href="announcements.html">
+            <span class="nav-icon">📢</span>
+            Taarifa
+        </a>
+
+        <a href="documents.html">
+            <span class="nav-icon">📄</span>
+            Nyaraka / PDF
+        </a>
+
+        <div class="menu-title">
+            Mfumo
+        </div>
+
+        <a href="settings.html">
+            <span class="nav-icon">⚙️</span>
+            Settings
+        </a>
+
+        <a href="#" id="logoutBtn">
+            <span class="nav-icon">🚪</span>
+            Toka
+        </a>
+
+    </nav>
+
+</aside>
+
+
+<!-- MAIN -->
+
+<main class="main">
+
+    <header class="topbar">
+
+        <div class="top-left">
+
+            <button
+                class="mobile-menu"
+                id="mobileMenu"
+            >
+                ☰
+            </button>
+
+            <div class="page-title">
+
+                <h1>Mahudhurio</h1>
+
+                <p>
+                    Register ya mahudhurio ya waimbaji
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="profile">
+
+            <div class="avatar">
+                ♫
+            </div>
+
+            <div class="profile-text">
+
+                <strong>
+                    Mwanakwaya
+                </strong>
+
+                <small>
+                    Mtumiaji wa Mfumo
+                </small>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <section class="content">
+
+        <div class="page-header">
+
+            <div>
+
+                <h2>
+                    Register ya Mahudhurio
+                </h2>
+
+                <p>
+                    Chagua tarehe na weka hali ya kila mwimbaji.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- DATE PANEL -->
+
+        <div class="date-panel">
+
+            <div class="field">
+
+                <label>
+                    Tarehe ya Mahudhurio *
+                </label>
+
+                <input
+                    type="date"
+                    id="attendanceDate"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Aina ya Mkutano
+                </label>
+
+                <select id="meetingType">
+
+                    <option value="Mazoezi">
+                        Mazoezi
+                    </option>
+
+                    <option value="Ibada">
+                        Ibada
+                    </option>
+
+                    <option value="Mkutano">
+                        Mkutano
+                    </option>
+
+                    <option value="Tukio">
+                        Tukio
+                    </option>
+
+                    <option value="Nyingine">
+                        Nyingine
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Tafuta Mwimbaji
+                </label>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Andika jina..."
+                >
+
+            </div>
+
+
+            <button
+                class="btn btn-primary"
+                id="loadDateBtn"
+            >
+                📋 Fungua Register
+            </button>
+
+        </div>
+
+
+        <!-- STATISTICS -->
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <small>
+                    Waimbaji
+                </small>
+
+                <strong id="totalCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat present">
+
+                <small>
+                    Yupo
+                </small>
+
+                <strong id="presentCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat late">
+
+                <small>
+                    Amechelewa
+                </small>
+
+                <strong id="lateCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat permission">
+
+                <small>
+                    Ruhusa
+                </small>
+
+                <strong id="permissionCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat absent">
+
+                <small>
+                    Hayupo
+                </small>
+
+                <strong id="absentCount">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- REGISTER -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h3>
+                    📝 Orodha ya Waimbaji
+                </h3>
+
+                <div class="header-actions">
+
+                    <button
+                        class="btn btn-success"
+                        id="markAllPresentBtn"
+                    >
+                        ✓ Wote Yupo
+                    </button>
+
+                    <button
+                        class="btn btn-secondary"
+                        id="clearAllBtn"
+                    >
+                        Safisha
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="tableSearch"
+                    placeholder="🔎 Tafuta jina la mwimbaji kwenye register..."
+                >
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                # 
+                            </th>
+
+                            <th>
+                                MWIMBAJI
+                            </th>
+
+                            <th>
+                                SAUTI
+                            </th>
+
+                            <th>
+                                HALI YA MAHUDHURIO
+                            </th>
+
+                            <th>
+                                HALI
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="attendanceTable">
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                class="empty"
+                            >
+                                Chagua tarehe ili kufungua register.
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="register-footer">
+
+                <div class="footer-info">
+
+                    <span id="footerInfo">
+                        Hakuna mahudhurio yaliyopakiwa.
+                    </span>
+
+                </div>
+
+                <div class="footer-actions">
+
+                    <button
+                        class="btn btn-secondary"
+                        id="refreshBtn"
+                    >
+                        🔄 Refresh
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        id="saveBtn"
+                    >
+                        💾 Hifadhi Mahudhurio
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- TOAST -->
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+<script>
+
+/* ================================
+   SUPABASE
+================================ */
+
+const SUPABASE_URL =
+    "https://xulnkdrgjgajmcqntwga.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* ================================
+   VARIABLES
+================================ */
+
+let members = [];
+
+let attendanceMap = {};
+
+let selectedDate = "";
+
+let saving = false;
+
+
+/* ================================
+   HELPERS
+================================ */
+
+function escapeHTML(value){
+
+    if(
+        value === null ||
+        value === undefined
+    ){
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+function showToast(
+    message,
+    type = "success"
+){
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    toast.textContent =
+        message;
+
+    toast.className =
+        "toast show " + type;
+
+    setTimeout(
+        () => {
+
+            toast.className =
+                "toast";
+
+        },
+        3000
+    );
+}
+
+
+function getToday(){
+
+    const now =
+        new Date();
+
+    const year =
+        now.getFullYear();
+
+    const month =
+        String(
+            now.getMonth() + 1
+        ).padStart(2,"0");
+
+    const day =
+        String(
+            now.getDate()
+        ).padStart(2,"0");
+
+    return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+    );
+}
+
+
+function getInitials(name){
+
+    if(!name){
+        return "?";
+    }
+
+    const words =
+        name.trim().split(/\s+/);
+
+    if(words.length === 1){
+        return words[0]
+            .charAt(0)
+            .toUpperCase();
+    }
+
+    return (
+        words[0].charAt(0) +
+        words[1].charAt(0)
+    ).toUpperCase();
+}
+
+
+function getVoiceName(
+    voiceId
+){
+
+    if(!voiceId){
+        return "—";
+    }
+
+    const voice =
+        window.voiceParts?.find(
+            item =>
+                String(item.id) ===
+                String(voiceId)
+        );
+
+    return voice
+        ? voice.name
+        : "—";
+}
+
+
+/* ================================
+   LOAD VOICE PARTS
+================================ */
+
+async function loadVoiceParts(){
+
+    const { data,error } =
+        await supabaseClient
+            .from("voice_parts")
+            .select("*")
+            .order(
+                "sort_order",
+                {
+                    ascending:true
+                }
+            );
+
+    if(error){
+
+        console.error(
+            "Voice parts:",
+            error
+        );
+
+        window.voiceParts = [];
+
+        return;
+    }
+
+    window.voiceParts =
+        data || [];
+}
+
+
+/* ================================
+   LOAD MEMBERS
+================================ */
+
+async function loadMembers(){
+
+    const { data,error } =
+        await supabaseClient
+            .from("members")
+            .select("*")
+            .order(
+                "full_name",
+                {
+                    ascending:true
+                }
+            );
+
+    if(error){
+
+        console.error(
+            "Members:",
+            error
+        );
+
+        document.getElementById(
+            "attendanceTable"
+        ).innerHTML = `
+            <tr>
+                <td colspan="5" class="empty">
+                    Imeshindikana kupakia waimbaji.
+                </td>
+            </tr>
+        `;
+
+        showToast(
+            "Imeshindikana kusoma waimbaji.",
+            "error"
+        );
+
+        return;
+    }
+
+    members =
+        data || [];
+
+    updateStats();
+
+    renderTable();
+}
+
+
+/* ================================
+   LOAD ATTENDANCE FOR DATE
+================================ */
+
+async function loadAttendanceForDate(){
+
+    if(!selectedDate){
+
+        showToast(
+            "Chagua tarehe kwanza.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    attendanceMap = {};
+
+
+    const { data,error } =
+        await supabaseClient
+            .from("attendance_records")
+            .select("*")
+            .eq(
+                "attendance_date",
+                selectedDate
+            );
+
+
+    if(error){
+
+        /*
+          Some databases may use
+          "date" instead of
+          "attendance_date".
+
+          We intentionally stop here
+          rather than writing into a
+          wrong column.
+        */
+
+        console.error(
+            "Attendance:",
+            error
+        );
+
+        showToast(
+            "Imeshindikana kusoma mahudhurio ya tarehe hii.",
+            "error"
+        );
+
+        renderTable();
+
+        return;
+    }
+
+
+    const records =
+        data || [];
+
+
+    records.forEach(
+        record => {
+
+            const memberId =
+                record.member_id;
+
+            if(memberId){
+
+                attendanceMap[
+                    String(memberId)
+                ] = {
+
+                    id:record.id,
+
+                    status:
+                        normalizeStatus(
+                            record.status
+                        ),
+
+                    meeting_type:
+                        record.meeting_type ||
+                        ""
+
+                };
+
+            }
+
+        }
+    );
+
+
+    renderTable();
+
+}
+
+
+/* ================================
+   NORMALIZE STATUS
+================================ */
+
+function normalizeStatus(
+    status
+){
+
+    const value =
+        String(
+            status || ""
+        )
+        .toLowerCase()
+        .trim();
+
+
+    if(
+        value === "present" ||
+        value === "yupo"
+    ){
+
+        return "yupo";
+
+    }
+
+
+    if(
+        value === "late" ||
+        value === "amechelewa"
+    ){
+
+        return "amechelewa";
+
+    }
+
+
+    if(
+        value === "permission" ||
+        value === "ruhusa"
+    ){
+
+        return "ruhusa";
+
+    }
+
+
+    if(
+        value === "absent" ||
+        value === "hayupo"
+    ){
+
+        return "hayupo";
+
+    }
+
+
+    return "";
+}
+
+
+/* ================================
+   RENDER TABLE
+================================ */
+
+function renderTable(){
+
+    const table =
+        document.getElementById(
+            "attendanceTable"
+        );
+
+    const search =
+        document.getElementById(
+            "tableSearch"
+        ).value
+        .toLowerCase()
+        .trim();
+
+
+    const filtered =
+        members.filter(
+            member => {
+
+                const name =
+                    String(
+                        member.full_name ||
+                        ""
+                    ).toLowerCase();
+
+                return (
+                    !search ||
+                    name.includes(search)
+                );
+
+            }
+        );
+
+
+    if(!members.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty">
+                    Hakuna waimbaji waliosajiliwa.
+                </td>
+            </tr>
+        `;
+
+        updateStats();
+
+        return;
+    }
+
+
+    if(!filtered.length){
+
+        table.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty">
+                    Hakuna mwimbaji aliyepatikana.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    table.innerHTML =
+        filtered.map(
+            (member,index) => {
+
+                const id =
+                    String(
+                        member.id
+                    );
+
+
+                const record =
+                    attendanceMap[id];
+
+
+                const status =
+                    record
+                        ? record.status
+                        : "";
+
+
+                let statusHTML = `
+                    <span class="current-status status-pending">
+                        Haijawekwa
+                    </span>
+                `;
+
+
+                if(status === "yupo"){
+
+                    statusHTML = `
+                        <span class="current-status status-yupo">
+                            ✓ Yupo
+                        </span>
+                    `;
+
+                }
+
+
+                if(status === "amechelewa"){
+
+                    statusHTML = `
+                        <span class="current-status status-late">
+                            ⏰ Amechelewa
+                        </span>
+                    `;
+
+                }
+
+
+                if(status === "ruhusa"){
+
+                    statusHTML = `
+                        <span class="current-status status-permission">
+                            ℹ Ruhusa
+                        </span>
+                    `;
+
+                }
+
+
+                if(status === "hayupo"){
+
+                    statusHTML = `
+                        <span class="current-status status-absent">
+                            ✕ Hayupo
+                        </span>
+                    `;
+
+                }
+
+
+                const name =
+                    member.full_name ||
+                    "Jina halijawekwa";
+
+
+                const voice =
+                    getVoiceName(
+                        member.voice_part_id
+                    );
+
+
+                return `
+
+                    <tr data-member-id="${escapeHTML(id)}">
+
+                        <td>
+                            ${index + 1}
+                        </td>
+
+                        <td>
+
+                            <div class="member">
+
+                                <div class="member-avatar">
+                                    ${escapeHTML(
+                                        getInitials(
+                                            name
+                                        )
+                                    )}
+                                </div>
+
+                                <div class="member-name">
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            name
+                                        )}
+                                    </strong>
+
+                                    <small>
+                                        Mwimbaji
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                voice
+                            )}
+                        </td>
+
+                        <td>
+
+                            <div class="status-buttons">
+
+                                <button
+                                    type="button"
+                                    class="status-btn present ${
+                                        status === "yupo"
+                                            ? "selected"
+                                            : ""
+                                    }"
+                                    onclick="setStatus('${escapeHTML(id)}','yupo')"
+                                >
+                                    ✓ Yupo
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="status-btn late ${
+                                        status === "amechelewa"
+                                            ? "selected"
+                                            : ""
+                                    }"
+                                    onclick="setStatus('${escapeHTML(id)}','amechelewa')"
+                                >
+                                    ⏰ Amechelewa
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="status-btn permission ${
+                                        status === "ruhusa"
+                                            ? "selected"
+                                            : ""
+                                    }"
+                                    onclick="setStatus('${escapeHTML(id)}','ruhusa')"
+                                >
+                                    ℹ Ruhusa
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="status-btn absent ${
+                                        status === "hayupo"
+                                            ? "selected"
+                                            : ""
+                                    }"
+                                    onclick="setStatus('${escapeHTML(id)}','hayupo')"
+                                >
+                                    ✕ Hayupo
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                        <td>
+                            ${statusHTML}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join("");
+
+
+    updateStats();
+
+}
+
+
+/* ================================
+   SET STATUS
+================================ */
+
+function setStatus(
+    memberId,
+    status
+){
+
+    attendanceMap[
+        String(memberId)
+    ] = {
+
+        ...(attendanceMap[
+            String(memberId)
+        ] || {}),
+
+        status:status
+
+    };
+
+
+    renderTable();
+
+}
+
+
+/* ================================
+   UPDATE STATS
+================================ */
+
+function updateStats(){
+
+    const total =
+        members.length;
+
+
+    let yupo = 0;
+    let late = 0;
+    let ruhusa = 0;
+    let hayupo = 0;
+
+
+    Object.values(
+        attendanceMap
+    ).forEach(
+        record => {
+
+            if(
+                record.status ===
+                "yupo"
+            ){
+                yupo++;
+            }
+
+            if(
+                record.status ===
+                "amechelewa"
+            ){
+                late++;
+            }
+
+            if(
+                record.status ===
+                "ruhusa"
+            ){
+                ruhusa++;
+            }
+
+            if(
+                record.status ===
+                "hayupo"
+            ){
+                hayupo++;
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "totalCount"
+    ).textContent =
+        total;
+
+
+    document.getElementById(
+        "presentCount"
+    ).textContent =
+        yupo;
+
+
+    document.getElementById(
+        "lateCount"
+    ).textContent =
+        late;
+
+
+    document.getElementById(
+        "permissionCount"
+    ).textContent =
+        ruhusa;
+
+
+    document.getElementById(
+        "absentCount"
+    ).textContent =
+        hayupo;
+
+
+    const completed =
+        yupo +
+        late +
+        ruhusa +
+        hayupo;
+
+
+    document.getElementById(
+        "footerInfo"
+    ).textContent =
+        selectedDate
+            ? `${completed} kati ya ${total} wamewekewa hali ya mahudhurio.`
+            : "Chagua tarehe ya mahudhurio.";
+
+}
+
+
+/* ================================
+   MARK ALL PRESENT
+================================ */
+
+document.getElementById(
+    "markAllPresentBtn"
+).addEventListener(
+    "click",
+    () => {
+
+        if(!members.length){
+
+            showToast(
+                "Hakuna waimbaji.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        members.forEach(
+            member => {
+
+                attendanceMap[
+                    String(member.id)
+                ] = {
+
+                    ...(attendanceMap[
+                        String(member.id)
+                    ] || {}),
+
+                    status:"yupo"
+
+                };
+
+            }
+        );
+
+
+        renderTable();
+
+
+        showToast(
+            "Waimbaji wote wamewekwa Yupo."
+        );
+
+    }
+);
+
+
+/* ================================
+   CLEAR ALL
+================================ */
+
+document.getElementById(
+    "clearAllBtn"
+).addEventListener(
+    "click",
+    () => {
+
+        if(
+            !confirm(
+                "Una uhakika unataka kusafisha hali zote za mahudhurio?"
+            )
+        ){
+
+            return;
+
+        }
+
+
+        attendanceMap = {};
+
+        renderTable();
+
+        showToast(
+            "Hali za mahudhurio zimesafishwa."
+        );
+
+    }
+);
+
+
+/* ================================
+   LOAD DATE
+================================ */
+
+document.getElementById(
+    "loadDateBtn"
+).addEventListener(
+    "click",
+    async () => {
+
+        selectedDate =
+            document.getElementById(
+                "attendanceDate"
+            ).value;
+
+
+        if(!selectedDate){
+
+            showToast(
+                "Chagua tarehe kwanza.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        await loadAttendanceForDate();
+
+    }
+);
+
+
+/* ================================
+   SAVE ATTENDANCE
+================================ */
+
+document.getElementById(
+    "saveBtn"
+).addEventListener(
+    "click",
+    async () => {
+
+        if(saving){
+            return;
+        }
+
+
+        selectedDate =
+            document.getElementById(
+                "attendanceDate"
+            ).value;
+
+
+        if(!selectedDate){
+
+            showToast(
+                "Chagua tarehe kwanza.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const meetingType =
+            document.getElementById(
+                "meetingType"
+            ).value;
+
+
+        const statuses =
+            Object.entries(
+                attendanceMap
+            );
+
+
+        if(!statuses.length){
+
+            showToast(
+                "Weka hali ya angalau mwimbaji mmoja.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        saving = true;
+
+
+        const saveButton =
+            document.getElementById(
+                "saveBtn"
+            );
+
+
+        saveButton.disabled =
+            true;
+
+        saveButton.textContent =
+            "Inahifadhi...";
+
+
+        try{
+
+
+            /*
+              We use UPSERT so that
+              saving the same date again
+              updates the existing record
+              instead of creating duplicates.
+
+              This requires a UNIQUE constraint
+              on member_id + attendance_date
+              in Supabase.
+            */
+
+
+            const records =
+                statuses.map(
+                    ([memberId,record]) => ({
+
+                        member_id:
+                            memberId,
+
+                        attendance_date:
+                            selectedDate,
+
+                        status:
+                            record.status,
+
+                        meeting_type:
+                            meetingType
+
+                    })
+                );
+
+
+            const { error } =
+                await supabaseClient
+                    .from(
+                        "attendance_records"
+                    )
+                    .upsert(
+                        records,
+                        {
+                            onConflict:
+                                "member_id,attendance_date"
+                        }
+                    );
+
+
+            if(error){
+
+                console.error(
+                    "Save attendance:",
+                    error
+                );
+
+                showToast(
+                    "Imeshindikana kuhifadhi mahudhurio: " +
+                    error.message,
+                    "error"
+                );
+
+                return;
+            }
+
+
+            showToast(
+                "Mahudhurio yamehifadhiwa kikamilifu."
+            );
+
+
+            await loadAttendanceForDate();
+
+
+        }finally{
+
+            saving = false;
+
+            saveButton.disabled =
+                false;
+
+            saveButton.textContent =
+                "💾 Hifadhi Mahudhurio";
+
+        }
+
+    }
+);
+
+
+/* ================================
+   REFRESH
+================================ */
+
+document.getElementById(
+    "refreshBtn"
+).addEventListener(
+    "click",
+    async () => {
+
+        await loadMembers();
+
+        if(selectedDate){
+
+            await loadAttendanceForDate();
+
+        }
+
+        showToast(
+            "Register imesasishwa."
+        );
+
+    }
+);
+
+
+/* ================================
+   SEARCH
+================================ */
+
+document.getElementById(
+    "tableSearch"
+).addEventListener(
+    "input",
+    renderTable
+);
+
+document.getElementById(
+    "searchInput"
+).addEventListener(
+    "input",
+    function(){
+
+        document.getElementById(
+            "tableSearch"
+        ).value =
+            this.value;
+
+        renderTable();
+
+    }
+);
+
+
+/* ================================
+   MOBILE MENU
+================================ */
+
+document.getElementById(
+    "mobileMenu"
+).addEventListener(
+    "click",
+    () => {
+
+        document.getElementById(
+            "sidebar"
+        ).classList.toggle(
+            "open"
+        );
+
+        document.getElementById(
+            "overlay"
+        ).classList.toggle(
+            "show"
+        );
+
+    }
+);
+
+
+document.getElementById(
+    "overlay"
+).addEventListener(
+    "click",
+    () => {
+
+        document.getElementById(
+            "sidebar"
+        ).classList.remove(
+            "open"
+        );
+
+        document.getElementById(
+            "overlay"
+        ).classList.remove(
+            "show"
+        );
+
+    }
+);
+
+
+/* ================================
+   LOGOUT
+================================ */
+
+document.getElementById(
+    "logoutBtn"
+).addEventListener(
+    "click",
+    async function(event){
+
+        event.preventDefault();
+
+        await supabaseClient
+            .auth
+            .signOut();
+
+        window.location.href =
+            "login.html";
+
+    }
+);
+
+
+/* ================================
+   INITIALIZE
+================================ */
+
+async function init(){
+
+    document.getElementById(
+        "attendanceDate"
+    ).value =
+        getToday();
+
+
+    await loadVoiceParts();
+
+    await loadMembers();
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    init
+);
+
+</script>
+
+</body>
+</html>
