@@ -1,0 +1,1948 @@
+```html
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nyaraka / PDF - KWAYA MANAGEMENT</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+:root{
+    --primary:#173b8f;
+    --primary-dark:#102b68;
+    --secondary:#0d6efd;
+    --bg:#f3f6fb;
+    --card:#ffffff;
+    --text:#172033;
+    --muted:#6b7280;
+    --border:#e3e8f0;
+    --danger:#dc3545;
+    --success:#198754;
+    --warning:#f59e0b;
+    --shadow:0 8px 25px rgba(23,59,143,.08);
+}
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* SIDEBAR */
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    width:255px;
+    height:100vh;
+    background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+    color:white;
+    padding:20px 14px;
+    z-index:1000;
+    overflow-y:auto;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:5px 10px 25px;
+    border-bottom:1px solid rgba(255,255,255,.15);
+    margin-bottom:18px;
+}
+
+.brand-icon{
+    width:45px;
+    height:45px;
+    background:white;
+    color:var(--primary);
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.brand-text strong{
+    display:block;
+    font-size:15px;
+}
+
+.brand-text span{
+    font-size:11px;
+    opacity:.8;
+}
+
+.nav-title{
+    font-size:10px;
+    text-transform:uppercase;
+    opacity:.55;
+    margin:18px 10px 8px;
+}
+
+.nav a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:white;
+    text-decoration:none;
+    padding:11px 12px;
+    border-radius:9px;
+    margin-bottom:4px;
+    font-size:14px;
+    transition:.2s;
+}
+
+.nav a:hover,
+.nav a.active{
+    background:rgba(255,255,255,.14);
+}
+
+.nav-icon{
+    width:22px;
+    text-align:center;
+}
+
+.logout{
+    margin-top:20px;
+    border-top:1px solid rgba(255,255,255,.15);
+    padding-top:15px;
+}
+
+/* MAIN */
+.main{
+    margin-left:255px;
+    min-height:100vh;
+}
+
+.topbar{
+    height:70px;
+    background:white;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:500;
+}
+
+.page-title{
+    font-size:20px;
+    font-weight:700;
+}
+
+.page-subtitle{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:3px;
+}
+
+.user-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13px;
+}
+
+.user-avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:#e9efff;
+    color:var(--primary);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+.menu-btn{
+    display:none;
+    border:0;
+    background:none;
+    font-size:25px;
+    cursor:pointer;
+}
+
+/* CONTENT */
+.content{
+    padding:25px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.stat{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px;
+    box-shadow:var(--shadow);
+}
+
+.stat-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.stat-icon{
+    width:42px;
+    height:42px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#edf2ff;
+    color:var(--primary);
+    font-size:20px;
+}
+
+.stat-number{
+    font-size:25px;
+    font-weight:800;
+    margin-top:12px;
+}
+
+.stat-label{
+    color:var(--muted);
+    font-size:12px;
+}
+
+/* CARDS */
+.card{
+    background:white;
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    margin-bottom:20px;
+}
+
+.card-header{
+    padding:18px 20px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+}
+
+.card-title{
+    font-size:16px;
+    font-weight:700;
+}
+
+.card-body{
+    padding:20px;
+}
+
+/* FORM */
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+label{
+    font-size:12px;
+    font-weight:700;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid #d8deea;
+    border-radius:9px;
+    outline:none;
+    font-family:inherit;
+    font-size:14px;
+    background:white;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+    border-color:var(--secondary);
+    box-shadow:0 0 0 3px rgba(13,110,253,.08);
+}
+
+textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+.file-box{
+    border:2px dashed #cbd5e1;
+    border-radius:12px;
+    padding:25px;
+    text-align:center;
+    background:#fafcff;
+    cursor:pointer;
+}
+
+.file-box:hover{
+    border-color:var(--secondary);
+    background:#f5f8ff;
+}
+
+.file-box strong{
+    display:block;
+    margin-bottom:5px;
+}
+
+.file-box span{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.file-box input{
+    display:none;
+}
+
+.selected-file{
+    margin-top:10px;
+    color:var(--primary);
+    font-size:13px;
+    font-weight:bold;
+}
+
+/* BUTTONS */
+.btn{
+    border:0;
+    border-radius:9px;
+    padding:10px 15px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:13px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+}
+
+.btn-primary{
+    background:var(--primary);
+    color:white;
+}
+
+.btn-primary:hover{
+    background:var(--primary-dark);
+}
+
+.btn-secondary{
+    background:#eef2f7;
+    color:#263247;
+}
+
+.btn-danger{
+    background:#fee2e2;
+    color:#b42318;
+}
+
+.btn-success{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.btn-warning{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+/* TOOLBAR */
+.toolbar{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+.search{
+    flex:1;
+    min-width:220px;
+}
+
+/* DOCUMENTS */
+.documents-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+}
+
+.document{
+    border:1px solid var(--border);
+    border-radius:13px;
+    overflow:hidden;
+    background:white;
+    transition:.2s;
+}
+
+.document:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.document-preview{
+    height:125px;
+    background:linear-gradient(135deg,#eef3ff,#f7f9fd);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:50px;
+}
+
+.pdf-icon{
+    color:#dc3545;
+}
+
+.document-body{
+    padding:15px;
+}
+
+.document-name{
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:8px;
+    word-break:break-word;
+}
+
+.document-meta{
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.7;
+}
+
+.badge{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:700;
+    margin-top:7px;
+}
+
+.badge-pdf{
+    background:#fee2e2;
+    color:#b42318;
+}
+
+.badge-doc{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.badge-other{
+    background:#f1f5f9;
+    color:#475569;
+}
+
+.document-actions{
+    display:flex;
+    gap:7px;
+    margin-top:12px;
+}
+
+.document-actions .btn{
+    flex:1;
+    padding:8px;
+    font-size:11px;
+}
+
+/* EMPTY */
+.empty{
+    text-align:center;
+    padding:45px 20px;
+    color:var(--muted);
+}
+
+.empty-icon{
+    font-size:45px;
+    margin-bottom:10px;
+}
+
+/* LOADING */
+.loading{
+    text-align:center;
+    padding:35px;
+    color:var(--muted);
+}
+
+/* TOAST */
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    background:#172033;
+    color:white;
+    padding:13px 18px;
+    border-radius:9px;
+    font-size:13px;
+    z-index:5000;
+    opacity:0;
+    transform:translateY(20px);
+    pointer-events:none;
+    transition:.25s;
+}
+
+.toast.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.toast.success{
+    background:#198754;
+}
+
+.toast.error{
+    background:#dc3545;
+}
+
+/* OVERLAY */
+.overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.4);
+    z-index:900;
+}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+    .documents-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:800px){
+
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .overlay.show{
+        display:block;
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .menu-btn{
+        display:block;
+    }
+
+    .topbar{
+        padding:0 15px;
+    }
+
+    .content{
+        padding:15px;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-group.full{
+        grid-column:auto;
+    }
+
+    .documents-grid{
+        grid-template-columns:1fr;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+    }
+
+    .stat{
+        padding:14px;
+    }
+}
+
+@media(max-width:500px){
+
+    .user-box span{
+        display:none;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .card-header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .toolbar{
+        width:100%;
+    }
+
+    .search{
+        min-width:100%;
+    }
+
+    .document-actions{
+        flex-direction:column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">♫</div>
+        <div class="brand-text">
+            <strong>KWAYA MANAGEMENT</strong>
+            <span>Usimamizi wa Kwaya</span>
+        </div>
+    </div>
+
+    <div class="nav">
+
+        <div class="nav-title">Menyu Kuu</div>
+
+        <a href="index.html">
+            <span class="nav-icon">⌂</span>
+            Dashboard
+        </a>
+
+        <a href="members.html">
+            <span class="nav-icon">👥</span>
+            Waimbaji
+        </a>
+
+        <a href="attendance.html">
+            <span class="nav-icon">✓</span>
+            Mahudhurio
+        </a>
+
+        <a href="songs.html">
+            <span class="nav-icon">♫</span>
+            Nyimbo
+        </a>
+
+        <a href="song-books.html">
+            <span class="nav-icon">📖</span>
+            Vitabu vya Nyimbo
+        </a>
+
+        <a href="sacraments.html">
+            <span class="nav-icon">✝</span>
+            Sakramenti
+        </a>
+
+        <a href="reports.html">
+            <span class="nav-icon">📊</span>
+            Ripoti
+        </a>
+
+        <a href="events.html">
+            <span class="nav-icon">📅</span>
+            Ratiba
+        </a>
+
+        <a href="announcements.html">
+            <span class="nav-icon">📢</span>
+            Taarifa
+        </a>
+
+        <a href="documents.html" class="active">
+            <span class="nav-icon">📄</span>
+            Nyaraka / PDF
+        </a>
+
+        <div class="nav-title">Mfumo</div>
+
+        <a href="settings.html">
+            <span class="nav-icon">⚙</span>
+            Settings
+        </a>
+
+        <a href="#" onclick="logout();return false;" class="logout">
+            <span class="nav-icon">⇥</span>
+            Toka
+        </a>
+
+    </div>
+</aside>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- MAIN -->
+<main class="main">
+
+    <header class="topbar">
+
+        <div style="display:flex;align-items:center;gap:12px;">
+            <button class="menu-btn" onclick="openSidebar()">☰</button>
+
+            <div>
+                <div class="page-title">Nyaraka / PDF</div>
+                <div class="page-subtitle">
+                    Hifadhi na simamia nyaraka za kwaya
+                </div>
+            </div>
+        </div>
+
+        <div class="user-box">
+            <div class="user-avatar">M</div>
+            <span>Mwanakwaya</span>
+        </div>
+
+    </header>
+
+    <section class="content">
+
+        <!-- STATS -->
+        <div class="stats">
+
+            <div class="stat">
+                <div class="stat-top">
+                    <div class="stat-icon">📄</div>
+                </div>
+                <div class="stat-number" id="totalDocuments">0</div>
+                <div class="stat-label">Nyaraka Zote</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-top">
+                    <div class="stat-icon">📕</div>
+                </div>
+                <div class="stat-number" id="pdfDocuments">0</div>
+                <div class="stat-label">PDF</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-top">
+                    <div class="stat-icon">📁</div>
+                </div>
+                <div class="stat-number" id="otherDocuments">0</div>
+                <div class="stat-label">Nyaraka Nyingine</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-top">
+                    <div class="stat-icon">💾</div>
+                </div>
+                <div class="stat-number" id="totalSize">0 MB</div>
+                <div class="stat-label">Ukubwa wa Nyaraka</div>
+            </div>
+
+        </div>
+
+
+        <!-- UPLOAD -->
+        <div class="card">
+
+            <div class="card-header">
+                <div>
+                    <div class="card-title">📤 Pakia Nyaraka</div>
+                    <div class="page-subtitle">
+                        Pakia PDF au nyaraka nyingine za kwaya
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <form id="uploadForm">
+
+                    <div class="form-grid">
+
+                        <div class="form-group full">
+
+                            <label>Nyaraka</label>
+
+                            <label class="file-box" for="fileInput">
+
+                                <strong>📄 Chagua faili</strong>
+
+                                <span>
+                                    Bonyeza hapa kuchagua PDF, DOC, DOCX au faili nyingine
+                                </span>
+
+                                <input
+                                    type="file"
+                                    id="fileInput"
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+                                    required
+                                >
+
+                                <div class="selected-file" id="selectedFile"></div>
+
+                            </label>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label>Kategoria</label>
+
+                            <select id="category">
+
+                                <option value="Katiba">Katiba</option>
+                                <option value="Kanuni">Kanuni</option>
+                                <option value="Ratiba">Ratiba</option>
+                                <option value="Ripoti">Ripoti</option>
+                                <option value="Mafundisho">Mafundisho</option>
+                                <option value="Mikutano">Mikutano</option>
+                                <option value="Ibada">Ibada</option>
+                                <option value="Nyimbo">Nyimbo</option>
+                                <option value="Nyingine">Nyingine</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label>Tarehe ya Nyaraka</label>
+
+                            <input
+                                type="date"
+                                id="documentDate"
+                            >
+
+                        </div>
+
+                        <div class="form-group full">
+
+                            <label>Maelezo</label>
+
+                            <textarea
+                                id="description"
+                                placeholder="Andika maelezo mafupi kuhusu nyaraka..."
+                            ></textarea>
+
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                            id="uploadBtn"
+                        >
+                            📤 Pakia Nyaraka
+                        </button>
+
+                        <button
+                            type="reset"
+                            class="btn btn-secondary"
+                            onclick="clearFile()"
+                        >
+                            Safisha
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- DOCUMENT LIST -->
+        <div class="card">
+
+            <div class="card-header">
+
+                <div>
+                    <div class="card-title">📚 Nyaraka Zilizohifadhiwa</div>
+                    <div class="page-subtitle">
+                        Fungua, pakua au futa nyaraka
+                    </div>
+                </div>
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="loadDocuments()"
+                >
+                    ↻ Refresh
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="toolbar" style="margin-bottom:20px;">
+
+                    <input
+                        class="search"
+                        type="search"
+                        id="searchInput"
+                        placeholder="🔎 Tafuta nyaraka..."
+                        oninput="renderDocuments()"
+                    >
+
+                    <select
+                        id="categoryFilter"
+                        onchange="renderDocuments()"
+                        style="max-width:180px;"
+                    >
+                        <option value="">Kategoria zote</option>
+                        <option value="Katiba">Katiba</option>
+                        <option value="Kanuni">Kanuni</option>
+                        <option value="Ratiba">Ratiba</option>
+                        <option value="Ripoti">Ripoti</option>
+                        <option value="Mafundisho">Mafundisho</option>
+                        <option value="Mikutano">Mikutano</option>
+                        <option value="Ibada">Ibada</option>
+                        <option value="Nyimbo">Nyimbo</option>
+                        <option value="Nyingine">Nyingine</option>
+                    </select>
+
+                </div>
+
+                <div id="documentsContainer">
+
+                    <div class="loading">
+                        Inapakia nyaraka...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* =========================================
+   SUPABASE
+========================================= */
+
+const SUPABASE_URL =
+    "https://xulnkdrgjgajmcqntwga.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2";
+
+const STORAGE_BUCKET = "documents";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+let documents = [];
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+function openSidebar(){
+
+    document
+        .getElementById("sidebar")
+        .classList.add("open");
+
+    document
+        .getElementById("overlay")
+        .classList.add("show");
+}
+
+function closeSidebar(){
+
+    document
+        .getElementById("sidebar")
+        .classList.remove("open");
+
+    document
+        .getElementById("overlay")
+        .classList.remove("show");
+}
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+function showToast(message,type=""){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.className =
+        "toast show " + type;
+
+    setTimeout(()=>{
+        toast.className = "toast";
+    },3500);
+}
+
+
+/* =========================================
+   FILE SELECT
+========================================= */
+
+document
+    .getElementById("fileInput")
+    .addEventListener("change",function(){
+
+        const file = this.files[0];
+
+        const box =
+            document.getElementById("selectedFile");
+
+        if(!file){
+
+            box.textContent = "";
+
+            return;
+        }
+
+        box.textContent =
+            `✓ ${file.name} — ${formatBytes(file.size)}`;
+
+    });
+
+
+function clearFile(){
+
+    document.getElementById("selectedFile")
+        .textContent = "";
+
+}
+
+
+/* =========================================
+   FORMAT
+========================================= */
+
+function formatBytes(bytes){
+
+    if(!bytes || bytes === 0)
+        return "0 Bytes";
+
+    const sizes = [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+    ];
+
+    const i =
+        Math.floor(
+            Math.log(bytes) /
+            Math.log(1024)
+        );
+
+    return (
+        parseFloat(
+            (bytes /
+            Math.pow(1024,i))
+            .toFixed(2)
+        )
+        + " "
+        + sizes[i]
+    );
+}
+
+
+function formatDate(date){
+
+    if(!date) return "—";
+
+    try{
+
+        return new Date(date)
+            .toLocaleDateString(
+                "sw-TZ",
+                {
+                    day:"2-digit",
+                    month:"2-digit",
+                    year:"numeric"
+                }
+            );
+
+    }catch(e){
+
+        return date;
+
+    }
+}
+
+
+/* =========================================
+   FILE TYPE
+========================================= */
+
+function getExtension(name){
+
+    return name
+        .split(".")
+        .pop()
+        .toLowerCase();
+}
+
+
+function getFileIcon(name){
+
+    const ext =
+        getExtension(name);
+
+    if(ext === "pdf")
+        return "📕";
+
+    if(
+        ext === "doc" ||
+        ext === "docx"
+    )
+        return "📘";
+
+    if(
+        ext === "xls" ||
+        ext === "xlsx"
+    )
+        return "📗";
+
+    if(
+        ext === "ppt" ||
+        ext === "pptx"
+    )
+        return "📙";
+
+    return "📄";
+}
+
+
+function getBadgeClass(name){
+
+    const ext =
+        getExtension(name);
+
+    if(ext === "pdf")
+        return "badge-pdf";
+
+    if(
+        ext === "doc" ||
+        ext === "docx"
+    )
+        return "badge-doc";
+
+    return "badge-other";
+}
+
+
+/* =========================================
+   LOAD DOCUMENTS
+========================================= */
+
+async function loadDocuments(){
+
+    const container =
+        document.getElementById(
+            "documentsContainer"
+        );
+
+    container.innerHTML =
+        `<div class="loading">
+            Inapakia nyaraka...
+        </div>`;
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+        await supabaseClient
+            .storage
+            .from(STORAGE_BUCKET)
+            .list(
+                "",
+                {
+                    limit:1000,
+                    sort:{
+                        column:"created_at",
+                        order:"desc"
+                    }
+                }
+            );
+
+        if(error){
+
+            throw error;
+
+        }
+
+        documents =
+            (data || [])
+                .filter(file =>
+                    file.name !== ".emptyFolderPlaceholder"
+                )
+                .map(file => ({
+                    ...file,
+                    category:
+                        getCategoryFromName(
+                            file.name
+                        )
+                }));
+
+        updateStats();
+
+        renderDocuments();
+
+    }catch(error){
+
+        console.error(error);
+
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon">⚠️</div>
+                <strong>Imeshindikana kupakia nyaraka</strong>
+                <p>${escapeHTML(error.message || "Hitilafu imetokea")}</p>
+            </div>
+        `;
+
+    }
+
+}
+
+
+/* =========================================
+   CATEGORY
+========================================= */
+
+function getCategoryFromName(name){
+
+    /*
+      Format inayotumika:
+      CATEGORY__DATE__FILENAME
+    */
+
+    const parts =
+        name.split("__");
+
+    if(parts.length >= 3){
+
+        return parts[0];
+
+    }
+
+    return "Nyingine";
+
+}
+
+
+/* =========================================
+   RENDER
+========================================= */
+
+function renderDocuments(){
+
+    const container =
+        document.getElementById(
+            "documentsContainer"
+        );
+
+    const search =
+        document.getElementById(
+            "searchInput"
+        )
+        .value
+        .toLowerCase()
+        .trim();
+
+    const category =
+        document.getElementById(
+            "categoryFilter"
+        ).value;
+
+    let filtered =
+        documents.filter(file => {
+
+            const name =
+                getOriginalFileName(
+                    file.name
+                );
+
+            const matchesSearch =
+                name
+                    .toLowerCase()
+                    .includes(search);
+
+            const matchesCategory =
+                !category ||
+                file.category === category;
+
+            return (
+                matchesSearch &&
+                matchesCategory
+            );
+
+        });
+
+
+    if(filtered.length === 0){
+
+        container.innerHTML = `
+            <div class="empty">
+
+                <div class="empty-icon">📂</div>
+
+                <strong>
+                    Hakuna nyaraka
+                </strong>
+
+                <p>
+                    Hakuna nyaraka inayolingana
+                    na utafutaji wako.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = `
+        <div class="documents-grid">
+
+            ${filtered.map(file =>
+                documentCard(file)
+            ).join("")}
+
+        </div>
+    `;
+
+}
+
+
+/* =========================================
+   DOCUMENT CARD
+========================================= */
+
+function documentCard(file){
+
+    const originalName =
+        getOriginalFileName(
+            file.name
+        );
+
+    const date =
+        getDateFromName(
+            file.name
+        );
+
+    const publicUrl =
+        getPublicUrl(
+            file.name
+        );
+
+    const icon =
+        getFileIcon(
+            originalName
+        );
+
+    const badgeClass =
+        getBadgeClass(
+            originalName
+        );
+
+    const ext =
+        getExtension(
+            originalName
+        )
+        .toUpperCase();
+
+    return `
+
+        <div class="document">
+
+            <div class="document-preview">
+
+                <span class="${ext === "PDF" ? "pdf-icon" : ""}">
+                    ${icon}
+                </span>
+
+            </div>
+
+            <div class="document-body">
+
+                <div class="document-name">
+                    ${escapeHTML(originalName)}
+                </div>
+
+                <div class="document-meta">
+
+                    📁
+                    ${escapeHTML(file.category || "Nyingine")}
+
+                    <br>
+
+                    📅
+                    ${formatDate(date)}
+
+                    <br>
+
+                    💾
+                    ${formatBytes(file.metadata?.size || 0)}
+
+                </div>
+
+                <span class="badge ${badgeClass}">
+                    ${ext || "FILE"}
+                </span>
+
+
+                <div class="document-actions">
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="viewDocument('${encodeURIComponent(file.name)}')"
+                    >
+                        👁 Fungua
+                    </button>
+
+                    <button
+                        class="btn btn-success"
+                        onclick="downloadDocument('${encodeURIComponent(file.name)}')"
+                    >
+                        ⬇ Pakua
+                    </button>
+
+                    <button
+                        class="btn btn-danger"
+                        onclick="deleteDocument('${encodeURIComponent(file.name)}')"
+                    >
+                        🗑
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================
+   ORIGINAL FILE NAME
+========================================= */
+
+function getOriginalFileName(name){
+
+    const parts =
+        name.split("__");
+
+    if(parts.length >= 3){
+
+        return parts
+            .slice(2)
+            .join("__");
+
+    }
+
+    return name;
+
+}
+
+
+/* =========================================
+   DATE FROM NAME
+========================================= */
+
+function getDateFromName(name){
+
+    const parts =
+        name.split("__");
+
+    if(parts.length >= 3){
+
+        return parts[1];
+
+    }
+
+    return null;
+
+}
+
+
+/* =========================================
+   PUBLIC URL
+========================================= */
+
+function getPublicUrl(path){
+
+    const {
+        data
+    } =
+    supabaseClient
+        .storage
+        .from(STORAGE_BUCKET)
+        .getPublicUrl(path);
+
+    return data.publicUrl;
+
+}
+
+
+/* =========================================
+   UPLOAD
+========================================= */
+
+document
+    .getElementById("uploadForm")
+    .addEventListener(
+        "submit",
+        uploadDocument
+    );
+
+
+async function uploadDocument(e){
+
+    e.preventDefault();
+
+    const file =
+        document.getElementById(
+            "fileInput"
+        ).files[0];
+
+    if(!file){
+
+        showToast(
+            "Tafadhali chagua nyaraka.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const category =
+        document.getElementById(
+            "category"
+        ).value;
+
+    const documentDate =
+        document.getElementById(
+            "documentDate"
+        ).value
+        ||
+        new Date()
+            .toISOString()
+            .slice(0,10);
+
+    const uploadBtn =
+        document.getElementById(
+            "uploadBtn"
+        );
+
+
+    /*
+      Tunatengeneza jina:
+      Kategoria__Tarehe__JinaLaFaili
+
+      Mfano:
+      Katiba__2026-09-02__Katiba-Kwaya.pdf
+    */
+
+    const safeName =
+        file.name
+            .replace(/[^\w.\- ]+/g,"")
+            .replace(/\s+/g,"-");
+
+    const fileName =
+        `${category}__${documentDate}__${Date.now()}-${safeName}`;
+
+
+    uploadBtn.disabled = true;
+
+    uploadBtn.textContent =
+        "⏳ Inapakia...";
+
+
+    try{
+
+        const {
+            error
+        } =
+        await supabaseClient
+            .storage
+            .from(STORAGE_BUCKET)
+            .upload(
+                fileName,
+                file,
+                {
+                    cacheControl:"3600",
+                    upsert:false
+                }
+            );
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+        showToast(
+            "Nyaraka imepakiwa vizuri.",
+            "success"
+        );
+
+
+        document
+            .getElementById("uploadForm")
+            .reset();
+
+        clearFile();
+
+        await loadDocuments();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Imeshindikana kupakia nyaraka.",
+            "error"
+        );
+
+    }finally{
+
+        uploadBtn.disabled = false;
+
+        uploadBtn.textContent =
+            "📤 Pakia Nyaraka";
+
+    }
+
+}
+
+
+/* =========================================
+   VIEW
+========================================= */
+
+function viewDocument(encodedName){
+
+    const name =
+        decodeURIComponent(
+            encodedName
+        );
+
+    const url =
+        getPublicUrl(name);
+
+    window.open(
+        url,
+        "_blank"
+    );
+
+}
+
+
+/* =========================================
+   DOWNLOAD
+========================================= */
+
+async function downloadDocument(encodedName){
+
+    const name =
+        decodeURIComponent(
+            encodedName
+        );
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+        await supabaseClient
+            .storage
+            .from(STORAGE_BUCKET)
+            .download(name);
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+        const url =
+            URL.createObjectURL(data);
+
+        const a =
+            document.createElement("a");
+
+        a.href = url;
+
+        a.download =
+            getOriginalFileName(name);
+
+        document.body.appendChild(a);
+
+        a.click();
+
+        a.remove();
+
+        URL.revokeObjectURL(url);
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Imeshindikana kupakua nyaraka.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   DELETE
+========================================= */
+
+async function deleteDocument(encodedName){
+
+    const name =
+        decodeURIComponent(
+            encodedName
+        );
+
+    const originalName =
+        getOriginalFileName(name);
+
+
+    const confirmDelete =
+        confirm(
+            `Una uhakika unataka kufuta "${originalName}"?`
+        );
+
+    if(!confirmDelete)
+        return;
+
+
+    try{
+
+        const {
+            error
+        } =
+        await supabaseClient
+            .storage
+            .from(STORAGE_BUCKET)
+            .remove([
+                name
+            ]);
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+        showToast(
+            "Nyaraka imefutwa.",
+            "success"
+        );
+
+        await loadDocuments();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Imeshindikana kufuta nyaraka.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   STATS
+========================================= */
+
+function updateStats(){
+
+    const total =
+        documents.length;
+
+    const pdf =
+        documents.filter(file =>
+            getExtension(
+                getOriginalFileName(
+                    file.name
+                )
+            ) === "pdf"
+        ).length;
+
+    const other =
+        total - pdf;
+
+
+    let bytes = 0;
+
+    documents.forEach(file => {
+
+        bytes +=
+            Number(
+                file.metadata?.size || 0
+            );
+
+    });
+
+
+    document.getElementById(
+        "totalDocuments"
+    ).textContent = total;
+
+    document.getElementById(
+        "pdfDocuments"
+    ).textContent = pdf;
+
+    document.getElementById(
+        "otherDocuments"
+    ).textContent = other;
+
+    document.getElementById(
+        "totalSize"
+    ).textContent =
+        formatBytes(bytes);
+
+}
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logout(){
+
+    try{
+
+        await supabaseClient
+            .auth
+            .signOut();
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+/* =========================================
+   INITIALIZE
+========================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadDocuments();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
+```
