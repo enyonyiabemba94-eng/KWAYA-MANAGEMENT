@@ -1,0 +1,2045 @@
+```html
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Settings - KWAYA MANAGEMENT</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+:root{
+    --primary:#173b8f;
+    --primary-dark:#102b68;
+    --secondary:#0d6efd;
+    --bg:#f3f6fb;
+    --card:#fff;
+    --text:#172033;
+    --muted:#6b7280;
+    --border:#e3e8f0;
+    --success:#198754;
+    --danger:#dc3545;
+    --warning:#f59e0b;
+    --shadow:0 8px 25px rgba(23,59,143,.08);
+}
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+/* SIDEBAR */
+.sidebar{
+    position:fixed;
+    left:0;
+    top:0;
+    width:255px;
+    height:100vh;
+    background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+    color:#fff;
+    padding:20px 14px;
+    z-index:1000;
+    overflow-y:auto;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:5px 10px 25px;
+    border-bottom:1px solid rgba(255,255,255,.15);
+    margin-bottom:18px;
+}
+
+.brand-icon{
+    width:45px;
+    height:45px;
+    background:#fff;
+    color:var(--primary);
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.brand-text strong{
+    display:block;
+    font-size:15px;
+}
+
+.brand-text span{
+    font-size:11px;
+    opacity:.8;
+}
+
+.nav-title{
+    font-size:10px;
+    text-transform:uppercase;
+    opacity:.55;
+    margin:18px 10px 8px;
+}
+
+.nav a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:#fff;
+    text-decoration:none;
+    padding:11px 12px;
+    border-radius:9px;
+    margin-bottom:4px;
+    font-size:14px;
+}
+
+.nav a:hover,
+.nav a.active{
+    background:rgba(255,255,255,.14);
+}
+
+.nav-icon{
+    width:22px;
+    text-align:center;
+}
+
+.logout{
+    margin-top:20px;
+    border-top:1px solid rgba(255,255,255,.15);
+    padding-top:15px;
+}
+
+/* MAIN */
+.main{
+    margin-left:255px;
+    min-height:100vh;
+}
+
+.topbar{
+    height:70px;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:500;
+}
+
+.menu-btn{
+    display:none;
+    border:0;
+    background:none;
+    font-size:25px;
+    cursor:pointer;
+}
+
+.page-title{
+    font-size:20px;
+    font-weight:700;
+}
+
+.page-subtitle{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:3px;
+}
+
+.user-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13px;
+}
+
+.user-avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    background:#e9efff;
+    color:var(--primary);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+}
+
+/* CONTENT */
+.content{
+    padding:25px;
+    max-width:1200px;
+}
+
+/* HERO */
+.settings-hero{
+    background:linear-gradient(135deg,var(--primary),#2758bd);
+    color:white;
+    border-radius:16px;
+    padding:25px;
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.hero-left{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.logo-preview{
+    width:80px;
+    height:80px;
+    border-radius:18px;
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--primary);
+    font-size:35px;
+    font-weight:bold;
+    overflow:hidden;
+    flex-shrink:0;
+}
+
+.logo-preview img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.hero-title{
+    font-size:24px;
+    font-weight:800;
+}
+
+.hero-text{
+    font-size:13px;
+    opacity:.85;
+    margin-top:5px;
+}
+
+.hero-status{
+    background:rgba(255,255,255,.13);
+    padding:9px 14px;
+    border-radius:30px;
+    font-size:12px;
+}
+
+/* GRID */
+.settings-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:15px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+}
+
+.card.full{
+    grid-column:1/-1;
+}
+
+.card-header{
+    padding:18px 20px;
+    border-bottom:1px solid var(--border);
+}
+
+.card-title{
+    font-size:16px;
+    font-weight:700;
+}
+
+.card-subtitle{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:4px;
+}
+
+.card-body{
+    padding:20px;
+}
+
+/* FORM */
+.form-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.form-group.full{
+    grid-column:1/-1;
+}
+
+label{
+    font-size:12px;
+    font-weight:700;
+}
+
+input,
+textarea,
+select{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid #d8deea;
+    border-radius:9px;
+    outline:none;
+    font-family:inherit;
+    font-size:14px;
+    background:white;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+    border-color:var(--secondary);
+    box-shadow:0 0 0 3px rgba(13,110,253,.08);
+}
+
+textarea{
+    min-height:100px;
+    resize:vertical;
+}
+
+/* LOGO UPLOAD */
+.logo-upload{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.logo-small{
+    width:70px;
+    height:70px;
+    border-radius:13px;
+    background:#eef2ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--primary);
+    font-size:27px;
+    font-weight:bold;
+    overflow:hidden;
+    flex-shrink:0;
+}
+
+.logo-small img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.file-input{
+    flex:1;
+}
+
+.file-input input{
+    padding:9px;
+}
+
+/* BUTTON */
+.actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+}
+
+.btn{
+    border:0;
+    border-radius:9px;
+    padding:11px 16px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:13px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+}
+
+.btn-primary{
+    background:var(--primary);
+    color:#fff;
+}
+
+.btn-primary:hover{
+    background:var(--primary-dark);
+}
+
+.btn-secondary{
+    background:#eef2f7;
+    color:#263247;
+}
+
+.btn-danger{
+    background:#fee2e2;
+    color:#b42318;
+}
+
+/* INFO */
+.info-list{
+    display:grid;
+    gap:12px;
+}
+
+.info-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:13px;
+    background:#f8fafc;
+    border-radius:9px;
+}
+
+.info-label{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.info-value{
+    font-size:13px;
+    font-weight:700;
+    text-align:right;
+}
+
+/* SWITCH */
+.setting-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:14px 0;
+    border-bottom:1px solid var(--border);
+}
+
+.setting-row:last-child{
+    border-bottom:0;
+}
+
+.setting-title{
+    font-size:13px;
+    font-weight:700;
+}
+
+.setting-description{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:3px;
+}
+
+.switch{
+    position:relative;
+    width:46px;
+    height:25px;
+    flex-shrink:0;
+}
+
+.switch input{
+    display:none;
+}
+
+.slider{
+    position:absolute;
+    inset:0;
+    background:#cbd5e1;
+    border-radius:30px;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.slider:before{
+    content:"";
+    position:absolute;
+    width:19px;
+    height:19px;
+    left:3px;
+    top:3px;
+    background:#fff;
+    border-radius:50%;
+    transition:.2s;
+}
+
+.switch input:checked + .slider{
+    background:var(--primary);
+}
+
+.switch input:checked + .slider:before{
+    transform:translateX(21px);
+}
+
+/* STATUS */
+.status-box{
+    padding:13px 15px;
+    background:#ecfdf3;
+    border:1px solid #b7ebc6;
+    color:#166534;
+    border-radius:9px;
+    font-size:12px;
+    margin-bottom:15px;
+}
+
+.status-box.error{
+    background:#fff1f2;
+    border-color:#fecdd3;
+    color:#b42318;
+}
+
+/* TOAST */
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    background:#172033;
+    color:#fff;
+    padding:13px 18px;
+    border-radius:9px;
+    font-size:13px;
+    z-index:5000;
+    opacity:0;
+    transform:translateY(20px);
+    pointer-events:none;
+    transition:.25s;
+}
+
+.toast.show{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.toast.success{
+    background:#198754;
+}
+
+.toast.error{
+    background:#dc3545;
+}
+
+/* OVERLAY */
+.overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.4);
+    z-index:900;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+
+    .settings-grid{
+        grid-template-columns:1fr;
+    }
+
+    .card.full{
+        grid-column:auto;
+    }
+}
+
+@media(max-width:800px){
+
+    .sidebar{
+        transform:translateX(-100%);
+        transition:.25s;
+    }
+
+    .sidebar.open{
+        transform:translateX(0);
+    }
+
+    .overlay.show{
+        display:block;
+    }
+
+    .main{
+        margin-left:0;
+    }
+
+    .menu-btn{
+        display:block;
+    }
+
+    .topbar{
+        padding:0 15px;
+    }
+
+    .content{
+        padding:15px;
+    }
+
+    .settings-hero{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-group.full{
+        grid-column:auto;
+    }
+}
+
+@media(max-width:500px){
+
+    .user-box span{
+        display:none;
+    }
+
+    .hero-left{
+        align-items:flex-start;
+    }
+
+    .logo-preview{
+        width:65px;
+        height:65px;
+    }
+
+    .hero-title{
+        font-size:19px;
+    }
+
+    .logo-upload{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .file-input{
+        width:100%;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .actions .btn{
+        width:100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">♫</div>
+
+        <div class="brand-text">
+            <strong>KWAYA MANAGEMENT</strong>
+            <span>Usimamizi wa Kwaya</span>
+        </div>
+    </div>
+
+    <div class="nav">
+
+        <div class="nav-title">Menyu Kuu</div>
+
+        <a href="index.html">
+            <span class="nav-icon">⌂</span>
+            Dashboard
+        </a>
+
+        <a href="members.html">
+            <span class="nav-icon">👥</span>
+            Waimbaji
+        </a>
+
+        <a href="attendance.html">
+            <span class="nav-icon">✓</span>
+            Mahudhurio
+        </a>
+
+        <a href="songs.html">
+            <span class="nav-icon">♫</span>
+            Nyimbo
+        </a>
+
+        <a href="song-books.html">
+            <span class="nav-icon">📖</span>
+            Vitabu vya Nyimbo
+        </a>
+
+        <a href="sacraments.html">
+            <span class="nav-icon">✝</span>
+            Sakramenti
+        </a>
+
+        <a href="reports.html">
+            <span class="nav-icon">📊</span>
+            Ripoti
+        </a>
+
+        <a href="events.html">
+            <span class="nav-icon">📅</span>
+            Ratiba
+        </a>
+
+        <a href="announcements.html">
+            <span class="nav-icon">📢</span>
+            Taarifa
+        </a>
+
+        <a href="documents.html">
+            <span class="nav-icon">📄</span>
+            Nyaraka / PDF
+        </a>
+
+        <div class="nav-title">Mfumo</div>
+
+        <a href="settings.html" class="active">
+            <span class="nav-icon">⚙</span>
+            Settings
+        </a>
+
+        <a href="#" onclick="logout();return false;" class="logout">
+            <span class="nav-icon">⇥</span>
+            Toka
+        </a>
+
+    </div>
+
+</aside>
+
+<div
+    class="overlay"
+    id="overlay"
+    onclick="closeSidebar()">
+</div>
+
+
+<!-- MAIN -->
+<main class="main">
+
+    <header class="topbar">
+
+        <div style="display:flex;align-items:center;gap:12px;">
+
+            <button
+                class="menu-btn"
+                onclick="openSidebar()">
+                ☰
+            </button>
+
+            <div>
+                <div class="page-title">
+                    Mipangilio
+                </div>
+
+                <div class="page-subtitle">
+                    Simamia taarifa na mipangilio ya Kwaya Management
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="user-box">
+
+            <div class="user-avatar">
+                M
+            </div>
+
+            <span>
+                Mwanakwaya
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <section class="content">
+
+
+        <!-- HERO -->
+        <div class="settings-hero">
+
+            <div class="hero-left">
+
+                <div
+                    class="logo-preview"
+                    id="heroLogo">
+                    ♫
+                </div>
+
+                <div>
+
+                    <div
+                        class="hero-title"
+                        id="heroChoirName">
+                        KWAYA MANAGEMENT
+                    </div>
+
+                    <div class="hero-text">
+                        Mipangilio ya msingi ya kwaya
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="hero-status">
+                ● Mfumo uko tayari
+            </div>
+
+        </div>
+
+
+        <div id="statusMessage"></div>
+
+
+        <div class="settings-grid">
+
+
+            <!-- TAARIFA ZA KWAYA -->
+            <div class="card full">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        🎵 Taarifa za Kwaya
+                    </div>
+
+                    <div class="card-subtitle">
+                        Weka taarifa rasmi zitakazoonekana kwenye mfumo
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <form id="settingsForm">
+
+                        <div class="form-grid">
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Jina la Kwaya *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="choirName"
+                                    placeholder="Mfano: Kwaya Kristo Mfalme"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Kanisa / Kigango
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="churchName"
+                                    placeholder="Mfano: Kigango cha Familia Takatifu"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Mahali
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="location"
+                                    placeholder="Mfano: Nyarugusu"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Namba ya Simu
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="phone"
+                                    placeholder="Mfano: +255..."
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Barua Pepe
+                                </label>
+
+                                <input
+                                    type="email"
+                                    id="email"
+                                    placeholder="Barua pepe ya kwaya"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Mwaka wa Kuanzishwa
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="establishedYear"
+                                    min="1900"
+                                    max="2100"
+                                    placeholder="Mfano: 2020"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <label>
+                                    Maelezo ya Kwaya
+                                </label>
+
+                                <textarea
+                                    id="description"
+                                    placeholder="Andika maelezo mafupi kuhusu kwaya..."
+                                ></textarea>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="actions">
+
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                onclick="loadSettings()">
+                                ↻ Rudisha
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                id="saveBtn">
+                                💾 Hifadhi Mipangilio
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOGO -->
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        🖼️ Logo ya Kwaya
+                    </div>
+
+                    <div class="card-subtitle">
+                        Weka logo itakayotumika kwenye mfumo
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="logo-upload">
+
+                        <div
+                            class="logo-small"
+                            id="logoPreview">
+                            ♫
+                        </div>
+
+                        <div class="file-input">
+
+                            <input
+                                type="file"
+                                id="logoInput"
+                                accept="image/png,image/jpeg,image/webp"
+                            >
+
+                            <div
+                                style="font-size:11px;color:#6b7280;margin-top:7px;">
+                                PNG, JPG au WEBP
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        style="margin-top:15px;"
+                        class="actions">
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="uploadLogo()">
+                            📤 Weka Logo
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- TAARIFA ZA MFUMO -->
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        ℹ️ Taarifa za Mfumo
+                    </div>
+
+                    <div class="card-subtitle">
+                        Hali ya mfumo wako
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="info-list">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Jina la Mfumo
+                            </span>
+
+                            <span class="info-value">
+                                KWAYA MANAGEMENT
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Database
+                            </span>
+
+                            <span
+                                class="info-value"
+                                id="databaseStatus">
+                                Inaangaliwa...
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Taarifa za Kwaya
+                            </span>
+
+                            <span
+                                class="info-value"
+                                id="settingsStatus">
+                                Inaangaliwa...
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Toleo
+                            </span>
+
+                            <span class="info-value">
+                                1.0
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MIPANGILIO YA MFUMO -->
+            <div class="card full">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        ⚙️ Mipangilio ya Mfumo
+                    </div>
+
+                    <div class="card-subtitle">
+                        Chagua namna mfumo utakavyofanya kazi
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+
+                    <div class="setting-row">
+
+                        <div>
+
+                            <div class="setting-title">
+                                Tumia taarifa za kwaya
+                            </div>
+
+                            <div class="setting-description">
+                                Onyesha jina la kwaya kwenye kurasa za mfumo
+                            </div>
+
+                        </div>
+
+                        <label class="switch">
+
+                            <input
+                                type="checkbox"
+                                id="showChoirInfo"
+                                checked
+                            >
+
+                            <span class="slider"></span>
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="setting-row">
+
+                        <div>
+
+                            <div class="setting-title">
+                                Tarehe kwenye ripoti
+                            </div>
+
+                            <div class="setting-description">
+                                Onyesha tarehe ya kutengenezwa kwenye ripoti
+                            </div>
+
+                        </div>
+
+                        <label class="switch">
+
+                            <input
+                                type="checkbox"
+                                id="showReportDate"
+                                checked
+                            >
+
+                            <span class="slider"></span>
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="setting-row">
+
+                        <div>
+
+                            <div class="setting-title">
+                                PDF yenye jina la kwaya
+                            </div>
+
+                            <div class="setting-description">
+                                Tumia jina la kwaya kwenye vichwa vya PDF
+                            </div>
+
+                        </div>
+
+                        <label class="switch">
+
+                            <input
+                                type="checkbox"
+                                id="pdfChoirName"
+                                checked
+                            >
+
+                            <span class="slider"></span>
+
+                        </label>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- ACCOUNT -->
+            <div class="card full">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        🔐 Akaunti
+                    </div>
+
+                    <div class="card-subtitle">
+                        Usimamizi wa akaunti inayotumika
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="info-list">
+
+                        <div class="info-row">
+
+                            <span class="info-label">
+                                Mtumiaji
+                            </span>
+
+                            <span
+                                class="info-value"
+                                id="currentUser">
+                                Inaangaliwa...
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        style="margin-top:15px;display:flex;justify-content:flex-end;">
+
+                        <button
+                            class="btn btn-danger"
+                            onclick="logout()">
+                            ⇥ Toka kwenye Mfumo
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<div
+    class="toast"
+    id="toast">
+</div>
+
+
+<script>
+
+/* =========================================
+   SUPABASE
+========================================= */
+
+const SUPABASE_URL =
+    "https://xulnkdrgjgajmcqntwga.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2";
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+let currentSettings = null;
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+function openSidebar(){
+
+    document
+        .getElementById("sidebar")
+        .classList.add("open");
+
+    document
+        .getElementById("overlay")
+        .classList.add("show");
+
+}
+
+function closeSidebar(){
+
+    document
+        .getElementById("sidebar")
+        .classList.remove("open");
+
+    document
+        .getElementById("overlay")
+        .classList.remove("show");
+
+}
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+function showToast(message,type=""){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.className =
+        "toast show " + type;
+
+    setTimeout(()=>{
+
+        toast.className = "toast";
+
+    },3500);
+
+}
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+function showStatus(message,type=""){
+
+    const box =
+        document.getElementById(
+            "statusMessage"
+        );
+
+    if(!message){
+
+        box.innerHTML = "";
+
+        return;
+    }
+
+    box.innerHTML = `
+        <div class="status-box ${type}">
+            ${escapeHTML(message)}
+        </div>
+    `;
+
+}
+
+
+/* =========================================
+   LOAD SETTINGS
+========================================= */
+
+async function loadSettings(){
+
+    showStatus(
+        "Inapakia mipangilio..."
+    );
+
+    try{
+
+        const {
+            data,
+            error
+        } =
+        await supabaseClient
+            .from("choir_settings")
+            .select("*")
+            .limit(1)
+            .maybeSingle();
+
+
+        if(error){
+
+            throw error;
+
+        }
+
+
+        currentSettings = data;
+
+
+        if(data){
+
+            document.getElementById(
+                "choirName"
+            ).value =
+                data.choir_name || "";
+
+
+            document.getElementById(
+                "churchName"
+            ).value =
+                data.church_name || "";
+
+
+            document.getElementById(
+                "location"
+            ).value =
+                data.location || "";
+
+
+            document.getElementById(
+                "phone"
+            ).value =
+                data.phone || "";
+
+
+            document.getElementById(
+                "email"
+            ).value =
+                data.email || "";
+
+
+            document.getElementById(
+                "establishedYear"
+            ).value =
+                data.established_year || "";
+
+
+            document.getElementById(
+                "description"
+            ).value =
+                data.description || "";
+
+
+            if(data.logo_url){
+
+                setLogo(
+                    data.logo_url
+                );
+
+            }
+
+
+            document.getElementById(
+                "heroChoirName"
+            ).textContent =
+                data.choir_name ||
+                "KWAYA MANAGEMENT";
+
+
+            document.getElementById(
+                "settingsStatus"
+            ).textContent =
+                "Imesanidiwa";
+
+
+        }else{
+
+            document.getElementById(
+                "heroChoirName"
+            ).textContent =
+                "KWAYA MANAGEMENT";
+
+            document.getElementById(
+                "settingsStatus"
+            ).textContent =
+                "Haijawekwa";
+
+        }
+
+
+        document.getElementById(
+            "databaseStatus"
+        ).textContent =
+            "Imeunganishwa";
+
+
+        showStatus("");
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById(
+            "databaseStatus"
+        ).textContent =
+            "Hitilafu";
+
+
+        document.getElementById(
+            "settingsStatus"
+        ).textContent =
+            "Haipatikani";
+
+
+        showStatus(
+            "Imeshindikana kusoma choir_settings. Hakikisha table choir_settings ipo kwenye Supabase.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   SAVE SETTINGS
+========================================= */
+
+document
+    .getElementById("settingsForm")
+    .addEventListener(
+        "submit",
+        saveSettings
+    );
+
+
+async function saveSettings(e){
+
+    e.preventDefault();
+
+
+    const saveBtn =
+        document.getElementById(
+            "saveBtn"
+        );
+
+
+    const payload = {
+
+        choir_name:
+            document
+                .getElementById(
+                    "choirName"
+                )
+                .value
+                .trim(),
+
+        church_name:
+            document
+                .getElementById(
+                    "churchName"
+                )
+                .value
+                .trim(),
+
+        location:
+            document
+                .getElementById(
+                    "location"
+                )
+                .value
+                .trim(),
+
+        phone:
+            document
+                .getElementById(
+                    "phone"
+                )
+                .value
+                .trim(),
+
+        email:
+            document
+                .getElementById(
+                    "email"
+                )
+                .value
+                .trim(),
+
+        established_year:
+            document
+                .getElementById(
+                    "establishedYear"
+                )
+                .value
+                ? Number(
+                    document
+                        .getElementById(
+                            "establishedYear"
+                        )
+                        .value
+                )
+                : null,
+
+        description:
+            document
+                .getElementById(
+                    "description"
+                )
+                .value
+                .trim()
+
+    };
+
+
+    if(!payload.choir_name){
+
+        showToast(
+            "Jina la kwaya linahitajika.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    saveBtn.disabled = true;
+
+    saveBtn.textContent =
+        "⏳ Inahifadhi...";
+
+
+    try{
+
+        let result;
+
+
+        /*
+          Kama kuna record tayari:
+          UPDATE
+
+          Kama hakuna:
+          INSERT
+        */
+
+        if(currentSettings?.id){
+
+            result =
+                await supabaseClient
+                    .from("choir_settings")
+                    .update(payload)
+                    .eq(
+                        "id",
+                        currentSettings.id
+                    )
+                    .select()
+                    .single();
+
+        }else{
+
+            result =
+                await supabaseClient
+                    .from("choir_settings")
+                    .insert(payload)
+                    .select()
+                    .single();
+
+        }
+
+
+        if(result.error){
+
+            throw result.error;
+
+        }
+
+
+        currentSettings =
+            result.data;
+
+
+        document.getElementById(
+            "heroChoirName"
+        ).textContent =
+            payload.choir_name;
+
+
+        document.getElementById(
+            "settingsStatus"
+        ).textContent =
+            "Imesanidiwa";
+
+
+        showToast(
+            "Mipangilio imehifadhiwa vizuri.",
+            "success"
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            error.message ||
+            "Imeshindikana kuhifadhi mipangilio.",
+            "error"
+        );
+
+    }finally{
+
+        saveBtn.disabled = false;
+
+        saveBtn.textContent =
+            "💾 Hifadhi Mipangilio";
+
+    }
+
+}
+
+
+/* =========================================
+   LOGO PREVIEW
+========================================= */
+
+document
+    .getElementById("logoInput")
+    .addEventListener(
+        "change",
+        function(){
+
+            const file =
+                this.files[0];
+
+            if(!file)
+                return;
+
+
+            if(!file.type.startsWith("image/")){
+
+                showToast(
+                    "Tafadhali chagua picha.",
+                    "error"
+                );
+
+                this.value = "";
+
+                return;
+
+            }
+
+
+            const reader =
+                new FileReader();
+
+            reader.onload = function(e){
+
+                setLogo(
+                    e.target.result
+                );
+
+            };
+
+            reader.readAsDataURL(file);
+
+        }
+    );
+
+
+function setLogo(url){
+
+    document.getElementById(
+        "logoPreview"
+    ).innerHTML =
+        `<img src="${url}" alt="Logo">`;
+
+
+    document.getElementById(
+        "heroLogo"
+    ).innerHTML =
+        `<img src="${url}" alt="Logo">`;
+
+}
+
+
+/* =========================================
+   UPLOAD LOGO
+========================================= */
+
+async function uploadLogo(){
+
+    const file =
+        document.getElementById(
+            "logoInput"
+        ).files[0];
+
+
+    if(!file){
+
+        showToast(
+            "Chagua logo kwanza.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if(!currentSettings?.id){
+
+        showToast(
+            "Hifadhi kwanza taarifa za kwaya.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    try{
+
+        const extension =
+            file.name
+                .split(".")
+                .pop()
+                .toLowerCase();
+
+
+        const filePath =
+            `choir-logo-${Date.now()}.${extension}`;
+
+
+        const {
+            error:
+                uploadError
+        } =
+        await supabaseClient
+            .storage
+            .from("documents")
+            .upload(
+                filePath,
+                file,
+                {
+                    upsert:true,
+                    cacheControl:"3600"
+                }
+            );
+
+
+        if(uploadError){
+
+            throw uploadError;
+
+        }
+
+
+        const {
+            data
+        } =
+        supabaseClient
+            .storage
+            .from("documents")
+            .getPublicUrl(
+                filePath
+            );
+
+
+        const logoUrl =
+            data.publicUrl;
+
+
+        const {
+            error:
+                updateError
+        } =
+        await supabaseClient
+            .from("choir_settings")
+            .update({
+                logo_url:logoUrl
+            })
+            .eq(
+                "id",
+                currentSettings.id
+            );
+
+
+        if(updateError){
+
+            throw updateError;
+
+        }
+
+
+        currentSettings.logo_url =
+            logoUrl;
+
+
+        setLogo(
+            logoUrl
+        );
+
+
+        showToast(
+            "Logo imehifadhiwa vizuri.",
+            "success"
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showToast(
+            "Imeshindikana kuhifadhi logo. Hakikisha Storage bucket 'documents' inaruhusu upload.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logout(){
+
+    try{
+
+        await supabaseClient
+            .auth
+            .signOut();
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+/* =========================================
+   ESCAPE HTML
+========================================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================
+   USER
+========================================= */
+
+async function loadUser(){
+
+    try{
+
+        const {
+            data
+        } =
+        await supabaseClient
+            .auth
+            .getUser();
+
+
+        const user =
+            data?.user;
+
+
+        document.getElementById(
+            "currentUser"
+        ).textContent =
+            user?.email ||
+            "Mtumiaji wa mfumo";
+
+    }catch(error){
+
+        document.getElementById(
+            "currentUser"
+        ).textContent =
+            "Mtumiaji wa mfumo";
+
+    }
+
+}
+
+
+/* =========================================
+   INIT
+========================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadSettings();
+
+        loadUser();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
+```
