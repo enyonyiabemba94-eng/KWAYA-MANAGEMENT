@@ -27,11 +27,12 @@ jobs:
 
           # Current V5 exists: update the requested A4 typography in place.
           if '/* MASS_A4_ONE_PAGE_FINAL_V5 */' in s:
-              s = s.replace('.a4-paper h4{font-size:12px!important;', '.a4-paper h4{font-size:12px!important;')
-              s = s.replace('.a4-paper .previewSong{font-size:11px!important;', '.a4-paper .previewSong{font-size:12px!important;')
-              s = s.replace('.a4-paper .notes{font-size:11px!important;', '.a4-paper .notes{font-size:12px!important;')
+              s = s.replace('.a4-paper .ptitle{font-size:14px!important;', '.a4-paper .ptitle{font-size:16px!important;')
+              s = s.replace('.a4-paper h4{font-size:12px!important;', '.a4-paper h4{font-size:14px!important;')
+              s = s.replace('.a4-paper .previewSong{font-size:12px!important;', '.a4-paper .previewSong{font-size:14px!important;')
+              s = s.replace('.a4-paper .notes{font-size:12px!important;', '.a4-paper .notes{font-size:14px!important;')
               p.write_text(s, encoding='utf-8')
-              print('Mass Programme A4 V5 updated: text 12px, title 14px.')
+              print('Mass Programme A4 typography updated: main title 16px, section/song/notes 14px.')
               raise SystemExit(0)
 
           # Upgrade the older V4 block to V5 when necessary.
@@ -52,11 +53,11 @@ jobs:
           .a4-overlay{position:fixed!important;inset:0!important;display:block!important;width:210mm!important;height:297mm!important;padding:0!important;margin:0!important;overflow:hidden!important;background:#fff!important}
           .a4-paper{width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;margin:0!important;padding:5mm 7mm!important;box-sizing:border-box!important;overflow:hidden!important;box-shadow:none!important;border:0!important;page-break-before:avoid!important;page-break-after:avoid!important;break-before:avoid!important;break-after:avoid!important}
           .a4-paper .logo{width:16mm!important;height:16mm!important;margin:0 auto 1mm!important}
-          .a4-paper .ptitle{font-size:14px!important;line-height:1.05!important;margin:0 0 1mm!important;text-transform:uppercase!important}
+          .a4-paper .ptitle{font-size:16px!important;line-height:1.05!important;margin:0 0 1mm!important;text-transform:uppercase!important}
           .a4-paper .sub{font-size:8px!important;line-height:1.1!important;margin:0 0 1.5mm!important}
-          .a4-paper h4{font-size:12px!important;line-height:1.05!important;margin:1.2mm 0 .5mm!important;padding:.8mm 0!important;text-transform:uppercase!important}
-          .a4-paper .previewSong{font-size:12px!important;line-height:1.12!important;margin:.45mm 0!important}
-          .a4-paper .notes{font-size:12px!important;line-height:1.18!important}
+          .a4-paper h4{font-size:14px!important;line-height:1.05!important;margin:1.2mm 0 .5mm!important;padding:.8mm 0!important;text-transform:uppercase!important}
+          .a4-paper .previewSong{font-size:14px!important;line-height:1.12!important;margin:.45mm 0!important}
+          .a4-paper .notes{font-size:14px!important;line-height:1.18!important}
           .a4-footer{font-size:7px!important;margin-top:1mm!important;padding-top:1mm!important}
           .a4-toolbar,.a4-paper button{display:none!important}
           .a4-paper .a4-content{column-count:2!important;column-gap:5mm!important}
@@ -74,5 +75,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mass-programmes.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Set Mass Programme A4 text to 12px'
+          git commit -m 'Set Mass Programme A4 title 16px and text 14px'
           git push
