@@ -1,8 +1,7 @@
 name: Fix Mass Programme
 on:
   push:
-    paths:
-      - 'trigger-mass-fix.txt'
+    branches: [main]
 jobs:
   fix:
     runs-on: ubuntu-latest
@@ -10,37 +9,47 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Apply targeted fixes
+      - name: Apply fixes
+        shell: python
         run: |
-          python3 - <<'PY'
           from pathlib import Path
-          p=Path('mass-programmes.html')
-          s=p.read_text()
-          old='<div class="field"><label>Mahali</label><input id="location" placeholder="Mf. Kanisa la Kristo Mfalme"></div>'
-          new=old+'<div class="two"><div class="field"><label>Conductor 1</label><input id="conductor1" placeholder="Jina la Conductor 1"></div><div class="field"><label>Conductor 2</label><input id="conductor2" placeholder="Jina la Conductor 2"></div></div>'
-          s=s.replace(old,new,1)
-          s=s.replace("const groups=[['opening','🎵 Nyimbo za Kuingia',3],['offertory','💰 Nyimbo za Sadaka',6],['communion','🍞 Nyimbo za Komunio',6],['thanksgiving','🙏 Nyimbo za Shukrani',4]];", "const groups=[['opening','🎵 Nyimbo za Kuingia'],['offertory','💰 Nyimbo za Sadaka'],['communion','🍞 Nyimbo za Komunio'],['thanksgiving','🙏 Nyimbo za Shukrani']];")
-          a=s.index('function renderSlots('); b=s.index('function toggleManual',a)
-          s=s[:a]+'''function renderSlots(values={}){values=values||{};let html=groups.map(([k,label])=>{const arr=Array.isArray(values[k])?values[k]:[];const count=Math.max(1,arr.length);return `<div class="section"><div class="sectionTitle"><h3>${label}</h3><button type="button" class="btn muted" onclick="addSong('${k}')">＋ Ongeza wimbo</button></div><div id="group_${k}">${Array.from({length:count},(_,i)=>renderSongField(k,i,arr[i]||{})).join('')}</div></div>`}).join('');html+=singles.map(([k,label])=>renderSingle(k,label,values[k]||{})).join('');html+=special.map(([k,label])=>{const active=$(k)?.checked;const arr=Array.isArray(values[k])?values[k]:[];const count=Math.max(1,arr.length);return `<div class="section" id="section_${k}" style="display:${active?'block':'none'}"><div class="sectionTitle"><h3>${label}</h3><button type="button" class="btn muted" onclick="addSong('${k}')">＋ Ongeza wimbo</button></div><div id="group_${k}">${Array.from({length:count},(_,i)=>renderSongField(k,i,arr[i]||{})).join('')}</div></div>`}).join('');$('slots').innerHTML=html}function addSong(k){let values=readSongs();let arr=Array.isArray(values[k])?values[k]:[];arr.push({});values[k]=arr;renderSlots(values)}
-''' + s[b:]
-          a=s.index('function readSongs()'); b=s.index('function specialChanged',a)
-          s=s[:a]+'''function readSongs(){const o={};groups.forEach(([k])=>{const els=[...document.querySelectorAll(`[id^="${k}_"]`)].filter(e=>/^'''+"${k}"+'''_\\d+$/.test(e.id));const n=els.length?Math.max(...els.map(e=>Number(e.id.split('_').pop())))+1:0;o[k]=Array.from({length:n},(_,i)=>readSongField(k,i))});singles.forEach(([k])=>{const id=$(k)?.value||null,key=$(`${k}_key`)?.value||null;o[k]=id==='__manual__'?{manual:true,title:$(`${k}_manual`)?.value.trim()||'',key}:{id:id||null,key}});special.forEach(([k])=>{const els=[...document.querySelectorAll(`[id^="${k}_"]`)].filter(e=>/^'''+"${k}"+'''_\\d+$/.test(e.id));const n=els.length?Math.max(...els.map(e=>Number(e.id.split('_').pop())))+1:0;o[k]=Array.from({length:n},(_,i)=>readSongField(k,i))});return o}
-''' + s[b:]
-          a=s.index('function normalizeSongs('); b=s.index('async function load',a)
-          s=s[:a]+'''function normalizeSongs(raw){raw=raw||{};const out={};groups.forEach(([k])=>{const a=Array.isArray(raw[k])?raw[k]:[];out[k]=a.map(v=>typeof v==='string'?{id:v,key:null}:v||{id:null,key:null})});singles.forEach(([k])=>{const v=raw[k];out[k]=typeof v==='string'?{id:v,key:null}:v||{id:null,key:null}});special.forEach(([k])=>{const a=Array.isArray(raw[k])?raw[k]:[];out[k]=a.map(v=>typeof v==='string'?{id:v,key:null}:v||{id:null,key:null})});return out}
-''' + s[b:]
-          s=s.replace("groups.forEach(([k,label,n])=>{const rows=previewRows(Array.from({length:n},(_,i)=>readSongField(k,i)));if(rows)html+=`<h4>${label}</h4>${rows}`});", "groups.forEach(([k,label])=>{const rows=previewRows(readSongs()[k]||[]);if(rows)html+=`<h4>${label}</h4>${rows}`});")
-          s=s.replace("$('location').value='';$('notes').value='';", "$('location').value='';$('conductor1').value='';$('conductor2').value='';$('notes').value='';",1)
-          s=s.replace("$('location').value=x.location||'';$('notes').value=x.meta.notes||'';", "$('location').value=x.location||'';$('conductor1').value=x.meta.conductor1||'';$('conductor2').value=x.meta.conductor2||'';$('notes').value=x.meta.notes||'';",1)
-          s=s.replace("songs:songsData,notes:", "songs:songsData,conductor1:$('conductor1').value.trim(),conductor2:$('conductor2').value.trim(),notes:",1)
-          old="let html=`<img class=\"logo\" src=\"${LOGO}\" alt=\"Kwaya ya Kristu Mfalme\"><div class=\"ptitle\">${esc(title)}</div><div class=\"sub\">Kwaya ya Kristu Mfalme • 📍 KASULU - KIGOMA/TANZANIA<br>📅 ${esc($('date').value||'—')}${$('time').value?' • '+esc($('time').value):''}${$('location').value?'<br>📍 '+esc($('location').value):''}</div>`;"
-          new="let html=`<img class=\"logo\" src=\"${LOGO}\" alt=\"Kwaya ya Kristu Mfalme\"><div class=\"ptitle\">${esc(title)}</div><div class=\"sub\">${$('conductor1').value.trim()?'<b>Conductor 1:</b> '+esc($('conductor1').value.trim()):''}${$('conductor1').value.trim()&&$('conductor2').value.trim()?'<br>':''}${$('conductor2').value.trim()?'<b>Conductor 2:</b> '+esc($('conductor2').value.trim()):''}</div>`;"
-          s=s.replace(old,new,1)
-          s=s.replace("return s?`${s.song_number}. ${s.title}${v.key?' — Key: '+v.key:''}`:''", "return s?`${s.song_number}. ${s.title}${v.key?' — '+v.key:''}`:''")
-          s=s.replace("return arr.filter(v=>v&&(v.id||(v.manual&&v.title))).map((v,i)=>`<p><b>${i+1}.</b> ${esc(songLabel(v))}${v.manual?' <span class=\"badge\">Manual</span>':''}</p>`).join('')", "return arr.filter(v=>v&&(v.id||(v.manual&&v.title))).map((v,i)=>`<p><b>${i+1}.</b> ${esc(songLabel(v))}</p>`).join('')")
-          s=s.replace("if($('notes').value.trim())html+=`<h4>📝 Maelezo</h4><p>${esc($('notes').value).replace(/\\n/g,'<br>')}</p>`;", "")
-          p.write_text(s)
-          PY
+          p = Path('mass-programmes.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Conductors
+          marker = '<div class="field"><label>Mahali</label><input id="location" placeholder="Mf. Kanisa la Kristo Mfalme"></div>'
+          conductor = marker + '<div class="two"><div class="field"><label>Conductor 1</label><input id="conductor1" placeholder="Jina la Conductor 1"></div><div class="field"><label>Conductor 2</label><input id="conductor2" placeholder="Jina la Conductor 2"></div></div>'
+          if 'id="conductor1"' not in s and marker in s:
+              s = s.replace(marker, conductor, 1)
+
+          # Dynamic groups
+          old_groups = "const groups=[['opening','🎵 Nyimbo za Kuingia',3],['offertory','💰 Nyimbo za Sadaka',6],['communion','🍞 Nyimbo za Komunio',6],['thanksgiving','🙏 Nyimbo za Shukrani',4]];"
+          new_groups = "const groups=[['opening','🎵 Nyimbo za Kuingia'],['offertory','💰 Nyimbo za Sadaka'],['communion','🍞 Nyimbo za Komunio'],['thanksgiving','🙏 Nyimbo za Shukrani']];"
+          s = s.replace(old_groups, new_groups, 1)
+
+          # Replace renderer so groups start with one row and can grow with + Ongeza wimbo.
+          start = s.index('function renderSlots(')
+          end = s.index('function toggleManual', start)
+          renderer = '''function renderSlots(values={}){values=values||{};let html=groups.map(([k,label])=>{const arr=Array.isArray(values[k])?values[k]:[];const count=Math.max(1,arr.length);return `<div class="section"><div class="sectionTitle"><h3>${label}</h3><button type="button" class="btn muted" onclick="addSong('${k}')">＋ Ongeza wimbo</button></div><div id="group_${k}">${Array.from({length:count},(_,i)=>renderSongField(k,i,arr[i]||{})).join('')}</div></div>`}).join('');html+=singles.map(([k,label])=>renderSingle(k,label,values[k]||{})).join('');html+=special.map(([k,label])=>{const active=$(k)?.checked;const arr=Array.isArray(values[k])?values[k]:[];const count=Math.max(1,arr.length);return `<div class="section" id="section_${k}" style="display:${active?'block':'none'}"><div class="sectionTitle"><h3>${label}</h3><button type="button" class="btn muted" onclick="addSong('${k}')">＋ Ongeza wimbo</button></div><div id="group_${k}">${Array.from({length:count},(_,i)=>renderSongField(k,i,arr[i]||{})).join('')}</div></div>`}).join('');$('slots').innerHTML=html}function addSong(k){const values=readSongs();const arr=Array.isArray(values[k])?values[k]:[];arr.push({});values[k]=arr;renderSlots(values)}
+'''
+          s = s[:start] + renderer + s[end:]
+
+          # Save conductor names into programme metadata.
+          if "conductor1:$('conductor1').value.trim()" not in s:
+              s = s.replace("songs:songsData,notes:", "songs:songsData,conductor1:$('conductor1').value.trim(),conductor2:$('conductor2').value.trim(),notes:", 1)
+          s = s.replace("$('location').value='';$('notes').value='';", "$('location').value='';$('conductor1').value='';$('conductor2').value='';$('notes').value='';", 1)
+          s = s.replace("$('location').value=x.location||'';$('notes').value=x.meta.notes||'';", "$('location').value=x.location||'';$('conductor1').value=x.meta.conductor1||'';$('conductor2').value=x.meta.conductor2||'';$('notes').value=x.meta.notes||'';", 1)
+
+          # Preview: only added songs and conductor names; no notes, no composer.
+          s = s.replace("groups.forEach(([k,label,n])=>{const rows=previewRows(Array.from({length:n},(_,i)=>readSongField(k,i)));if(rows)html+=`<h4>${label}</h4>${rows}`});", "groups.forEach(([k,label])=>{const rows=previewRows(readSongs()[k]||[]);if(rows)html+=`<h4>${label}</h4>${rows}`});", 1)
+          s = s.replace("if($('notes').value.trim())html+=`<h4>📝 Maelezo</h4><p>${esc($('notes').value).replace(/\\n/g,'<br>')}</p>`;", "", 1)
+          s = s.replace("return s?`${s.song_number}. ${s.title}${v.key?' — Key: '+v.key:''}`:''", "return s?`${s.song_number}. ${s.title}${v.key?' — '+v.key:''}`:''", 1)
+          s = s.replace("return arr.filter(v=>v&&(v.id||(v.manual&&v.title))).map((v,i)=>`<p><b>${i+1}.</b> ${esc(songLabel(v))}${v.manual?' <span class=\"badge\">Manual</span>':''}</p>`).join('')", "return arr.filter(v=>v&&(v.id||(v.manual&&v.title))).map((v,i)=>`<p><b>${i+1}.</b> ${esc(songLabel(v))}</p>`).join('')", 1)
+
+          p.write_text(s, encoding='utf-8')
+
+      - name: Commit Mass Programme changes
+        run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mass-programmes.html
