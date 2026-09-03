@@ -20,22 +20,61 @@ jobs:
 
           p=Path('members.html')
           s=p.read_text()
-          marker='/* MEMBER_PROFILE_NAV_FIX_V1 */'
+          marker='/* MEMBER_PROFILE_NAV_FIX_V2 */'
           if marker not in s:
-              inject=f'''\n<script>{marker}\n(function(){{\n  document.addEventListener('click',function(e){{\n    const person=e.target.closest('.person');\n    if(!person) return;\n    let id=person.dataset.id || person.getAttribute('data-member-id') || '';\n    if(!id){{\n      const oc=person.getAttribute('onclick')||'';\n      const m=oc.match(/[0-9a-f]{{8}}-[0-9a-f-]{{27,}}/i);\n      if(m) id=m[0];\n    }}\n    if(id){{ e.preventDefault(); e.stopImmediatePropagation(); location.href='member-profile.html?id='+encodeURIComponent(id); }}\n  }},true);\n}})();\n</script>\n'''
-              s=s.replace('</body>',inject+'</body>') if '</body>' in s else s+inject
+              inject="""
+          <script>/* MEMBER_PROFILE_NAV_FIX_V2 */
+          document.addEventListener('click',function(e){
+            const person=e.target.closest('.person');
+            if(!person) return;
+            let id=person.dataset.id || person.getAttribute('data-member-id') || '';
+            if(!id){
+              const oc=person.getAttribute('onclick')||'';
+              const m=oc.match(/[0-9a-f]{8}-[0-9a-f-]{27,}/i);
+              if(m) id=m[0];
+            }
+            if(id){e.preventDefault();e.stopImmediatePropagation();location.href='member-profile.html?id='+encodeURIComponent(id);}
+          },true);
+          </script>
+          """
+              s=s.replace('</body>',inject+'</body>')
               p.write_text(s)
 
           p=Path('member-profile.html')
           s=p.read_text()
-          marker='/* MEMBER_PROFILE_SACRAMENTS_FIX_V1 */'
+          marker='/* MEMBER_PROFILE_SACRAMENTS_FIX_V2 */'
           if marker not in s:
-              css='''\n<style>\n.sacrament-card{background:#fff;border:1px solid #e5e7eb;border-radius:15px;padding:18px;margin-top:18px}\n.sacrament-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}\n.sacrament-item{border:1px solid #eee;border-radius:12px;padding:14px;background:#fafafa}\n.sacrament-item h4{margin:0 0 8px;font-size:13px}\n.sacrament-item .ok{color:#166534;font-weight:800}\n.sacrament-item .no{color:#6b7280}\n.sacrament-detail{font-size:11px;color:#6b7280;line-height:1.5;margin-top:6px}\n@media(max-width:800px){.sacrament-grid{grid-template-columns:1fr 1fr}}\n@media(max-width:500px){.sacrament-grid{grid-template-columns:1fr}}\n</style>\n'''
-              section='''\n<section class="sacrament-card" id="profileSacraments">\n  <h3>⛪ Sakramenti za Mwimbaji</h3>\n  <div class="sacrament-grid" id="sacramentGrid"><div class="sacrament-item">Inapakia sakramenti...</div></div>\n</section>\n'''
-              s=s.replace('</body>',section+'</body>')
-              s=s.replace('</style></head>', '</style>'+css+'</head>', 1) if '</style></head>' in s else s.replace('</head>',css+'</head>',1)
-              js=f'''\n<script>{marker}\n(async function(){{\n  const db2=window.supabase && supabase.createClient('https://xulnkdrgjgajmcqntwga.supabase.co','sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2');\n  const params=new URLSearchParams(location.search);\n  const id=params.get('id') || params.get('member_id');\n  const grid=document.getElementById('sacramentGrid');\n  if(!grid || !db2 || !id) return;\n  const tables=[['Ubatizo','baptism_records','baptism_date','parish_church','record_number'],['Kipaimara','confirmation_records','confirmation_date','parish_church','record_number'],['Ekaristi ya Kwanza','eucharist_records','eucharist_date','parish_church','record_number'],['Ndoa','marriage_records','marriage_date','parish_church','record_number']];\n  const esc=x=>String(x??'').replace(/[&<>\"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;' }[m]));\n  const fmt=x=>x?new Date(x).toLocaleDateString('sw-TZ',{day:'2-digit',month:'2-digit',year:'numeric'}):'-';\n  const cards=[];\n  for(const [label,table,dateCol,churchCol,recCol] of tables){\n    const {data,error}=await db2.from(table).select('*').eq('member_id',id).limit(1);\n    const r=data && data[0];\n    if(error){cards.push(`<div class="sacrament-item"><h4>${label}</h4><div class="no">Haijapatikana</div></div>`);continue;}\n    cards.push(`<div class="sacrament-item"><h4>${label}</h4>${r?`<div class="ok">✓ Imepokelewa</div><div class="sacrament-detail">Tarehe: ${esc(fmt(r[dateCol]))}<br>Kanisa: ${esc(r[churchCol]||'-')}<br>Namba: ${esc(r[recCol]||'-')}</div>`:`<div class="no">— Haijaandikishwa</div>`}</div>`);\n  }\n  grid.innerHTML=cards.join('');\n}})();\n</script>\n'''
-              s=s.replace('</body>',js+'</body>')
+              css="""
+          <style>
+          .sacrament-card{background:#fff;border:1px solid #e5e7eb;border-radius:15px;padding:18px;margin-top:18px}
+          .sacrament-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+          .sacrament-item{border:1px solid #eee;border-radius:12px;padding:14px;background:#fafafa}
+          .sacrament-item h4{margin:0 0 8px;font-size:13px}.sacrament-item .ok{color:#166534;font-weight:800}.sacrament-item .no{color:#6b7280}.sacrament-detail{font-size:11px;color:#6b7280;line-height:1.5;margin-top:6px}
+          @media(max-width:800px){.sacrament-grid{grid-template-columns:1fr 1fr}}@media(max-width:500px){.sacrament-grid{grid-template-columns:1fr}}
+          </style>
+          """
+              section="""
+          <section class="sacrament-card" id="profileSacraments"><h3>⛪ Sakramenti za Mwimbaji</h3><div class="sacrament-grid" id="sacramentGrid"><div class="sacrament-item">Inapakia sakramenti...</div></div></section>
+          """
+              js="""
+          <script>/* MEMBER_PROFILE_SACRAMENTS_FIX_V2 */
+          (async function(){
+            const db2=window.supabase && supabase.createClient('https://xulnkdrgjgajmcqntwga.supabase.co','sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2');
+            const id=new URLSearchParams(location.search).get('id')||new URLSearchParams(location.search).get('member_id');
+            const grid=document.getElementById('sacramentGrid');
+            if(!db2||!grid||!id)return;
+            const tables=[['Ubatizo','baptism_records','baptism_date'],['Kipaimara','confirmation_records','confirmation_date'],['Ekaristi ya Kwanza','eucharist_records','eucharist_date'],['Ndoa','marriage_records','marriage_date']];
+            const cards=[];
+            for(const t of tables){
+              const r=(await db2.from(t[1]).select('*').eq('member_id',id).limit(1)).data?.[0];
+              cards.push('<div class="sacrament-item"><h4>'+t[0]+'</h4>'+(r?'<div class="ok">✓ Imepokelewa</div><div class="sacrament-detail">Tarehe: '+(r[t[2]]||'-')+'</div>':'<div class="no">— Haijaandikishwa</div>')+'</div>');
+            }
+            grid.innerHTML=cards.join('');
+          })();
+          </script>
+          """
+              s=s.replace('</style></head>','</style>'+css+'</head>',1)
+              s=s.replace('</body>',section+js+'</body>')
               p.write_text(s)
           PY
       - name: Commit changes
@@ -44,5 +83,5 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add members.html member-profile.html
           if git diff --cached --quiet; then echo 'No changes'; exit 0; fi
-          git commit -m 'Fix singer profile navigation and connect sacraments'
+          git commit -m 'Fix singer profile navigation and sacraments'
           git push
