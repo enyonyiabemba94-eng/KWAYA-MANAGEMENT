@@ -31,13 +31,17 @@ jobs:
           @media print{.choir-brand-header{grid-template-columns:55px 1fr 55px;padding:6px 0;border-bottom:1.5px solid #000}.choir-brand-header img{width:45px;height:45px}.choir-brand-header .choir-brand-title{font-size:17px}.choir-brand-header .choir-brand-subtitle{font-size:8px}}
           '''
 
-          header='''<div class="choir-brand-header"><img src="'''+logo+'''" alt="Kwaya ya Kristo Mfalme"><div><div class="choir-brand-title">KWAYA YA KRISTO MFALME</div><div class="choir-brand-subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="'''+logo+'''" alt="Kwaya ya Kristo Mfalme"></div>'''
+          header='''<div class="choir-brand-header"><img src="'''+logo+'''" alt="Kwaya ya Kristu Mfalme"><div><div class="choir-brand-title">KWAYA YA KRISTU MFALME</div><div class="choir-brand-subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="'''+logo+'''" alt="Kwaya ya Kristu Mfalme"></div>'''
 
           for p in Path('.').glob('*.html'):
               s=p.read_text(encoding='utf-8')
               old=s
-              s=s.replace('🎶 KWAYA MANAGEMENT','🎶 KWAYA YA KRISTO MFALME')
-              s=s.replace('KWAYA MANAGEMENT','KWAYA YA KRISTO MFALME')
+              s=s.replace('KWAYA YA KRISTO MFALME','KWAYA YA KRISTU MFALME')
+              s=s.replace('KWAYA YA KRISTO','KWAYA YA KRISTU')
+              s=s.replace('Kwaya ya Kristo Mfalme','Kwaya ya Kristu Mfalme')
+              s=s.replace('Kwaya ya Kristo','Kwaya ya Kristu')
+              s=s.replace('🎶 KWAYA MANAGEMENT','🎶 KWAYA YA KRISTU MFALME')
+              s=s.replace('KWAYA MANAGEMENT','KWAYA YA KRISTU MFALME')
 
               if '<div class="choir-brand-header">' not in s:
                   if '<main class="main">' in s:
@@ -49,7 +53,7 @@ jobs:
                   s=s.replace('</style>',css+'</style>',1)
 
               if 'class="brand"' in s and logo not in s:
-                  s=s.replace('<div class="brand">','<div class="brand"><img class="brand-logo" src="'+logo+'" alt="Kwaya ya Kristo Mfalme">',1)
+                  s=s.replace('<div class="brand">','<div class="brand"><img class="brand-logo" src="'+logo+'" alt="Kwaya ya Kristu Mfalme">',1)
                   s=s.replace('</style>',' .brand{display:flex;align-items:center;gap:10px}.brand-logo{width:44px;height:44px;object-fit:contain;border-radius:0;background:transparent;flex:none} </style>',1)
 
               if p.name == 'mass-programmes.html':
@@ -62,11 +66,11 @@ jobs:
       - name: Commit branded pages
         run: |
           git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.email '41898282+users.noreply.github.com'
           git add '*.html'
           if git diff --cached --quiet; then
             echo 'No changes needed.'
           else
-            git commit -m 'Standardize choir header across all pages'
+            git commit -m 'Use Kristu Mfalme choir name consistently'
             git push
           fi
