@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Clean all choir HTML pages
+      - name: Fix choir branding on all HTML pages
         shell: bash
         run: |
           python3 - <<'PY'
@@ -26,23 +26,28 @@ jobs:
             ('events.html','📅 Ratiba',''),('announcements.html','📢 Taarifa',''),
             ('documents.html','📄 Nyaraka',''),('settings.html','⚙️ Mipangilio','')]
 
-          css='''.nav-sub{margin:0 0 2px 12px;border-left:2px solid #ffffff20;padding-left:4px}.nav-sub a{font-size:12px!important;padding:8px 10px!important}.nav-sub a.active{background:#8b5cf633;color:#fff}.brand{display:flex!important;align-items:center!important;gap:9px!important;padding:8px!important}.brand-logo{width:34px!important;height:34px!important;object-fit:contain!important;border-radius:0!important;background:transparent!important;flex:none!important}.brand-text{font-size:12px;font-weight:800;line-height:1.15}.brand-text small{display:block;color:#b9aecf;font-size:9px;margin-top:3px;font-weight:600}.choir-brand-header{width:100%;display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px;padding:7px 12px;background:#fff;border-bottom:2px solid #18122b;text-align:center;box-sizing:border-box}.choir-brand-header img{width:36px!important;height:36px!important;object-fit:contain!important;border-radius:0!important;background:transparent!important;display:block;margin:auto}.choir-brand-title{font-size:18px!important;font-weight:900;letter-spacing:.3px;color:#18122b;line-height:1.15}.choir-brand-subtitle{font-size:9px!important;font-weight:700;color:#5b6472;margin-top:2px}@media(max-width:700px){.choir-brand-header{grid-template-columns:38px 1fr 38px;gap:5px;padding:6px 7px}.choir-brand-header img{width:28px!important;height:28px!important}.choir-brand-title{font-size:13px!important}.choir-brand-subtitle{font-size:7px!important}.brand-logo{width:30px!important;height:30px!important}.brand-text{font-size:11px}}@media print{.choir-brand-header{grid-template-columns:42px 1fr 42px;padding:4px 0}.choir-brand-header img{width:32px!important;height:32px!important}.choir-brand-title{font-size:15px!important}.choir-brand-subtitle{font-size:7px!important}}'''
+          final_css='''.choir-final-brand{width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:8px;padding:6px 10px;background:#fff;border-bottom:2px solid #18122b;text-align:center}.choir-final-brand img{width:34px!important;height:34px!important;object-fit:contain!important;border:0!important;border-radius:0!important;background:transparent!important;display:block;margin:auto}.choir-final-brand .title{font-size:18px!important;font-weight:900!important;letter-spacing:.3px;color:#18122b;line-height:1.15}.choir-final-brand .subtitle{font-size:9px!important;font-weight:700!important;color:#5b6472;margin-top:2px}@media(max-width:700px){.choir-final-brand{grid-template-columns:34px minmax(0,1fr) 34px;gap:5px;padding:6px}.choir-final-brand img{width:27px!important;height:27px!important}.choir-final-brand .title{font-size:13px!important}.choir-final-brand .subtitle{font-size:7px!important}}@media print{.choir-final-brand{grid-template-columns:40px minmax(0,1fr) 40px;padding:4px 0}.choir-final-brand img{width:30px!important;height:30px!important}.choir-final-brand .title{font-size:15px!important}.choir-final-brand .subtitle{font-size:7px!important}}'''
 
           for p in Path('.').glob('*.html'):
               s=p.read_text(encoding='utf-8'); old=s
 
-              # Remove exactly the complete sidebar brand, including its nested brand-text div.
-              s=re.sub(r'<div class="brand">.*?<div class="brand-text">.*?</div></div>', '', s, count=1, flags=re.S)
-              brand=f'<div class="brand"><img class="brand-logo" src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div class="brand-text">KWAYA YA KRISTU MFALME<small>MFUMO WA USIMAMIZI WA KWAYA</small></div></div>'
-              if '<aside class="side"' in s:
-                  s=s.replace('<aside class="side" id="side">','<aside class="side" id="side">'+brand,1)
+              # Remove malformed extra closing div left by older branding pass.
+              s=s.replace('</div></div><nav class="nav">','</div><nav class="nav">')
 
-              header=f'<div class="choir-brand-header"><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div><div class="choir-brand-title">KWAYA YA KRISTU MFALME</div><div class="choir-brand-subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"></div>'
-              if '<header class="top">' in s:
-                  if '<div class="choir-brand-header">' in s:
-                      s=re.sub(r'<div class="choir-brand-header">.*?<header class="top">', header+'<header class="top">', s, count=1, flags=re.S)
-                  elif '<main class="main">' in s:
-                      s=s.replace('<main class="main">','<main class="main">'+header,1)
+              # Replace the entire top choir branding block with exactly two logos and centered text.
+              header=f'<div class="choir-final-brand"><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div><div class="title">KWAYA YA KRISTU MFALME</div><div class="subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"></div>'
+              if '<div class="choir-final-brand">' in s:
+                  s=re.sub(r'<div class="choir-final-brand">.*?</div></div><img[^>]*></div>',header,s,count=1,flags=re.S)
+              elif '<div class="choir-brand-header">' in s:
+                  s=re.sub(r'<div class="choir-brand-header">.*?</div></div><img[^>]*></div>',header,s,count=1,flags=re.S)
+              elif '<header class="top">' in s and '<main class="main">' in s:
+                  s=s.replace('<main class="main">','<main class="main">'+header,1)
+
+              # Standardize sidebar brand while preserving the page's JavaScript and content.
+              brand=f'<div class="brand"><img class="brand-logo" src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div class="brand-text">KWAYA YA KRISTU MFALME<small>MFUMO WA USIMAMIZI WA KWAYA</small></div></div>'
+              s=re.sub(r'<div class="brand">.*?<div class="brand-text">.*?</div></div>',brand,s,count=1,flags=re.S)
+              if '<aside class="side" id="side">' in s and brand not in s:
+                  s=s.replace('<aside class="side" id="side">','<aside class="side" id="side">'+brand,1)
 
               s=s.replace('📍 NYARUGUSU CAMP','').replace('📍 KASULU - KIGOMA/TANZANIA','').replace('📍 NYARUGUSU','')
 
@@ -61,14 +66,15 @@ jobs:
                           links.append(f'<div class="nav-sub"><a href="song-books.html"{ca}>📚 Vitabu vya Nyimbo</a></div>')
                   s=s[:m.start()]+'<nav class="nav">'+''.join(links)+'</nav>'+s[m.end():]
 
-              if '</style>' in s and '.nav-sub{' not in s:
-                  s=s.replace('</style>',css+'</style>',1)
+              if '</style>' in s and '.choir-final-brand{' not in s:
+                  s=s.replace('</style>',final_css+'</style>',1)
+
               if s!=old:
                   p.write_text(s,encoding='utf-8')
           PY
-      - name: Commit cleaned pages
+      - name: Commit branding fix
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add '*.html'
-          if git diff --cached --quiet; then echo 'No changes needed.'; else git commit -m 'Clean choir logos branding and navigation'; git push; fi
+          if git diff --cached --quiet; then echo 'No changes needed.'; else git commit -m 'Fix choir logos and centered header'; git push; fi
