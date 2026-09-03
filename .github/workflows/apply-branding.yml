@@ -1,110 +1,44 @@
 name: Apply Kwaya Branding
-
 on:
   push:
     branches: [main]
-
 permissions:
   contents: write
-
 jobs:
   branding:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Final choir branding and navigation cleanup
+      - uses: actions/checkout@v4
+      - name: Fix navigation hierarchy
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-
-          logo='https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg'
-
-          css='''
-          .choir-brand-header{width:100%;display:grid;grid-template-columns:72px 1fr 72px;align-items:center;gap:14px;padding:12px 18px;background:#fff;border-bottom:2px solid #18122b;text-align:center;box-sizing:border-box}
-          .choir-brand-header img{width:58px;height:58px;object-fit:contain;border-radius:0;background:transparent;display:block;margin:auto;border:0;box-shadow:none}
-          .choir-brand-header .choir-brand-title{font-size:21px;font-weight:900;letter-spacing:.4px;color:#18122b;line-height:1.2}
-          .choir-brand-header .choir-brand-subtitle{font-size:11px;font-weight:700;color:#5b6472;margin-top:4px}
-          .brand{display:flex;align-items:center;gap:10px}
-          .brand-logo{width:44px;height:44px;object-fit:contain;border-radius:0;background:transparent;display:block;flex:none;border:0;box-shadow:none}
-          @media(max-width:700px){.choir-brand-header{grid-template-columns:48px 1fr 48px;gap:6px;padding:9px 8px}.choir-brand-header img{width:40px;height:40px}.choir-brand-header .choir-brand-title{font-size:15px}.choir-brand-header .choir-brand-subtitle{font-size:9px}.brand-logo{width:40px;height:40px}}
-          @media print{.choir-brand-header{grid-template-columns:55px 1fr 55px;padding:6px 0;border-bottom:1.5px solid #000}.choir-brand-header img{width:45px;height:45px}.choir-brand-header .choir-brand-title{font-size:17px}.choir-brand-header .choir-brand-subtitle{font-size:8px}}
-          '''
-
-          header=f'''<div class="choir-brand-header"><img src="{logo}" alt="Kwaya ya Kristu Mfalme"><div><div class="choir-brand-title">KWAYA YA KRISTU MFALME</div><div class="choir-brand-subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="{logo}" alt="Kwaya ya Kristu Mfalme"></div>'''
-          header_re=re.compile(r'<div class="choir-brand-header">.*?</div>\s*</div>', re.S)
-          hero_re=re.compile(r'<img\b[^>]*class=["\']heroLogo["\'][^>]*>\s*', re.I)
-          logo_re=re.compile(r'<img\b[^>]*class=["\']brand-logo["\'][^>]*>\s*', re.I)
-
           for p in Path('.').glob('*.html'):
-              s=p.read_text(encoding='utf-8')
-              old=s
-
-              s=header_re.sub('',s)
-              s=hero_re.sub('',s)
-
-              # Standardize choir name.
-              s=s.replace('KWAYA YA KRISTO MFALME','KWAYA YA KRISTU MFALME')
-              s=s.replace('KWAYA YA KRISTO','KWAYA YA KRISTU')
-              s=s.replace('Kwaya ya Kristo Mfalme','Kwaya ya Kristu Mfalme')
-              s=s.replace('Kwaya ya Kristo','Kwaya ya Kristu')
-              s=s.replace('🎶 KWAYA MANAGEMENT','🎶 KWAYA YA KRISTU MFALME')
-              s=s.replace('KWAYA MANAGEMENT','KWAYA YA KRISTU MFALME')
-
-              # Navigation hierarchy:
-              # Waimbaji -> Sakramenti
-              # Nyimbo -> Vitabu vya Nyimbo
-              s=s.replace('<a href="members.html">👥 Waimbaji</a><a href="attendance.html">', '<a href="members.html">👥 Waimbaji</a><a href="sacraments.html">⛪ Sakramenti</a><a href="attendance.html">')
-              s=s.replace('<a class="active" href="members.html">👥 Waimbaji</a><a href="attendance.html">', '<a class="active" href="members.html">👥 Waimbaji</a><a href="sacraments.html">⛪ Sakramenti</a><a href="attendance.html">')
-              s=s.replace('<a href="songs.html">🎵 Nyimbo</a><a href="song-books.html">📚 Vitabu vya Nyimbo</a><a href="mass-programmes.html">', '<a href="songs.html">🎵 Nyimbo</a><a href="song-books.html">📚 Vitabu vya Nyimbo</a><a href="mass-programmes.html">')
-              # Remove standalone sacrament link, since it is now nested conceptually under Waimbaji.
-              s=re.sub(r'<a(?: class="active")? href="sacraments\.html">⛪ Sakramenti</a>(?=<a href="reports\.html">)', '', s)
-              # Remove standalone song-book link only when it is not already immediately after Nyimbo.
-              s=re.sub(r'(?<!href="songs\.html">🎵 Nyimbo</a>)<a(?: class="active")? href="song-books\.html">📚 Vitabu vya Nyimbo</a>', '', s)
-
-              # Ensure the two child pages are visibly grouped with indentation in the sidebar.
-              s=s.replace('<a href="sacraments.html">⛪ Sakramenti</a>', '<a class="nav-child" href="sacraments.html">⛪ Sakramenti</a>')
-              s=s.replace('<a href="song-books.html">📚 Vitabu vya Nyimbo</a>', '<a class="nav-child" href="song-books.html">📚 Vitabu vya Nyimbo</a>')
+              s=p.read_text(encoding='utf-8'); old=s
+              m=re.search(r'<nav class="nav">.*?</nav>',s,re.S)
+              if not m: continue
+              items=[
+              ('index.html','🏠 Dashboard',''),('members.html','👥 Waimbaji',''),
+              ('sacraments.html','⛪ Sakramenti','child'),('attendance.html','📋 Mahudhurio',''),
+              ('songs.html','🎵 Nyimbo',''),('song-books.html','📚 Vitabu vya Nyimbo','child'),
+              ('mass-programmes.html','📖 Mpango wa Misa',''),('reports.html','📊 Ripoti',''),
+              ('events.html','📅 Ratiba',''),('announcements.html','📢 Taarifa',''),
+              ('documents.html','📄 Nyaraka',''),('settings.html','⚙️ Mipangilio','')]
+              links=[]
+              for href,label,child in items:
+                  cls=(' class="nav-child"' if child else '')+(' class="active"' if not child and href==p.name else '')
+                  if child and href==p.name: cls=' class="nav-child active"'
+                  links.append(f'<a{cls} href="{href}">{label}</a>')
+              s=s[:m.start()]+'<nav class="nav">'+''.join(links)+'</nav>'+s[m.end():]
               if '.nav-child{' not in s and '</style>' in s:
-                  s=s.replace('</style>', '.nav-child{padding-left:30px!important;font-size:12px!important;opacity:.95}\n</style>',1)
-
-              # Repair sidebar brand safely using the closing tag immediately before nav.
-              def clean_brand(m):
-                  block=m.group(1)
-                  block=logo_re.sub('',block)
-                  block=re.sub(r'<img\b[^>]*alt=["\']Kwaya ya Kristu Mfalme["\'][^>]*>\s*', '', block, flags=re.I)
-                  inner=block[len('<div class="brand">'):]
-                  return '<div class="brand"><img class="brand-logo" src="'+logo+'" alt="Kwaya ya Kristu Mfalme">'+inner+'</div><nav class="nav">'
-              s=re.sub(r'(<div class="brand">.*?</div>)<nav class="nav">', clean_brand, s, count=1, flags=re.S)
-
-              if '<main class="main">' in s:
-                  s=s.replace('<main class="main">','<main class="main">'+header,1)
-              elif '<main>' in s:
-                  s=s.replace('<main>','<main>'+header,1)
-
-              if '</style>' in s and '.choir-brand-header{' not in s:
-                  s=s.replace('</style>',css+'</style>',1)
-
-              s=re.sub(r'\s*\.brand-logo:nth-of-type\(2\)\{[^}]*\}', '', s)
-
-              if p.name == 'mass-programmes.html':
-                  s=s.replace('<span class="brand-location">📍 NYARUGUSU CAMP</span><span class="brand-location">📍 KASULU - KIGOMA/TANZANIA</span>', '<span class="brand-location">📍 KASULU - KIGOMA/TANZANIA</span>')
-
-              if s != old:
-                  p.write_text(s,encoding='utf-8')
+                  s=s.replace('</style>','.nav-child{padding-left:30px!important;font-size:12px!important;opacity:.95}</style>',1)
+              if s!=old: p.write_text(s,encoding='utf-8')
           PY
-
-      - name: Commit final cleanup
+      - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add '*.html'
-          if git diff --cached --quiet; then
-            echo 'No changes needed.'
-          else
-            git commit -m 'Group sacraments under singers and song books under songs'
-            git push
-          fi
+          if git diff --cached --quiet; then echo 'No changes needed.'; else git commit -m 'Fix choir navigation hierarchy'; git push; fi
