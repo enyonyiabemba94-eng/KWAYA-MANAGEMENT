@@ -18,5 +18,8 @@
     if(location.pathname.endsWith('/member-profile.html')){
       const s=document.createElement('script');s.src='./profile-loader.js?v=3';document.head.appendChild(s);
     }
+    if(location.pathname.endsWith('/sacraments.html')){
+      const s=document.createElement('script');s.src='./sacraments-filter.js?v=1';document.head.appendChild(s);
+    }
   }).catch(e=>console.error('Auth guard:',e));
 })();
