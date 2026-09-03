@@ -13,14 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Clean only duplicate CSS and the verified extra closing div
+      - name: Clean duplicate CSS only
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p=Path('songs.html')
           s=p.read_text()
           s=s.replace('</div></div><nav class="nav">','</div><nav class="nav">',1)
-          s=s.replace('  .brand{display:flex;align-items:center;gap:10px}.brand-logo{width:44px;height:44px;object-fit:cover;border-radius:50%;background:#fff;flex:none}  .brand{display:flex;align-items:center;gap:10px}.brand-logo{width:44px;height:44px;object-fit:cover;border-radius:50%;background:#fff;flex:none} ','  .brand{display:flex;align-items:center;gap:10px}.brand-logo{width:44px;height:44px;object-fit:cover;border-radius:50%;background:#fff;flex:none} ')
+          rule=r'\.brand\{display:flex;align-items:center;gap:10px\}\.brand-logo\{width:44px;height:44px;object-fit:cover;border-radius:50%;background:#fff;flex:none\}'
+          matches=list(re.finditer(rule,s))
+          if len(matches)>1:
+              s=s[:matches[1].start()]+s[matches[1].end():]
           p.write_text(s)
           print('songs.html cleanup applied')
           PY
@@ -30,5 +34,5 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add songs.html
           if git diff --cached --quiet; then echo 'No changes'; exit 0; fi
-          git commit -m 'Clean songs page HTML without changing structure'
+          git commit -m 'Clean duplicate songs page CSS'
           git push
