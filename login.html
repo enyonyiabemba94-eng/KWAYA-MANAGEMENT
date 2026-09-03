@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#18122b">
+<title>Admin Login | Kwaya ya Kristu Mfalme</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#18122b,#4c1d95);font-family:Arial,sans-serif;color:#1f2937}.box{width:min(92vw,420px);background:#fff;border-radius:20px;padding:28px;box-shadow:0 20px 60px #0005}.logo{width:82px;height:82px;object-fit:contain;display:block;margin:0 auto 14px}.title{text-align:center;color:#18122b;font-size:22px;font-weight:900}.sub{text-align:center;color:#6b7280;font-size:12px;margin:5px 0 24px}.field{margin:14px 0}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:6px}.field input{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:10px;font-size:14px;outline:none}.field input:focus{border-color:#6d28d9;box-shadow:0 0 0 3px #6d28d91a}.btn{width:100%;border:0;border-radius:10px;padding:13px;background:#6d28d9;color:#fff;font-weight:800;font-size:14px;cursor:pointer}.btn:disabled{opacity:.6}.error{display:none;margin-top:14px;padding:10px;border-radius:9px;background:#fee2e2;color:#991b1b;font-size:12px}.hint{text-align:center;color:#9ca3af;font-size:10px;margin-top:18px}
+</style>
+</head>
+<body>
+<main class="box">
+<img class="logo" src="https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristu Mfalme">
+<div class="title">Admin Login</div>
+<div class="sub">KWAYA YA KRISTU MFALME · MFUMO WA USIMAMIZI</div>
+<form id="loginForm">
+<div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required></div>
+<div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+<button class="btn" id="submitBtn" type="submit">Ingia kama Admin</button>
+<div class="error" id="error"></div>
+</form>
+<div class="hint">Access inaruhusiwa kwa akaunti yenye role ya admin.</div>
+</main>
+<script>
+const SUPABASE_URL='https://xulnkdrgjgajmcqntwga.supabase.co';
+const SUPABASE_KEY='sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+function showError(msg){$('error').textContent=msg;$('error').style.display='block'}
+async function isAdmin(user){
+  if(!user)return false;
+  if(user.app_metadata?.role==='admin')return true;
+  const {data,error}=await db.from('profiles').select('role').eq('id',user.id).maybeSingle();
+  if(error){console.error(error);return false}
+  return data?.role==='admin';
+}
+(async()=>{const {data:{session}}=await db.auth.getSession();if(session && await isAdmin(session.user))location.replace('index.html')})();
+$('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();$('error').style.display='none';$('submitBtn').disabled=true;$('submitBtn').textContent='Inaingia...';
+ const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+ if(error){showError('Email au password si sahihi.');$('submitBtn').disabled=false;$('submitBtn').textContent='Ingia kama Admin';return}
+ if(!(await isAdmin(data.user))){await db.auth.signOut();showError('Akaunti hii si Admin. Msimamizi akupatie role ya admin.');$('submitBtn').disabled=false;$('submitBtn').textContent='Ingia kama Admin';return}
+ location.replace('index.html');
+});
+</script>
+</body>
+</html>
