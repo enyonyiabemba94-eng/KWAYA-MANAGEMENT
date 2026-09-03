@@ -1,0 +1,36 @@
+name: Fix member sacrament display
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch member profile
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('member-profile.html')
+          s=p.read_text()
+          start=s.find('<section class="sacrament-card" id="profileSacraments">')
+          if start != -1:
+              s=s[:start] + '</body></html>'
+          old="const [mr,vr]=await Promise.all([db.from('members').select('*').eq('id',memberId).single(),db.from('voice_parts').select('id,name').order('sort_order')]);"
+          new="const [mr,vr,br,cr,er,mar]=await Promise.all([db.from('members').select('*').eq('id',memberId).single(),db.from('voice_parts').select('id,name').order('sort_order'),db.from('baptism_records').select('*').eq('member_id',memberId).limit(1),db.from('confirmation_records').select('*').eq('member_id',memberId).limit(1),db.from('eucharist_records').select('*').eq('member_id',memberId).limit(1),db.from('marriage_records').select('*').eq('member_id',memberId).limit(1)]);"
+          s=s.replace(old,new)
+          old2="const m=mr.data,voices=vr.data||[],voice=voices.find(v=>v.id===m.voice_part_id)?.name||'Sauti haijawekwa';const sacr=[['Ubatizo',m.baptism_date,m.baptism_place],['Ekaristi ya Kwanza',m.first_communion_date,m.first_communion_place],['Kipaimara',m.confirmation_date,m.confirmation_place],['Ndoa',m.church_marriage_date,m.church_marriage_place,m.church_marriage_spouse]];"
+          new2="const m=mr.data,voices=vr.data||[],voice=voices.find(v=>v.id===m.voice_part_id)?.name||'Sauti haijawekwa',b=br.data?.[0],c=cr.data?.[0],e=er.data?.[0],marriage=mar.data?.[0];const sacr=[['Ubatizo',b?.baptism_date,b?.parish_church||b?.location],['Ekaristi ya Kwanza',e?.eucharist_date,e?.parish_church||e?.location],['Kipaimara',c?.confirmation_date,c?.parish_church||c?.location],['Ndoa',marriage?.marriage_date,marriage?.parish_church||marriage?.location,marriage?.spouse_name]];"
+          s=s.replace(old2,new2)
+          p.write_text(s)
+          PY
+      - name: Commit fix and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add member-profile.html
+          git rm .github/workflows/fix-member-sacraments.yml
+          git diff --cached --quiet || git commit -m "Display sacrament records in member profile"
+          git push
