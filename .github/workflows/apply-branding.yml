@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Final choir branding cleanup
+      - name: Final choir branding and navigation cleanup
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -43,11 +43,10 @@ jobs:
               s=p.read_text(encoding='utf-8')
               old=s
 
-              # Remove old generated headers and all extra hero branding.
               s=header_re.sub('',s)
               s=hero_re.sub('',s)
 
-              # Standardize the choir name everywhere.
+              # Standardize choir name.
               s=s.replace('KWAYA YA KRISTO MFALME','KWAYA YA KRISTU MFALME')
               s=s.replace('KWAYA YA KRISTO','KWAYA YA KRISTU')
               s=s.replace('Kwaya ya Kristo Mfalme','Kwaya ya Kristu Mfalme')
@@ -55,17 +54,31 @@ jobs:
               s=s.replace('🎶 KWAYA MANAGEMENT','🎶 KWAYA YA KRISTU MFALME')
               s=s.replace('KWAYA MANAGEMENT','KWAYA YA KRISTU MFALME')
 
-              # Keep exactly one real logo in the sidebar brand, never a duplicate/hidden logo.
+              # Navigation hierarchy:
+              # Waimbaji -> Sakramenti
+              # Nyimbo -> Vitabu vya Nyimbo
+              s=s.replace('<a href="members.html">👥 Waimbaji</a><a href="attendance.html">', '<a href="members.html">👥 Waimbaji</a><a href="sacraments.html">⛪ Sakramenti</a><a href="attendance.html">')
+              s=s.replace('<a class="active" href="members.html">👥 Waimbaji</a><a href="attendance.html">', '<a class="active" href="members.html">👥 Waimbaji</a><a href="sacraments.html">⛪ Sakramenti</a><a href="attendance.html">')
+              s=s.replace('<a href="songs.html">🎵 Nyimbo</a><a href="song-books.html">📚 Vitabu vya Nyimbo</a><a href="mass-programmes.html">', '<a href="songs.html">🎵 Nyimbo</a><a href="song-books.html">📚 Vitabu vya Nyimbo</a><a href="mass-programmes.html">')
+              # Remove standalone sacrament link, since it is now nested conceptually under Waimbaji.
+              s=re.sub(r'<a(?: class="active")? href="sacraments\.html">⛪ Sakramenti</a>(?=<a href="reports\.html">)', '', s)
+              # Remove standalone song-book link only when it is not already immediately after Nyimbo.
+              s=re.sub(r'(?<!href="songs\.html">🎵 Nyimbo</a>)<a(?: class="active")? href="song-books\.html">📚 Vitabu vya Nyimbo</a>', '', s)
+
+              # Ensure the two child pages are visibly grouped with indentation in the sidebar.
+              s=s.replace('<a href="sacraments.html">⛪ Sakramenti</a>', '<a class="nav-child" href="sacraments.html">⛪ Sakramenti</a>')
+              s=s.replace('<a href="song-books.html">📚 Vitabu vya Nyimbo</a>', '<a class="nav-child" href="song-books.html">📚 Vitabu vya Nyimbo</a>')
+              if '.nav-child{' not in s and '</style>' in s:
+                  s=s.replace('</style>', '.nav-child{padding-left:30px!important;font-size:12px!important;opacity:.95}\n</style>',1)
+
+              # Repair sidebar brand safely using the closing tag immediately before nav.
               def clean_brand(m):
-                  block=m.group(0)
-                  imgs=logo_re.findall(block)
+                  block=m.group(1)
                   block=logo_re.sub('',block)
-                  if imgs:
-                      block='<div class="brand"><img class="brand-logo" src="'+logo+'" alt="Kwaya ya Kristu Mfalme">'+block[len('<div class="brand">'):]
-                  else:
-                      block=block.replace('<div class="brand">','<div class="brand"><img class="brand-logo" src="'+logo+'" alt="Kwaya ya Kristu Mfalme">',1)
-                  return block
-              s=re.sub(r'<div class="brand">.*?</div>', clean_brand, s, count=1, flags=re.S)
+                  block=re.sub(r'<img\b[^>]*alt=["\']Kwaya ya Kristu Mfalme["\'][^>]*>\s*', '', block, flags=re.I)
+                  inner=block[len('<div class="brand">'):]
+                  return '<div class="brand"><img class="brand-logo" src="'+logo+'" alt="Kwaya ya Kristu Mfalme">'+inner+'</div><nav class="nav">'
+              s=re.sub(r'(<div class="brand">.*?</div>)<nav class="nav">', clean_brand, s, count=1, flags=re.S)
 
               if '<main class="main">' in s:
                   s=s.replace('<main class="main">','<main class="main">'+header,1)
@@ -75,7 +88,6 @@ jobs:
               if '</style>' in s and '.choir-brand-header{' not in s:
                   s=s.replace('</style>',css+'</style>',1)
 
-              # Remove obsolete duplicate-logo CSS rules.
               s=re.sub(r'\s*\.brand-logo:nth-of-type\(2\)\{[^}]*\}', '', s)
 
               if p.name == 'mass-programmes.html':
@@ -93,6 +105,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No changes needed.'
           else
-            git commit -m 'Final cleanup of choir branding'
+            git commit -m 'Group sacraments under singers and song books under songs'
             git push
           fi
