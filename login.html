@@ -18,10 +18,10 @@
 <form id="loginForm">
 <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required></div>
 <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
-<button class="btn" id="submitBtn" type="submit">Ingia kama Admin</button>
+<button class="btn" id="submitBtn" type="submit">Ingia</button>
 <div class="error" id="error"></div>
 </form>
-<div class="hint">Access inaruhusiwa kwa akaunti yenye role ya admin.</div>
+<div class="hint">Access inaruhusiwa kwa akaunti yenye role ya Admin au Super Admin.</div>
 </main>
 <script>
 const SUPABASE_URL='https://xulnkdrgjgajmcqntwga.supabase.co';
@@ -29,19 +29,21 @@ const SUPABASE_KEY='sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2';
 const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=id=>document.getElementById(id);
 function showError(msg){$('error').textContent=msg;$('error').style.display='block'}
-async function isAdmin(user){
-  if(!user)return false;
-  if(user.app_metadata?.role==='admin')return true;
+async function getRole(user){
+  if(!user)return null;
+  if(user.app_metadata?.role==='super_admin')return 'super_admin';
+  if(user.app_metadata?.role==='admin')return 'admin';
   const {data,error}=await db.from('profiles').select('role').eq('id',user.id).maybeSingle();
-  if(error){console.error(error);return false}
-  return data?.role==='admin';
+  if(error){console.error(error);return null}
+  return data?.role||null;
 }
-(async()=>{const {data:{session}}=await db.auth.getSession();if(session && await isAdmin(session.user))location.replace('index.html')})();
+async function isAdmin(user){const role=await getRole(user);return role==='admin'||role==='super_admin'}
+(async()=>{const {data:{session}}=await db.auth.getSession();if(session&&await isAdmin(session.user))location.replace('index.html')})();
 $('loginForm').addEventListener('submit',async e=>{
  e.preventDefault();$('error').style.display='none';$('submitBtn').disabled=true;$('submitBtn').textContent='Inaingia...';
  const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
- if(error){showError('Email au password si sahihi.');$('submitBtn').disabled=false;$('submitBtn').textContent='Ingia kama Admin';return}
- if(!(await isAdmin(data.user))){await db.auth.signOut();showError('Akaunti hii si Admin. Msimamizi akupatie role ya admin.');$('submitBtn').disabled=false;$('submitBtn').textContent='Ingia kama Admin';return}
+ if(error){showError('Email au password si sahihi.');$('submitBtn').disabled=false;$('submitBtn').textContent='Ingia';return}
+ if(!(await isAdmin(data.user))){await db.auth.signOut();showError('Akaunti hii haina ruhusa ya Admin.');$('submitBtn').disabled=false;$('submitBtn').textContent='Ingia';return}
  location.replace('index.html');
 });
 </script>
