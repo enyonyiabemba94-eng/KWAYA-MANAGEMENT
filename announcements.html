@@ -596,6 +596,13 @@ textarea{
         font-size:14px;
     }
 }
+
+.choir-brand-header{width:100%;display:grid;grid-template-columns:72px 1fr 72px;align-items:center;gap:14px;padding:12px 18px;background:#fff;border-bottom:2px solid #18122b;text-align:center;box-sizing:border-box}
+.choir-brand-header img{width:58px;height:58px;object-fit:contain;border-radius:0;background:transparent;display:block;margin:auto}
+.choir-brand-header .choir-brand-title{font-size:21px;font-weight:900;letter-spacing:.4px;color:#18122b;line-height:1.2}
+.choir-brand-header .choir-brand-subtitle{font-size:11px;font-weight:700;color:#5b6472;margin-top:4px}
+@media(max-width:700px){.choir-brand-header{grid-template-columns:48px 1fr 48px;gap:6px;padding:9px 8px}.choir-brand-header img{width:40px;height:40px}.choir-brand-header .choir-brand-title{font-size:15px}.choir-brand-header .choir-brand-subtitle{font-size:9px}}
+@media print{.choir-brand-header{grid-template-columns:55px 1fr 55px;padding:6px 0;border-bottom:1.5px solid #000}.choir-brand-header img{width:45px;height:45px}.choir-brand-header .choir-brand-title{font-size:17px}.choir-brand-header .choir-brand-subtitle{font-size:8px}}
 </style>
 </head>
 
@@ -682,7 +689,7 @@ textarea{
 
 <!-- ================= MAIN ================= -->
 
-<main class="main">
+<main class="main"><div class="choir-brand-header"><img src="https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristo Mfalme"><div><div class="choir-brand-title">KWAYA YA KRISTO MFALME</div><div class="choir-brand-subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristo Mfalme"></div>
 
     <header class="topbar">
 
