@@ -18,74 +18,53 @@ jobs:
           import re
 
           LOGO='https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg'
-
           items=[
-            ('index.html','🏠 Dashboard',''),
-            ('members.html','👥 Waimbaji',''),
-            ('sacraments.html','⛪ Sakramenti','child'),
-            ('attendance.html','📋 Mahudhurio',''),
-            ('songs.html','🎵 Nyimbo',''),
-            ('song-books.html','📚 Vitabu vya Nyimbo','child'),
-            ('mass-programmes.html','📖 Mpango wa Misa',''),
-            ('reports.html','📊 Ripoti',''),
-            ('events.html','📅 Ratiba',''),
-            ('announcements.html','📢 Taarifa',''),
-            ('documents.html','📄 Nyaraka',''),
-            ('settings.html','⚙️ Mipangilio','')
-          ]
+            ('index.html','🏠 Dashboard',''),('members.html','👥 Waimbaji',''),
+            ('sacraments.html','⛪ Sakramenti','child'),('attendance.html','📋 Mahudhurio',''),
+            ('songs.html','🎵 Nyimbo',''),('song-books.html','📚 Vitabu vya Nyimbo','child'),
+            ('mass-programmes.html','📖 Mpango wa Misa',''),('reports.html','📊 Ripoti',''),
+            ('events.html','📅 Ratiba',''),('announcements.html','📢 Taarifa',''),
+            ('documents.html','📄 Nyaraka',''),('settings.html','⚙️ Mipangilio','')]
 
-          nav_css='''
-          .nav-group{margin:3px 0}.nav-group>a{margin:0!important}.nav-sub{margin:0 0 2px 12px;border-left:2px solid #ffffff20;padding-left:4px}.nav-sub a{font-size:12px!important;padding:8px 10px!important}.nav-sub a.active{background:#8b5cf633;color:#fff}
-          .brand{display:flex!important;align-items:center!important;gap:9px!important;padding:8px!important}.brand-logo{width:34px!important;height:34px!important;object-fit:contain!important;border-radius:0!important;background:transparent!important;flex:none!important}.brand-text{font-size:12px;font-weight:800;line-height:1.15}.brand-text small{display:block;color:#b9aecf;font-size:9px;margin-top:3px;font-weight:600}
-          .choir-brand-header{width:100%;display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px;padding:7px 12px;background:#fff;border-bottom:2px solid #18122b;text-align:center;box-sizing:border-box}.choir-brand-header img{width:36px!important;height:36px!important;object-fit:contain!important;border-radius:0!important;background:transparent!important;display:block;margin:auto}.choir-brand-title{font-size:18px!important;font-weight:900;letter-spacing:.3px;color:#18122b;line-height:1.15}.choir-brand-subtitle{font-size:9px!important;font-weight:700;color:#5b6472;margin-top:2px}@media(max-width:700px){.choir-brand-header{grid-template-columns:38px 1fr 38px;gap:5px;padding:6px 7px}.choir-brand-header img{width:28px!important;height:28px!important}.choir-brand-title{font-size:13px!important}.choir-brand-subtitle{font-size:7px!important}.brand-logo{width:30px!important;height:30px!important}.brand-text{font-size:11px}}@media print{.choir-brand-header{grid-template-columns:42px 1fr 42px;padding:4px 0}.choir-brand-header img{width:32px!important;height:32px!important}.choir-brand-title{font-size:15px!important}.choir-brand-subtitle{font-size:7px!important}}
-          '''
+          css='''.nav-sub{margin:0 0 2px 12px;border-left:2px solid #ffffff20;padding-left:4px}.nav-sub a{font-size:12px!important;padding:8px 10px!important}.nav-sub a.active{background:#8b5cf633;color:#fff}.brand{display:flex!important;align-items:center!important;gap:9px!important;padding:8px!important}.brand-logo{width:34px!important;height:34px!important;object-fit:contain!important;border-radius:0!important;background:transparent!important;flex:none!important}.brand-text{font-size:12px;font-weight:800;line-height:1.15}.brand-text small{display:block;color:#b9aecf;font-size:9px;margin-top:3px;font-weight:600}.choir-brand-header{width:100%;display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px;padding:7px 12px;background:#fff;border-bottom:2px solid #18122b;text-align:center;box-sizing:border-box}.choir-brand-header img{width:36px!important;height:36px!important;object-fit:contain!important;border-radius:0!important;background:transparent!important;display:block;margin:auto}.choir-brand-title{font-size:18px!important;font-weight:900;letter-spacing:.3px;color:#18122b;line-height:1.15}.choir-brand-subtitle{font-size:9px!important;font-weight:700;color:#5b6472;margin-top:2px}@media(max-width:700px){.choir-brand-header{grid-template-columns:38px 1fr 38px;gap:5px;padding:6px 7px}.choir-brand-header img{width:28px!important;height:28px!important}.choir-brand-title{font-size:13px!important}.choir-brand-subtitle{font-size:7px!important}.brand-logo{width:30px!important;height:30px!important}.brand-text{font-size:11px}}@media print{.choir-brand-header{grid-template-columns:42px 1fr 42px;padding:4px 0}.choir-brand-header img{width:32px!important;height:32px!important}.choir-brand-title{font-size:15px!important}.choir-brand-subtitle{font-size:7px!important}}'''
 
           for p in Path('.').glob('*.html'):
-              s=p.read_text(encoding='utf-8')
-              old=s
+              s=p.read_text(encoding='utf-8'); old=s
 
-              # Clean sidebar branding without changing page logic.
-              s=re.sub(r'<div class="brand">.*?</div>\s*</div>', '', s, count=0, flags=re.S)
+              # Remove only the sidebar brand block itself, never the whole sidebar.
               s=re.sub(r'<div class="brand">.*?</div>', '', s, count=1, flags=re.S)
-
-              # Reinsert one clean sidebar brand immediately inside the sidebar.
+              brand=f'<div class="brand"><img class="brand-logo" src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div class="brand-text">KWAYA YA KRISTU MFALME<small>MFUMO WA USIMAMIZI WA KWAYA</small></div></div>'
               if '<aside class="side"' in s:
-                  brand='<div class="brand"><img class="brand-logo" src="'+LOGO+'" alt="Kwaya ya Kristu Mfalme"><div class="brand-text">KWAYA YA KRISTU MFALME<small>MFUMO WA USIMAMIZI WA KWAYA</small></div></div>'
                   s=s.replace('<aside class="side" id="side">','<aside class="side" id="side">'+brand,1)
 
-              # Replace the whole top branding region, including any stray duplicate logo tags.
-              header='<div class="choir-brand-header"><img src="'+LOGO+'" alt="Kwaya ya Kristu Mfalme"><div><div class="choir-brand-title">KWAYA YA KRISTU MFALME</div><div class="choir-brand-subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="'+LOGO+'" alt="Kwaya ya Kristu Mfalme"></div>'
-              s=re.sub(r'<div class="choir-brand-header">.*?<header class="top">', header+'<header class="top">', s, count=1, flags=re.S)
+              # If a header exists, replace everything from its opening tag to the top bar.
+              header=f'<div class="choir-brand-header"><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div><div class="choir-brand-title">KWAYA YA KRISTU MFALME</div><div class="choir-brand-subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"></div>'
+              if '<header class="top">' in s:
+                  if '<div class="choir-brand-header">' in s:
+                      s=re.sub(r'<div class="choir-brand-header">.*?<header class="top">', header+'<header class="top">', s, count=1, flags=re.S)
+                  elif '<main class="main">' in s:
+                      s=s.replace('<main class="main">','<main class="main">'+header,1)
 
-              # If a page has a main area but no existing header, add one before its top bar.
-              if '<header class="top">' in s and 'choir-brand-header' not in s and '<main class="main">' in s:
-                  s=s.replace('<main class="main">','<main class="main">'+header,1)
+              s=s.replace('📍 NYARUGUSU CAMP','').replace('📍 KASULU - KIGOMA/TANZANIA','').replace('📍 NYARUGUSU','')
 
-              # Remove location branding that was accidentally added to sidebar/dashboard.
-              s=s.replace('📍 NYARUGUSU CAMP','').replace('📍 KASULU - KIGOMA/TANZANIA','')
-              s=s.replace('📍 NYARUGUSU','')
-
-              # Standard navigation with real nested child menus.
+              # Build true nested navigation for Sakramenti and Vitabu vya Nyimbo.
               m=re.search(r'<nav class="nav">.*?</nav>',s,re.S)
               if m:
                   links=[]
                   for href,label,kind in items:
-                      active=' active' if href==p.name else ''
-                      if kind=='child':
-                          continue
-                      links.append(f'<a class="{active.strip()}" href="{href}">{label}</a>' if active else f'<a href="{href}">{label}</a>')
+                      if kind=='child': continue
+                      active=' class="active"' if href==p.name else ''
+                      links.append(f'<a href="{href}"{active}>{label}</a>')
                       if href=='members.html':
-                          child_active=' active' if p.name=='sacraments.html' else ''
-                          links.append(f'<div class="nav-sub"><a class="{child_active.strip()}" href="sacraments.html">⛪ Sakramenti</a></div>' if child_active else '<div class="nav-sub"><a href="sacraments.html">⛪ Sakramenti</a></div>')
+                          ca=' class="active"' if p.name=='sacraments.html' else ''
+                          links.append(f'<div class="nav-sub"><a href="sacraments.html"{ca}>⛪ Sakramenti</a></div>')
                       if href=='songs.html':
-                          child_active=' active' if p.name=='song-books.html' else ''
-                          links.append(f'<div class="nav-sub"><a class="{child_active.strip()}" href="song-books.html">📚 Vitabu vya Nyimbo</a></div>' if child_active else '<div class="nav-sub"><a href="song-books.html">📚 Vitabu vya Nyimbo</a></div>')
+                          ca=' class="active"' if p.name=='song-books.html' else ''
+                          links.append(f'<div class="nav-sub"><a href="song-books.html"{ca}>📚 Vitabu vya Nyimbo</a></div>')
                   s=s[:m.start()]+'<nav class="nav">'+''.join(links)+'</nav>'+s[m.end():]
 
-              # Add the standard CSS once per page. Existing page-specific CSS remains intact.
-              if '</style>' in s and '.nav-group{' not in s:
-                  s=s.replace('</style>',nav_css+'</style>',1)
-
+              if '</style>' in s and '.nav-sub{' not in s:
+                  s=s.replace('</style>',css+'</style>',1)
               if s!=old:
                   p.write_text(s,encoding='utf-8')
           PY
