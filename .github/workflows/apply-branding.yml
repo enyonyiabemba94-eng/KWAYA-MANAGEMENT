@@ -31,13 +31,12 @@ jobs:
           for p in Path('.').glob('*.html'):
               s=p.read_text(encoding='utf-8'); old=s
 
-              # Remove only the sidebar brand block itself, never the whole sidebar.
-              s=re.sub(r'<div class="brand">.*?</div>', '', s, count=1, flags=re.S)
+              # Remove exactly the complete sidebar brand, including its nested brand-text div.
+              s=re.sub(r'<div class="brand">.*?<div class="brand-text">.*?</div></div>', '', s, count=1, flags=re.S)
               brand=f'<div class="brand"><img class="brand-logo" src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div class="brand-text">KWAYA YA KRISTU MFALME<small>MFUMO WA USIMAMIZI WA KWAYA</small></div></div>'
               if '<aside class="side"' in s:
                   s=s.replace('<aside class="side" id="side">','<aside class="side" id="side">'+brand,1)
 
-              # If a header exists, replace everything from its opening tag to the top bar.
               header=f'<div class="choir-brand-header"><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div><div class="choir-brand-title">KWAYA YA KRISTU MFALME</div><div class="choir-brand-subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"></div>'
               if '<header class="top">' in s:
                   if '<div class="choir-brand-header">' in s:
@@ -47,7 +46,6 @@ jobs:
 
               s=s.replace('📍 NYARUGUSU CAMP','').replace('📍 KASULU - KIGOMA/TANZANIA','').replace('📍 NYARUGUSU','')
 
-              # Build true nested navigation for Sakramenti and Vitabu vya Nyimbo.
               m=re.search(r'<nav class="nav">.*?</nav>',s,re.S)
               if m:
                   links=[]
