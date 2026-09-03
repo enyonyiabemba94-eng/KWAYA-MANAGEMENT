@@ -1,0 +1,56 @@
+name: Clean Songs HTML
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clean duplicate styling without changing page structure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('songs.html')
+          s=p.read_text()
+          original=s
+          # Fix the verified extra closing div in the sidebar brand only.
+          s=s.replace('</div></div><nav class="nav">','</div><nav class="nav">',1)
+          # Remove repeated exact branding CSS blocks while preserving the final standard definition.
+          blocks=[
+          '''  .brand{display:flex;align-items:center;gap:10px}.brand-logo{width:44px;height:44px;object-fit:cover;border-radius:50%;background:#fff;flex:none}''',
+          '''.choir-brand-header{width:100%;display:grid;grid-template-columns:72px 1fr 72px;align-items:center;gap:14px;padding:12px 18px;background:#fff;border-bottom:2px solid #18122b;text-align:center;box-sizing:border-box}
+          .choir-brand-header img{width:58px;height:58px;object-fit:contain;border-radius:0;background:transparent;display:block;margin:auto}
+          .choir-brand-header .choir-brand-title{font-size:21px;font-weight:900;letter-spacing:.4px;color:#18122b;line-height:1.2}
+          .choir-brand-header .choir-brand-subtitle{font-size:11px;font-weight:700;color:#5b6472;margin-top:4px}
+          @media(max-width:700px){.choir-brand-header{grid-template-columns:48px 1fr 48px;gap:6px;padding:9px 8px}.choir-brand-header img{width:40px;height:40px}.choir-brand-header .choir-brand-title{font-size:15px}.choir-brand-header .choir-brand-subtitle{font-size:9px}}
+          @media print{.choir-brand-header{grid-template-columns:55px 1fr 55px;padding:6px 0;border-bottom:1.5px solid #000}.choir-brand-header img{width:45px;height:45px}.choir-brand-header .choir-brand-title{font-size:17px}.choir-brand-header .choir-brand-subtitle{font-size:8px}}'''
+          ]
+          # Keep content/functionality; only collapse duplicate CSS definitions already present.
+          for b in blocks:
+              while s.count(b)>1:
+                  s=s.replace(b,'',1)
+          p.write_text(s)
+          print('changed:', s!=original)
+          PY
+      - name: Validate HTML structure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('songs.html').read_text()
+          assert '<script' in s and '</script>' in s
+          assert '<style>' in s and '</style>' in s
+          assert '<body>' in s and '</body>' in s
+          assert '<nav class="nav">' in s
+          assert '</div></div><nav class="nav">' not in s
+          print('songs.html structural checks passed')
+          PY
+      - name: Commit clean file
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add songs.html
+          if git diff --cached --quiet; then echo 'No changes'; exit 0; fi
+          git commit -m 'Clean songs page HTML without changing structure'
+          git push
