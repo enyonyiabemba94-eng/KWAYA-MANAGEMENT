@@ -5,6 +5,16 @@
   function fmt(v){return v?new Date(v+'T00:00:00').toLocaleDateString('sw-TZ',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';}
   function full(m){return [m.first_name,m.middle_name,m.last_name].filter(Boolean).join(' ')||'Mwimbaji';}
   function field(label,value){return value?'<small><b>'+esc(label)+':</b> '+esc(value)+'</small>':'';}
+  function photoViewer(url){
+    if(!url) return;
+    const old=document.getElementById('kw-photo-viewer'); if(old) old.remove();
+    const box=document.createElement('div'); box.id='kw-photo-viewer';
+    box.innerHTML='<div class="kw-photo-backdrop"><button type="button" class="kw-photo-close" aria-label="Funga">✕</button><img src="'+esc(url)+'" alt="Picha ya mwimbaji"></div>';
+    document.body.appendChild(box);
+    const close=()=>box.remove();
+    box.querySelector('.kw-photo-close').onclick=close;
+    box.querySelector('.kw-photo-backdrop').onclick=e=>{if(e.target===e.currentTarget)close();};
+  }
   async function run(){
     if(!location.pathname.endsWith('/member-profile.html')) return;
     const app=document.getElementById('app'); if(!app) return;
@@ -29,13 +39,15 @@
       ]);
       const b=br.data?.[0],c=cr.data?.[0],e=er.data?.[0],n=mar.data?.[0];
       const sacr=[
-        {name:'Ubatizo',date:b?.baptism_date,details:field('Mahali',b?.location||b?.parish_church)+field('Kanisa/Kigango',b?.parish_church)+field('Jimbo',b?.diocese)+field('Baba/Mama wa Ubatizo',b?.spiritual_parent_name)+(b?.father_name||b?.mother_name?field('Wazazi',[(b?.father_name&&'Baba: '+b.father_name),(b?.mother_name&&'Mama: '+b.mother_name)].filter(Boolean).join(' • ')):'')},
-        {name:'Kipaimara',date:c?.confirmation_date,details:field('Mahali',c?.location||c?.parish_church)+field('Kanisa/Kigango',c?.parish_church)+field('Jimbo',c?.diocese)+field('Msimamizi/Mhudumu',c?.minister_name)},
-        {name:'Ekaristi ya Kwanza',date:e?.eucharist_date,details:field('Mahali',e?.location||e?.parish_church)+field('Kanisa/Kigango',e?.parish_church)+field('Jimbo',e?.diocese)+field('Padre',e?.priest_name)},
-        {name:'Ndoa',date:n?.marriage_date,details:field('Mwenzi wa Ndoa',n?.spouse_name)+field('Mahali',n?.location||n?.parish_church)+field('Kanisa/Kigango',n?.parish_church)+field('Jimbo',n?.diocese)+field('Padre',n?.priest_name)}
+        {name:'Ubatizo',date:b?.baptism_date,details:field('Mahali',b?.location||b?.parish_church)+field('Baba/Mama wa Ubatizo',b?.spiritual_parent_name)},
+        {name:'Kipaimara',date:c?.confirmation_date,details:field('Mahali',c?.location||c?.parish_church)},
+        {name:'Ekaristi ya Kwanza',date:e?.eucharist_date,details:field('Mahali',e?.location||e?.parish_church)},
+        {name:'Ndoa',date:n?.marriage_date,details:field('Mahali',n?.location||n?.parish_church)+field('Mwenzi wa Ndoa',n?.spouse_name)}
       ];
-      app.innerHTML='<div class="hero"><div class="photo">'+(m.photo_url?'<img src="'+esc(m.photo_url)+'" alt="">':esc((m.first_name||'?').charAt(0).toUpperCase()))+'</div><div><h2>'+esc(full(m))+'</h2><p>'+esc(m.phone||'Simu haijawekwa')+'</p><span class="badge">🎵 '+esc(voice)+'</span><span class="badge">'+esc(m.status||'active')+'</span></div></div><div class="grid"><div class="card"><h3>👤 Taarifa Binafsi</h3><div class="info"><div class="item"><span>Jinsia</span><b>'+esc(m.gender||'—')+'</b></div><div class="item"><span>Tarehe ya kuzaliwa</span><b>'+fmt(m.date_of_birth)+'</b></div><div class="item"><span>Mahali pa kuzaliwa</span><b>'+esc(m.place_of_birth||'—')+'</b></div></div></div><div class="card"><h3>📞 Mawasiliano</h3><div class="info"><div class="item"><span>Simu</span><b>'+esc(m.phone||'—')+'</b></div><div class="item"><span>Makazi</span><b>'+esc(m.residence||'—')+'</b></div><div class="item"><span>Barua pepe</span><b>—</b></div></div></div><div class="card"><h3>🎵 Taarifa za Kwaya</h3><div class="info"><div class="item"><span>Sauti</span><b>'+esc(voice)+'</b></div><div class="item"><span>Wajibu</span><b>'+esc(m.choir_role||'—')+'</b></div><div class="item"><span>Tarehe ya kujiunga</span><b>'+fmt(m.joined_date)+'</b></div><div class="item"><span>Hali</span><b>'+esc(m.status==='active'?'Active':m.status||'—')+'</b></div></div></div><div class="card wide"><h3>⛪ Sakramenti za Mwimbaji</h3><div class="sacrament-grid">'+sacr.map(x=>'<div class="sacrament"><h4>⛪ '+esc(x.name)+'</h4><div class="status '+(x.date?'ok':'no')+'">'+(x.date?'✓ Imesajiliwa':'✕ Haijasajiliwa')+'</div>'+(x.date?'<small><b>Tarehe:</b> '+fmt(x.date)+'</small>'+x.details:'')+'</div>').join('')+'</div></div>'+(m.notes?'<div class="card wide"><h3>📝 Maelezo ya Mwimbaji</h3><div>'+esc(m.notes)+'</div></div>':'')+'</div>';
+      app.innerHTML='<div class="hero"><div class="photo" style="cursor:pointer" title="Bonyeza kufungua picha">'+(m.photo_url?'<img id="kw-profile-photo" src="'+esc(m.photo_url)+'" alt="">':esc((m.first_name||'?').charAt(0).toUpperCase()))+'</div><div><h2>'+esc(full(m))+'</h2><p>'+esc(m.phone||'Simu haijawekwa')+'</p><span class="badge">🎵 '+esc(voice)+'</span><span class="badge">'+esc(m.status||'active')+'</span></div></div><div class="grid"><div class="card"><h3>👤 Taarifa Binafsi</h3><div class="info"><div class="item"><span>Jinsia</span><b>'+esc(m.gender||'—')+'</b></div><div class="item"><span>Tarehe ya kuzaliwa</span><b>'+fmt(m.date_of_birth)+'</b></div><div class="item"><span>Mahali pa kuzaliwa</span><b>'+esc(m.place_of_birth||'—')+'</b></div></div></div><div class="card"><h3>📞 Mawasiliano</h3><div class="info"><div class="item"><span>Simu</span><b>'+esc(m.phone||'—')+'</b></div><div class="item"><span>Makazi</span><b>'+esc(m.residence||'—')+'</b></div><div class="item"><span>Barua pepe</span><b>—</b></div></div></div><div class="card"><h3>🎵 Taarifa za Kwaya</h3><div class="info"><div class="item"><span>Sauti</span><b>'+esc(voice)+'</b></div><div class="item"><span>Wajibu</span><b>'+esc(m.choir_role||'—')+'</b></div><div class="item"><span>Tarehe ya kujiunga</span><b>'+fmt(m.joined_date)+'</b></div><div class="item"><span>Hali</span><b>'+esc(m.status==='active'?'Active':m.status||'—')+'</b></div></div></div><div class="card wide"><h3>⛪ Sakramenti za Mwimbaji</h3><div class="sacrament-grid">'+sacr.map(x=>'<div class="sacrament"><h4>⛪ '+esc(x.name)+'</h4><div class="status '+(x.date?'ok':'no')+'">'+(x.date?'✓ Imesajiliwa':'✕ Haijasajiliwa')+'</div>'+(x.date?'<small><b>Tarehe:</b> '+fmt(x.date)+'</small>'+x.details:'')+'</div>').join('')+'</div></div>'+(m.notes?'<div class="card wide"><h3>📝 Maelezo ya Mwimbaji</h3><div>'+esc(m.notes)+'</div></div>':'')+'</div>';
+      if(m.photo_url){const img=document.getElementById('kw-profile-photo'); if(img) img.addEventListener('click',()=>photoViewer(m.photo_url));}
     }catch(err){console.error(err);app.innerHTML='<div class="error">Profile haijafunguka. Kuna hitilafu wakati wa kusoma taarifa za mwimbaji. Tafadhali jaribu Refresh.</div>';}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run); else run();
+  const style=document.createElement('style');style.textContent='#kw-photo-viewer{position:fixed;inset:0;z-index:99999}.kw-photo-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:20px}.kw-photo-backdrop img{max-width:95vw;max-height:90vh;width:auto;height:auto;object-fit:contain;border-radius:12px}.kw-photo-close{position:absolute;top:16px;right:16px;width:44px;height:44px;border:0;border-radius:50%;font-size:24px;background:#fff;color:#111;cursor:pointer;z-index:2}';document.head.appendChild(style);
 })();
