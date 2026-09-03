@@ -1,0 +1,33 @@
+name: Check Songs JS
+on:
+  push:
+    paths:
+      - 'songs.html'
+      - 'songs-check-trigger.txt'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect songs.html
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          s=Path('songs.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.S|re.I)
+          print('HTML length:',len(s))
+          print('Inline scripts:',len(scripts))
+          for i,x in enumerate(scripts):
+              print(f'--- SCRIPT {i} length={len(x)} ---')
+              if len(x)>1000:
+                  print(x[:500])
+                  print('...TAIL...')
+                  print(x[-2500:])
+              else: print(x)
+          print('IDs:',re.findall(r'id=["\']([^"\']+)',s,re.I))
+          Path('/tmp/songs.js').write_text(scripts[-1] if scripts else '',encoding='utf-8')
+          PY
+          node --check /tmp/songs.js
+          echo 'JavaScript syntax: OK'
