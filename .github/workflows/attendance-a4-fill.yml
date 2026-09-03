@@ -1,0 +1,37 @@
+name: Attendance A4 Fill Fix
+on:
+  push:
+    branches: [main]
+    paths:
+      - attendance.html
+      - .github/workflows/attendance-a4-fill.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Improve attendance A4 print layout
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('attendance.html')
+          s=p.read_text(encoding='utf-8')
+          marker='/* ATTENDANCE_A4_FILL_V2 */'
+          if marker in s:
+              print('Already applied')
+              raise SystemExit(0)
+          css='''\n/* ATTENDANCE_A4_FILL_V2 */\n@media print {\n  @page { size: A4 landscape; margin: 5mm; }\n  .book { min-height: calc(100vh - 10mm) !important; }\n  .book-head { padding: 2mm 0 2mm !important; }\n  .book-title { grid-template-columns: 46px 1fr 46px !important; gap: 6px !important; }\n  .book-logo { width: 44px !important; height: 44px !important; }\n  .book-title h3 { font-size: 24px !important; line-height: 1.05 !important; }\n  .book-title h4 { font-size: 18px !important; line-height: 1.05 !important; margin-top: 3px !important; }\n  .book-title p { font-size: 11px !important; margin-top: 3px !important; }\n  .month-title { font-size: 12px !important; margin-top: 4px !important; }\n  .table-wrap { min-height: calc(100vh - 43mm) !important; overflow: visible !important; }\n  table { width: 100% !important; min-width: 0 !important; height: calc(100vh - 49mm) !important; table-layout: auto !important; }\n  th, td { padding: 4px 2px !important; font-size: 12px !important; line-height: 1.15 !important; }\n  .name-head, .name-cell { min-width: 150px !important; }\n  .name-head { padding: 4px 5px !important; }\n  .name-head .name-title { font-size: 13px !important; }\n  .name-cell { padding: 4px 5px !important; }\n  .name-cell strong { font-size: 17px !important; line-height: 1.15 !important; }\n  .date-head { min-width: 31px !important; }\n  .date-head .day { font-size: 9px !important; }\n  .date-head .date { font-size: 10px !important; margin-top: 1px !important; }\n  .mark { width: 23px !important; height: 23px !important; font-size: 11px !important; }\n  .legend { font-size: 9px !important; padding: 5px 0 !important; gap: 14px !important; }\n  .legend b { font-size: 11px !important; }\n  .note { font-size: 8px !important; padding: 4px 0 !important; }\n  thead { display: table-header-group !important; }\n  tr { break-inside: avoid !important; page-break-inside: avoid !important; }\n}\n'''
+          s=s.replace('</style>',css+'</style>',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add attendance.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Fill A4 attendance pages and increase print font'
+          git push
