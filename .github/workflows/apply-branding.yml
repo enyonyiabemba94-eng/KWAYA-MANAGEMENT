@@ -18,10 +18,9 @@ jobs:
           import re
           LOGO='https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg'
           items=[('index.html','🏠 Dashboard',''),('members.html','👥 Waimbaji',''),('sacraments.html','⛪ Sakramenti','child'),('attendance.html','📋 Mahudhurio',''),('songs.html','🎵 Nyimbo',''),('song-books.html','📚 Vitabu vya Nyimbo','child'),('mass-programmes.html','📖 Mpango wa Misa',''),('reports.html','📊 Ripoti',''),('events.html','📅 Ratiba',''),('announcements.html','📢 Taarifa',''),('documents.html','📄 Nyaraka',''),('settings.html','⚙️ Mipangilio','')]
-          css='''.choir-final-brand{width:100%;display:grid;grid-template-columns:34px minmax(0,1fr) 34px;align-items:center;gap:6px;padding:4px 8px;background:#fff;border-bottom:1px solid #18122b;text-align:center;box-sizing:border-box}.choir-final-brand img{width:24px!important;height:24px!important;object-fit:contain!important;border:0!important;border-radius:0!important;background:transparent!important;display:block;margin:auto}.choir-final-brand .title{font-size:15px!important;font-weight:900!important;letter-spacing:.2px;color:#18122b;line-height:1.1}.choir-final-brand .subtitle{font-size:7px!important;font-weight:700!important;color:#5b6472;margin-top:1px}@media(max-width:700px){.choir-final-brand{grid-template-columns:28px minmax(0,1fr) 28px;gap:4px;padding:4px}.choir-final-brand img{width:20px!important;height:20px!important}.choir-final-brand .title{font-size:12px!important}.choir-final-brand .subtitle{font-size:6px!important}}@media print{.choir-final-brand{grid-template-columns:30px minmax(0,1fr) 30px;padding:3px 0}.choir-final-brand img{width:22px!important;height:22px!important}.choir-final-brand .title{font-size:13px!important}.choir-final-brand .subtitle{font-size:6px!important}}'''
+          css='''.choir-final-brand{width:100%;display:grid;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center;gap:7px;padding:5px 8px;background:#fff;border-bottom:1px solid #18122b;text-align:center;box-sizing:border-box}.choir-final-brand img{width:30px!important;height:30px!important;object-fit:contain!important;border:0!important;border-radius:0!important;background:transparent!important;display:block;margin:auto}.choir-final-brand .title{font-size:15px!important;font-weight:900!important;letter-spacing:.2px;color:#18122b;line-height:1.1}.choir-final-brand .subtitle{font-size:7px!important;font-weight:700!important;color:#5b6472;margin-top:1px}@media(max-width:700px){.choir-final-brand{grid-template-columns:34px minmax(0,1fr) 34px;gap:4px;padding:4px}.choir-final-brand img{width:24px!important;height:24px!important}.choir-final-brand .title{font-size:12px!important}.choir-final-brand .subtitle{font-size:6px!important}}@media print{.choir-final-brand{grid-template-columns:34px minmax(0,1fr) 34px;padding:3px 0}.choir-final-brand img{width:24px!important;height:24px!important}.choir-final-brand .title{font-size:13px!important}.choir-final-brand .subtitle{font-size:6px!important}}'''
           for p in Path('.').glob('*.html'):
               s=p.read_text(encoding='utf-8'); old=s
-              # Rebuild the sidebar only, preserving the page's header and all application JS/content.
               m=re.search(r'<aside class="side" id="side">.*?</aside>\s*<header class="top">',s,re.S)
               if m:
                   links=[]
@@ -37,13 +36,9 @@ jobs:
                           links.append(f'<div class="nav-sub"><a href="song-books.html"{ca}>📚 Vitabu vya Nyimbo</a></div>')
                   sidebar=f'<aside class="side" id="side"><div class="brand"><img class="brand-logo" src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div class="brand-text">KWAYA YA KRISTU MFALME<small>MFUMO WA USIMAMIZI WA KWAYA</small></div></div><nav class="nav">'+''.join(links)+'</nav></aside>'
                   s=s[:m.start()]+sidebar+'<header class="top">'+s[m.end():]
-              # Remove every previous generated branding block, regardless of nesting/old version.
               s=re.sub(r'<div\s+class="(?:choir-final-brand|choir-brand-header)"[^>]*>.*?</div>\s*(?=<(?:div|section|h1|main|header|footer|$))','',s,count=0,flags=re.S)
-              # Remove stray logo images left outside the sidebar by older branding passes.
-              stray=f'<img src="{LOGO}"'
               s=re.sub(r'<img[^>]+alt="Kwaya ya Kristu Mfalme"[^>]*>','',s)
               header=f'<div class="choir-final-brand"><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"><div><div class="title">KWAYA YA KRISTU MFALME</div><div class="subtitle">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="{LOGO}" alt="Kwaya ya Kristu Mfalme"></div>'
-              # Insert exactly one header immediately after the page top bar.
               if '<header class="top">' in s:
                   s=re.sub(r'(<header class="top">.*?</header>)',r'\1'+header,s,count=1,flags=re.S)
               elif '<main class="main">' in s:
@@ -58,4 +53,4 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add '*.html'
-          if git diff --cached --quiet; then echo 'No changes needed.'; else git commit -m 'Fix choir header placement and logo size'; git push; fi
+          if git diff --cached --quiet; then echo 'No changes needed.'; else git commit -m 'Increase choir logo to a clear moderate size'; git push; fi
