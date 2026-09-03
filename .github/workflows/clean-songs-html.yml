@@ -1,6 +1,10 @@
 name: Clean Songs HTML
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - songs.html
+      - .github/workflows/clean-songs-html.yml
 permissions:
   contents: write
 jobs:
@@ -15,9 +19,7 @@ jobs:
           p=Path('songs.html')
           s=p.read_text()
           original=s
-          # Fix the verified extra closing div in the sidebar brand only.
           s=s.replace('</div></div><nav class="nav">','</div><nav class="nav">',1)
-          # Remove repeated exact branding CSS blocks while preserving the final standard definition.
           blocks=[
           '''  .brand{display:flex;align-items:center;gap:10px}.brand-logo{width:44px;height:44px;object-fit:cover;border-radius:50%;background:#fff;flex:none}''',
           '''.choir-brand-header{width:100%;display:grid;grid-template-columns:72px 1fr 72px;align-items:center;gap:14px;padding:12px 18px;background:#fff;border-bottom:2px solid #18122b;text-align:center;box-sizing:border-box}
@@ -27,7 +29,6 @@ jobs:
           @media(max-width:700px){.choir-brand-header{grid-template-columns:48px 1fr 48px;gap:6px;padding:9px 8px}.choir-brand-header img{width:40px;height:40px}.choir-brand-header .choir-brand-title{font-size:15px}.choir-brand-header .choir-brand-subtitle{font-size:9px}}
           @media print{.choir-brand-header{grid-template-columns:55px 1fr 55px;padding:6px 0;border-bottom:1.5px solid #000}.choir-brand-header img{width:45px;height:45px}.choir-brand-header .choir-brand-title{font-size:17px}.choir-brand-header .choir-brand-subtitle{font-size:8px}}'''
           ]
-          # Keep content/functionality; only collapse duplicate CSS definitions already present.
           for b in blocks:
               while s.count(b)>1:
                   s=s.replace(b,'',1)
