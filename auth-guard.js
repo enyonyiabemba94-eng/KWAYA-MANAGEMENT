@@ -14,5 +14,9 @@
   }
   window.KWAYA_AUTH={db,getRole,isAdmin:async()=>['admin','super_admin'].includes(await getRole()),isSuperAdmin:async()=>await getRole()==='super_admin',isMember:async()=>await getRole()==='member',check};
   db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'&&!location.pathname.endsWith('/login.html'))location.replace('login.html')});
-  check().catch(e=>console.error('Auth guard:',e));
+  check().then(()=>{
+    if(location.pathname.endsWith('/member-profile.html')){
+      const s=document.createElement('script');s.src='./profile-loader.js?v=2';document.head.appendChild(s);
+    }
+  }).catch(e=>console.error('Auth guard:',e));
 })();
