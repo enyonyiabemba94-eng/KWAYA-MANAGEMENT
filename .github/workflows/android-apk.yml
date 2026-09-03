@@ -25,6 +25,14 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Download official choir logo
+        run: |
+          mkdir -p android/app/src/main/res/drawable
+          curl -L --fail --retry 3 \
+            'https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg' \
+            -o android/app/src/main/res/drawable/kristu_logo.jpg
+          test -s android/app/src/main/res/drawable/kristu_logo.jpg
+
       - name: Build debug APK
         working-directory: android
         run: gradle assembleDebug --no-daemon
