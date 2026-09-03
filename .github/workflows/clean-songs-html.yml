@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - songs.html
+      - trigger-songs-clean.txt
       - .github/workflows/clean-songs-html.yml
 permissions:
   contents: write
