@@ -16,7 +16,7 @@
   db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'&&!location.pathname.endsWith('/login.html'))location.replace('login.html')});
   check().then(()=>{
     if(location.pathname.endsWith('/member-profile.html')){
-      const s=document.createElement('script');s.src='./profile-loader.js?v=2';document.head.appendChild(s);
+      const s=document.createElement('script');s.src='./profile-loader.js?v=3';document.head.appendChild(s);
     }
   }).catch(e=>console.error('Auth guard:',e));
 })();
