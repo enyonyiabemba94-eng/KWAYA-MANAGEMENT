@@ -1,0 +1,21 @@
+{
+  "name": "Kwaya ya Kristu Mfalme — Mfumo wa Usimamizi wa Kwaya",
+  "short_name": "Kristu Mfalme",
+  "description": "Mfumo wa usimamizi wa Kwaya ya Kristu Mfalme",
+  "lang": "sw",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f6fa",
+  "theme_color": "#18122b",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
