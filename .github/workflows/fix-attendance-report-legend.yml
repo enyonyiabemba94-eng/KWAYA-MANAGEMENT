@@ -1,0 +1,35 @@
+name: Fix Attendance Report Legend
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-attendance-report-legend.yml'
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix legend in reports.html
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('reports.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<span><b>Y</b> = Yupo</span><span><b>C</b> = Amechelewa</span><span><b>A</b> = Hayupo</span><span><b>M</b> = Mgonjwa</span><span><b>R</b> = Ruhusa</span><span><b>F</b> = Msiba</span><span><b>EM</b> = Siku ya Ziada</span>'
+          new = '<span><b>✓</b> = Amehudhuria</span><span><b>A</b> = Hakuhudhuria / Amechelewa</span><span><b>M</b> = Mgonjwa</span><span><b>R</b> = Ruhusa</span><span><b>🚨</b> = Siku ya Ziada / Emergency</span>'
+          if old not in s:
+              raise SystemExit('Expected attendance legend not found; no changes made.')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit change
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Fix attendance report legend'
+          git push
