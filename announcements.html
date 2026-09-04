@@ -618,6 +618,25 @@ textarea{
 @media(max-width:700px){.side{transform:translateX(-100%);transition:transform .2s ease}.side.open{transform:translateX(0)}.main{margin-left:0!important;width:100%!important;max-width:100%!important}.menu{display:inline-block!important}}
 @media print{.choir-brand-header{grid-template-columns:42px minmax(0,1fr) 42px;padding:5px 0}.choir-brand-header img{width:32px;height:32px}.choir-brand-header .choir-brand-title{font-size:14px}.choir-brand-header .choir-brand-subtitle{font-size:7px}}
 </style>
+
+<style>
+/* FIX ANNOUNCEMENTS DATE FORMAT */
+.announcement-date{white-space:nowrap}
+</style>
+<script>
+function formatAnnouncementDate(value){
+  if(!value) return '—';
+  const raw=String(value).trim();
+  let d=new Date(raw);
+  if(Number.isNaN(d.getTime())){
+    const m=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(m) d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]));
+  }
+  if(Number.isNaN(d.getTime())) return '—';
+  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+}
+window.formatAnnouncementDate=formatAnnouncementDate;
+</script>
 </head>
 
 <body>
