@@ -1,0 +1,39 @@
+name: Fix Special Event Patch Formatting
+on:
+  push:
+    paths:
+      - _fix-special-events.txt
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix literal newlines
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('mass-programmes.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('\\\\n/* SPECIAL_EVENTS_V2 */','\n/* SPECIAL_EVENTS_V2 */')
+          s=s.replace('\\\\n.special-builder','\n.special-builder')
+          s=s.replace('\\\\n</style>','\n</style>')
+          s=s.replace('\\\\n<!-- SPECIAL_EVENTS_V2 -->','\n<!-- SPECIAL_EVENTS_V2 -->')
+          s=s.replace('\\\\n<div id="specialEventBuilder"','\n<div id="specialEventBuilder"')
+          s=s.replace('\\\\n/* SPECIAL_EVENTS_V2 */\\\\nconst SPECIAL_EVENT_PARTS','\n/* SPECIAL_EVENTS_V2 */\nconst SPECIAL_EVENT_PARTS')
+          s=s.replace('\\\\nconst SPECIAL_EVENT_KEYS','\nconst SPECIAL_EVENT_KEYS')
+          s=s.replace('\\\\nfunction ','\nfunction ')
+          s=s.replace('\\\\nconst originalNewProgrammeV2','\nconst originalNewProgrammeV2')
+          s=s.replace('\\\\ndocument.querySelectorAll','\ndocument.querySelectorAll')
+          s=s.replace('\\\\nrenderSpecialBuilderV2();','\nrenderSpecialBuilderV2();')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mass-programmes.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Fix special event programme formatting'
+          git push
