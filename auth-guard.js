@@ -1,5 +1,17 @@
 (function(){
   const db=window.supabase.createClient('https://xulnkdrgjgajmcqntwga.supabase.co','sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2');
+
+  // Load the global translation engine on every authenticated page.
+  // The user's own data/content is not translated; only system UI strings are.
+  (function loadI18n(){
+    if(window.choirI18n || document.querySelector('script[data-choir-i18n]')) return;
+    const s=document.createElement('script');
+    s.src='./i18n.js?v=20260904';
+    s.async=false;
+    s.setAttribute('data-choir-i18n','1');
+    document.head.appendChild(s);
+  })();
+
   async function getRole(){const {data,error}=await db.rpc('get_my_role');if(error)throw error;return data||null}
   async function check(){
     const {data:{session}}=await db.auth.getSession();
