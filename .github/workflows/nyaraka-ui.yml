@@ -1,0 +1,32 @@
+name: Nyaraka UI
+on:
+  push:
+    paths: ['.github/workflows/nyaraka-ui.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update documents page
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('documents.html')
+          s=p.read_text()
+          marker='nyaraka-ui-v3'
+          if marker not in s:
+            s=s.replace('</head>','<style id="nyaraka-ui-v3">.doc-controls{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.doc-controls select{height:40px;border:1px solid #dfe3ea;border-radius:9px;padding:0 10px;background:#fff}.doc-empty{text-align:center;padding:30px;color:#6b7280}</style></head>',1)
+            s=s.replace('<span id="docCount" class="doc-count"></span>','<span id="docCount" class="doc-count"></span></div><div class="doc-controls"><select id="docCategoryFilter"><option value="">📁 Kategoria zote</option><option>Katiba</option><option>Kanuni</option><option>Barua</option><option>Ripoti</option><option>Mihtasari ya Vikao</option><option>Ratiba/Programu</option><option>Mikataba</option><option>Kanisa</option><option>Nyingine</option></select><select id="docSort"><option value="new">⬇️ Mpya kwanza</option><option value="old">⬆️ Za zamani kwanza</option><option value="az">A → Z</option></select></div>',1)
+            s=s.replace('</body>','<script>document.addEventListener("input",e=>{if(e.target.id==="docSearch"||e.target.id==="docCategoryFilter")window.renderDocumentsPro&&renderDocumentsPro()});document.addEventListener("change",e=>{if(e.target.id==="docSort")window.renderDocumentsPro&&renderDocumentsPro()});</script></body>',1)
+            p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add documents.html
+          git diff --cached --quiet || git commit -m 'Improve Nyaraka filters'
+          git push
