@@ -1786,44 +1786,17 @@ function updateStats(){
 ===================================================== */
 
 function formatDisplayDate(value){
-
-    if(!value)
-        return "Tarehe haijawekwa";
-
-
-    const parts =
-        String(value)
-        .split("-")
-        .map(Number);
-
-
-    if(parts.length !== 3)
-        return value;
-
-
-    const date =
-        new Date(
-            parts[0],
-            parts[1]-1,
-            parts[2]
-        );
-
-
-    return date.toLocaleDateString(
-        "sw-TZ",
-        {
-            day:"2-digit",
-            month:"long",
-            year:"numeric"
-        }
-    );
-
+    if(!value) return "Tarehe haijawekwa";
+    const raw = String(value).trim();
+    const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(m){
+        const d = new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+        return d.toLocaleDateString("sw-TZ", {day:"2-digit", month:"long", year:"numeric"});
+    }
+    const d = new Date(raw);
+    if(Number.isNaN(d.getTime())) return "Tarehe haijawekwa";
+    return d.toLocaleDateString("sw-TZ", {day:"2-digit", month:"long", year:"numeric"});
 }
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
 
 function escapeHTML(value){
 
