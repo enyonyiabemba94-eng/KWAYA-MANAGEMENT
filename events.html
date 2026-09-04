@@ -103,4 +103,24 @@ $('eventForm').addEventListener('submit',async ev=>{ev.preventDefault();if(!['ad
 
   connectChoirLogo();
 })();
+</script><script>
+/* FINAL_RATIBA_DISPLAY_FIX */
+(function(){
+  const LOGO='https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg';
+  function fixLogo(){
+    document.querySelectorAll('.brand img,.choir-brand-header img').forEach(img=>{img.src=LOGO;img.alt='Logo ya Kwaya ya Kristu Mfalme';});
+  }
+  function fixProgrammeBadges(){
+    document.querySelectorAll('#eventsList .event-item').forEach(item=>{
+      const title=(item.querySelector('.event-title h3')?.textContent||'').toLowerCase();
+      if(title.includes('mpango wa misa')){
+        const badge=item.querySelector('.badge');
+        if(badge) badge.textContent='Programme ya Misa';
+      }
+    });
+  }
+  fixLogo();
+  fixProgrammeBadges();
+  new MutationObserver(function(){fixLogo();fixProgrammeBadges();}).observe(document.body,{childList:true,subtree:true});
+})();
 </script></body></html>
