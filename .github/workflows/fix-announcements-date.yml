@@ -1,0 +1,40 @@
+name: Fix announcements date rendering
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-announcements-date.yml'
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix date formatter
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('announcements.html')
+          s=p.read_text(encoding='utf-8')
+          marker='/* FIX ANNOUNCEMENTS DATE FORMAT */'
+          css='''\n<style>\n/* FIX ANNOUNCEMENTS DATE FORMAT */\n.announcement-date{white-space:nowrap}\n</style>\n<script>\nfunction formatAnnouncementDate(value){\n  if(!value) return '—';\n  const raw=String(value).trim();\n  let d=new Date(raw);\n  if(Number.isNaN(d.getTime())){\n    const m=raw.match(/^(\\d{4})-(\\d{2})-(\\d{2})/);\n    if(m) d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]));\n  }\n  if(Number.isNaN(d.getTime())) return '—';\n  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();\n}\nwindow.formatAnnouncementDate=formatAnnouncementDate;\n</script>\n'''
+          if marker not in s:
+              s=s.replace('</head>',css+'</head>',1)
+          import re
+          # Replace common date-rendering expressions with the safe formatter.
+          s=re.sub(r"new Date\\(([^()]*publish_date[^()]*)\\)\\.toLocaleDateString\\([^;]*\\)", r"formatAnnouncementDate(\\1)", s)
+          s=re.sub(r"new Date\\(([^()]*publish_date[^()]*)\\)\\.toLocaleDateString\\([^;]*\\)", r"formatAnnouncementDate(\\1)", s)
+          # If the page uses a template expression around publish_date, normalize it directly.
+          s=s.replace("new Date(a.publish_date).toLocaleDateString('sw-TZ')", "formatAnnouncementDate(a.publish_date)")
+          s=s.replace('new Date(a.publish_date).toLocaleDateString()', 'formatAnnouncementDate(a.publish_date)')
+          s=s.replace("new Date(item.publish_date).toLocaleDateString('sw-TZ')", "formatAnnouncementDate(item.publish_date)")
+          s=s.replace('new Date(item.publish_date).toLocaleDateString()', 'formatAnnouncementDate(item.publish_date)')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add announcements.html
+          git diff --cached --quiet || (git commit -m 'Fix announcement date display' && git push)
