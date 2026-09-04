@@ -11,26 +11,28 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Restore clean mass programme and attach special events module
+      - name: Attach special events CSS and script
         shell: bash
         run: |
           set -e
-          git show 877f99412b821615659493958043da318be4122a:mass-programmes.html > mass-programmes.html
           python3 - <<'PY'
           from pathlib import Path
           p=Path('mass-programmes.html')
           s=p.read_text()
-          marker='<script src="./mass-special-events.js?v=20260904"></script>'
-          if marker not in s:
-              s=s.replace('</body>', marker+'\n</body>')
+          css='<link rel="stylesheet" href="./mass-special-events.css?v=20260904">'
+          if css not in s:
+              s=s.replace('</head>', css+'\n</head>')
+          script='<script src="./mass-special-events.js?v=20260904"></script>'
+          if script not in s:
+              s=s.replace('</body>', script+'\n</body>')
           p.write_text(s)
           PY
-          if git diff --quiet -- mass-programmes.html; then
-            echo 'No change needed'
-            exit 0
-          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mass-programmes.html
-          git commit -m 'Install special event song module cleanly'
+          if git diff --cached --quiet; then
+            echo 'No change needed'
+            exit 0
+          fi
+          git commit -m 'Attach special events module to mass programme'
           git push
