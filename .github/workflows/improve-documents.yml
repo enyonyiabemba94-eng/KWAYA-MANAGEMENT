@@ -1,43 +1,71 @@
-name: Improve Nyaraka UI
+name: Fix Nyaraka Document Manager
 on:
   workflow_dispatch:
   push:
     paths:
       - '.github/workflows/improve-documents.yml'
 jobs:
-  improve:
+  fix-documents:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Improve documents page
+      - name: Build Nyaraka UI
+        shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('documents.html')
           s=p.read_text(encoding='utf-8')
-          css='''\n<style id="documents-pro-ui">\n.doc-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}.doc-search{flex:1;min-width:220px;height:42px;border:1px solid #dfe3ea;border-radius:10px;padding:0 13px;background:#fff}.doc-count{font-size:12px;color:#6b7280;font-weight:700}.doc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.doc-stat{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:15px;box-shadow:0 4px 14px rgba(15,23,42,.04)}.doc-stat b{display:block;font-size:23px;color:#18122b}.doc-stat span{font-size:11px;color:#6b7280;font-weight:700}.doc-file{display:flex;align-items:center;gap:8px}.doc-icon{width:36px;height:36px;border-radius:9px;background:#f3f4f6;display:grid;place-items:center;font-size:18px}.doc-actions{display:flex;gap:6px;flex-wrap:wrap}.doc-actions .btn{white-space:nowrap}@media(max-width:700px){.doc-stats{grid-template-columns:1fr 1fr}.doc-stats .doc-stat:last-child{grid-column:1/-1}.doc-toolbar{align-items:stretch}.doc-search{min-width:100%;}}\n</style>'''
-          if 'id="documents-pro-ui"' not in s:
-              s=s.replace('</style></head>',css+'</style></head>',1)
-          marker='<div class="card"><h2>Orodha ya Nyaraka</h2>'
-          replacement='<div class="card"><h2>Orodha ya Nyaraka</h2><div class="doc-toolbar"><input id="docSearch" class="doc-search" placeholder="🔎 Tafuta nyaraka kwa jina, kategoria au faili..."><span id="docCount" class="doc-count"></span></div>'
-          if marker in s and 'id="docSearch"' not in s:
-              s=s.replace(marker,replacement,1)
-          stats='<div id="docStats" class="doc-stats"><div class="doc-stat"><b id="docTotal">0</b><span>JUMLA YA NYARAKA</span></div><div class="doc-stat"><b id="docPdf">0</b><span>PDF</span></div><div class="doc-stat"><b id="docRecent">0</b><span>ZA KARIBUNI</span></div></div>'
-          if 'id="docStats"' not in s:
-              anchor='<section class="content">'
-              s=s.replace(anchor,anchor+stats,1)
-          js='''<script id="documents-pro-js">\n(function(){\n const q=s=>document.querySelector(s);\n function icon(n){n=(n||'').toLowerCase();if(n.includes('.pdf'))return '📕';if(/\\.(doc|docx)$/.test(n))return '📘';if(/\\.(xls|xlsx)$/.test(n))return '📊';if(/\\.(ppt|pptx)$/.test(n))return '📙';return '📄'}\n function enhance(){\n   const rows=q('#rows'); if(!rows)return;\n   const all=[...rows.querySelectorAll('tr')]; const real=all.filter(r=>r.querySelector('td'));\n   if(q('#docTotal'))q('#docTotal').textContent=real.length;\n   if(q('#docPdf'))q('#docPdf').textContent=real.filter(r=>r.innerText.toLowerCase().includes('.pdf')).length;\n   if(q('#docRecent'))q('#docRecent').textContent=Math.min(real.length,5);\n   if(q('#docCount'))q('#docCount').textContent=real.length+' nyaraka';\n   real.forEach(r=>{if(r.dataset.enhanced)return;r.dataset.enhanced='1';const file=r.cells[2];if(file){const name=file.textContent.trim();file.innerHTML='<div class="doc-file"><span class="doc-icon">'+icon(name)+'</span><span>'+name+'</span></div>';}const actions=r.cells[r.cells.length-1];if(actions)actions.classList.add('doc-actions');});\n }\n const search=q('#docSearch'); if(search)search.addEventListener('input',function(){const term=this.value.toLowerCase().trim();[...q('#rows').querySelectorAll('tr')].forEach(r=>{r.style.display=!term||r.innerText.toLowerCase().includes(term)?'':'none'});});\n const rows=q('#rows');if(rows)new MutationObserver(enhance).observe(rows,{childList:true,subtree:true});enhance();\n})();\n</script>'''
-          if 'id="documents-pro-js"' not in s:
+          css='''<style id="nyaraka-final-ui">
+          .doc-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.doc-tools input,.doc-tools select{height:42px}.doc-tools input{flex:1;min-width:220px}.doc-info{font-size:12px;color:#6b7280;font-weight:700}.doc-upload-status{display:none;margin-top:10px;padding:10px;border-radius:9px;background:#f3f4f6;font-size:12px}.doc-actions{display:flex;gap:6px;flex-wrap:wrap}.doc-actions .btn{padding:7px 10px;font-size:11px}.doc-file{display:flex;align-items:center;gap:8px}.doc-icon{width:36px;height:36px;border-radius:9px;background:#f3f4f6;display:grid;place-items:center;font-size:18px;flex:none}.doc-modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:18px;z-index:100}.doc-modal.show{display:flex}.doc-modal-box{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:20px;box-shadow:0 20px 60px #0004}.doc-modal-box h3{margin-top:0}.doc-detail{display:grid;grid-template-columns:130px 1fr;gap:9px;font-size:13px}.doc-detail b{color:#6b7280}.doc-empty{text-align:center;padding:30px;color:#6b7280}@media(max-width:700px){.doc-tools{display:grid;grid-template-columns:1fr}.doc-tools input{min-width:0}.doc-detail{grid-template-columns:1fr}}
+          </style>'''
+          if 'id="nyaraka-final-ui"' not in s:
+              s=s.replace('</head>',css+'</head>',1)
+          # Add upload progress/status immediately after the file field when possible.
+          if 'id="docUploadStatus"' not in s:
+              s=s.replace('<div class="full"><button class="btn primary">Pakia na Hifadhi</button></div>', '<div id="docUploadStatus" class="doc-upload-status"></div><div class="full"><button id="docUploadBtn" class="btn primary">📤 Pakia na Hifadhi</button></div>',1)
+          # Replace existing toolbar with richer controls.
+          old='<div class="doc-toolbar"><input id="docSearch" class="doc-search" placeholder="🔎 Tafuta nyaraka kwa jina, kategoria au faili..."><span id="docCount" class="doc-count"></span></div>'
+          new='<div class="doc-tools"><input id="docSearch" placeholder="🔎 Tafuta nyaraka kwa jina, kategoria au faili..."><select id="docCategoryFilter"><option value="">📁 Kategoria zote</option><option>Katiba</option><option>Kanuni</option><option>Barua</option><option>Ripoti</option><option>Mihtasari ya Vikao</option><option>Ratiba/Programu</option><option>Mikataba</option><option>Kanisa</option><option>Nyingine</option></select><select id="docSort"><option value="new">🕒 Mpya kwanza</option><option value="old">🕘 Za zamani kwanza</option><option value="az">🔤 A–Z</option></select><span id="docCount" class="doc-info"></span></div>'
+          if 'id="docSearch"' in s and old in s:
+              s=s.replace(old,new,1)
+          js='''<script id="nyaraka-final-js">
+          (()=>{
+            const $=id=>document.getElementById(id);
+            let allDocs=[];
+            const esc=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]));
+            const icon=m=>{m=(m||'').toLowerCase();if(m.includes('pdf'))return '📕';if(m.includes('word'))return '📘';if(m.includes('sheet')||m.includes('excel'))return '📗';if(m.includes('presentation')||m.includes('powerpoint'))return '📙';return '📄'};
+            function applyDocs(){
+              const q=($('docSearch')?.value||'').toLowerCase().trim(), cat=$('docCategoryFilter')?.value||'', sort=$('docSort')?.value||'new';
+              let rows=allDocs.filter(d=>(!q||[d.title,d.category,d.file_name].join(' ').toLowerCase().includes(q))&&(!cat||d.category===cat));
+              rows.sort((a,b)=>sort==='old'?new Date(a.created_at)-new Date(b.created_at):sort==='az'?String(a.title).localeCompare(String(b.title)):new Date(b.created_at)-new Date(a.created_at));
+              const tb=document.querySelector('tbody'); if(!tb)return;
+              tb.innerHTML=rows.length?rows.map(d=>`<tr><td><div class="doc-file"><span class="doc-icon">${icon(d.mime_type)}</span><div><b>${esc(d.title)}</b><div style="font-size:10px;color:#6b7280">${esc(d.file_name||'')}</div></div></div></td><td>${esc(d.category||'Nyingine')}</td><td>${d.file_size?Math.max(1,Math.round(d.file_size/1024))+' KB':'—'}</td><td>${new Date(d.created_at).toLocaleDateString('sw-TZ')}</td><td><div class="doc-actions"><a class="btn muted" target="_blank" href="${esc(d.file_url)}">👁️ Fungua</a><a class="btn primary" download href="${esc(d.file_url)}">📥 Pakua</a><button class="btn muted" onclick='window.docDetails(${JSON.stringify(d).replace(/'/g,"&#39;")})'>ℹ️ Taarifa</button><button class="btn danger" onclick='window.docDelete("${esc(d.id)}")'>🗑️ Futa</button></div></td></tr>`).join(''):'<tr><td colspan="5" class="doc-empty">Hakuna nyaraka zilizopatikana.</td></tr>';
+              if($('docCount'))$('docCount').textContent=`${rows.length} / ${allDocs.length} nyaraka`;
+              if($('docTotal'))$('docTotal').textContent=allDocs.length;
+              if($('docPdf'))$('docPdf').textContent=allDocs.filter(d=>(d.mime_type||'').toLowerCase().includes('pdf')||(d.file_name||'').toLowerCase().endsWith('.pdf')).length;
+              if($('docRecent'))$('docRecent').textContent=allDocs.filter(d=>Date.now()-new Date(d.created_at).getTime()<30*86400000).length;
+            }
+            window.docDetails=d=>{let m=$('docModal');if(!m){m=document.createElement('div');m.id='docModal';m.className='doc-modal';m.innerHTML='<div class="doc-modal-box"><h3>Maelezo ya Nyaraka</h3><div id="docDetailBody"></div><button class="btn muted" onclick="document.getElementById(\'docModal\').classList.remove(\'show\')">Funga</button></div>';document.body.appendChild(m)}$('docDetailBody').innerHTML=`<div class="doc-detail"><b>Kichwa</b><span>${esc(d.title)}</span><b>Kategoria</b><span>${esc(d.category||'Nyingine')}</span><b>Faili</b><span>${esc(d.file_name||'—')}</span><b>Aina</b><span>${esc(d.mime_type||'—')}</span><b>Ukubwa</b><span>${d.file_size?Math.round(d.file_size/1024)+' KB':'—'}</span><b>Tarehe</b><span>${new Date(d.created_at).toLocaleString('sw-TZ')}</span></div>`;m.classList.add('show')};
+            window.docDelete=async id=>{if(!confirm('Una uhakika unataka kufuta nyaraka hii?'))return;try{const {error}=await db.from('documents').delete().eq('id',id);if(error)throw error;await loadDocuments()}catch(e){alert('Imeshindikana kufuta: '+e.message)}};
+            async function loadDocuments(){if(typeof db==='undefined')return;const {data,error}=await db.from('documents').select('*').order('created_at',{ascending:false});if(error){console.error(error);return}allDocs=data||[];applyDocs()}
+            ['docSearch','docCategoryFilter','docSort'].forEach(id=>$(id)?.addEventListener('input',applyDocs));
+            const oldLoad=window.loadDocuments; window.loadDocuments=loadDocuments;
+            setTimeout(()=>{loadDocuments()},900);
+            document.addEventListener('change',e=>{if(e.target?.id==='file'&&e.target.files[0]){const f=e.target.files[0];if(f.size>50*1024*1024){alert('Faili ni kubwa kuliko 50 MB.');e.target.value=''}}});
+          })();
+          </script>'''
+          if 'id="nyaraka-final-js"' not in s:
               s=s.replace('</body>',js+'</body>',1)
           p.write_text(s,encoding='utf-8')
           PY
-      - name: Commit changes
+      - name: Commit documents changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add documents.html
-          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
-          git commit -m "Polish Nyaraka document management"
+          if git diff --cached --quiet; then echo "No documents changes"; exit 0; fi
+          git commit -m "Complete Nyaraka document manager"
           git push
