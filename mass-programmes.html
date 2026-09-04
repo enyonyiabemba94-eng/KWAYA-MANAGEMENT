@@ -78,5 +78,6 @@ const oldPreview=window.showPreview;if(oldPreview&&!oldPreview.__kwb){window.sho
 function mount(){let h=$('baptism-editor');if(!h){const lab=[...document.querySelectorAll('.field label')].find(x=>(x.textContent||'').trim().toUpperCase()==='TUKIO MAALUM NDANI YA MISA');const f=lab?.parentElement;if(!f)return;h=document.createElement('div');h.id='baptism-editor';h.className='baptism-editor';f.insertAdjacentElement('afterend',h);document.querySelectorAll('input[type=checkbox]').forEach(x=>x.addEventListener('change',render))}render()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
 })();
-</script></body>
+</script>
+</body>
 </html>
