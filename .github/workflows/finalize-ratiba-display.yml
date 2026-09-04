@@ -1,0 +1,55 @@
+name: Finalize Ratiba display
+
+on:
+  push:
+    paths:
+      - '.github/workflows/finalize-ratiba-display.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix logo and programme badge
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('events.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '/* FINAL_RATIBA_DISPLAY_FIX */'
+          if marker not in s:
+              patch = '''<script>
+          /* FINAL_RATIBA_DISPLAY_FIX */
+          (function(){
+            const LOGO='https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg';
+            function fixLogo(){
+              document.querySelectorAll('.brand img,.choir-brand-header img').forEach(img=>{img.src=LOGO;img.alt='Logo ya Kwaya ya Kristu Mfalme';});
+            }
+            function fixProgrammeBadges(){
+              document.querySelectorAll('#eventsList .event-item').forEach(item=>{
+                const title=(item.querySelector('.event-title h3')?.textContent||'').toLowerCase();
+                if(title.includes('mpango wa misa')){
+                  const badge=item.querySelector('.badge');
+                  if(badge) badge.textContent='Programme ya Misa';
+                }
+              });
+            }
+            fixLogo();
+            fixProgrammeBadges();
+            new MutationObserver(function(){fixLogo();fixProgrammeBadges();}).observe(document.body,{childList:true,subtree:true});
+          })();
+          </script>'''
+              s = s.replace('</body>', patch + '</body>', 1)
+              p.write_text(s, encoding='utf-8')
+          else:
+              print('Final display fix already present')
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add events.html
+          if git diff --cached --quiet; then echo "No changes"; else git commit -m "Finalize Ratiba logo and programme display"; git push; fi
