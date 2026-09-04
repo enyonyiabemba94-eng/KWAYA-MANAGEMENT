@@ -1,0 +1,83 @@
+name: Fix conductor names
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch conductor rendering and persistence
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('mass-programmes.html')
+          s=p.read_text()
+          marker='</body>'
+          patch=r'''<script>
+(function(){
+  function getConductorNames(){
+    const names=[];
+    const chips=document.querySelectorAll('#conductors .chip');
+    chips.forEach(c=>{
+      const t=(c.textContent||'').replace(/[×✕]/g,'').trim();
+      if(t && !names.includes(t)) names.push(t);
+    });
+    const input=document.getElementById('conductor');
+    const t=(input?.value||'').trim();
+    if(t && !names.includes(t)) names.push(t);
+    if(Array.isArray(window.conductors)) window.conductors.forEach(x=>{const n=String(x||'').trim();if(n&&!names.includes(n))names.push(n)});
+    try { if(typeof conductors!=='undefined' && Array.isArray(conductors)) conductors.forEach(x=>{const n=String(x||'').trim();if(n&&!names.includes(n))names.push(n)}); } catch(e){}
+    return names;
+  }
+  function ensureConductorLine(){
+    const preview=document.getElementById('preview'); if(!preview)return;
+    const names=getConductorNames();
+    let line=preview.querySelector('.conductor-print');
+    if(!names.length){ if(line) line.remove(); return; }
+    const html='<b>WAONGOZA NYIMBO:</b> '+names.map(n=>{const d=document.createElement('div');d.textContent=n;return d.innerHTML}).join(' • ');
+    if(!line){ line=document.createElement('div'); line.className='conductor-print'; preview.insertBefore(line,preview.firstElementChild?.nextSibling||preview.firstChild); }
+    line.innerHTML=html;
+    line.style.display='block';
+    line.style.visibility='visible';
+  }
+  function persist(){
+    try{
+      const id=(typeof selectedId!=='undefined'&&selectedId)||document.getElementById('name')?.value||'draft';
+      localStorage.setItem('kwaya_mass_conductors_'+id,JSON.stringify(getConductorNames()));
+    }catch(e){}
+  }
+  function restore(){
+    try{
+      const id=(typeof selectedId!=='undefined'&&selectedId)||document.getElementById('name')?.value||'draft';
+      const a=JSON.parse(localStorage.getItem('kwaya_mass_conductors_'+id)||'[]');
+      if(!Array.isArray(a)||!a.length)return;
+      if(typeof conductors!=='undefined'){conductors.length=0;a.forEach(n=>conductors.push(n));}
+      const box=document.getElementById('conductors');
+      if(box){box.innerHTML=a.map(n=>'<span class="chip">'+String(n).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))+' <button type="button" style="border:0;background:none;font-weight:900;cursor:pointer" onclick="removeConductor(\''+String(n).replace(/'/g,"\\'")+'\')">×</button></span>').join('');}
+    }catch(e){console.warn('Conductor restore',e)}
+  }
+  const oldAdd=window.addConductor;
+  window.addConductor=function(){ if(oldAdd) oldAdd(); persist(); ensureConductorLine(); };
+  const oldRemove=window.removeConductor;
+  window.removeConductor=function(n){ if(oldRemove) oldRemove(n); persist(); ensureConductorLine(); };
+  const oldShow=window.showPreview;
+  window.showPreview=function(){ if(oldShow) oldShow(); setTimeout(()=>{ensureConductorLine();persist();},0); };
+  const oldPrint=window.printProgramme;
+  window.printProgramme=function(){ window.showPreview(); setTimeout(()=>window.print(),120); };
+  const oldLoad=window.loadProgramme;
+  if(oldLoad) window.loadProgramme=async function(){ const r=await oldLoad.apply(this,arguments); setTimeout(()=>{restore();ensureConductorLine();},50); return r; };
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{restore();ensureConductorLine();},300));
+  window.addEventListener('beforeprint',()=>ensureConductorLine());
+})();
+</script>'''
+          if 'function getConductorNames()' not in s:
+              s=s.replace(marker,patch+'\n'+marker)
+              p.write_text(s)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mass-programmes.html
+          git commit -m 'Fix conductor names in mass programme PDF' || true
+          git push
