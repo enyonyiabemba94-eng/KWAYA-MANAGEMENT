@@ -1,0 +1,37 @@
+name: Remove Mass Programme Notes Field
+
+on:
+  push:
+    paths:
+      - '_remove-mass-programme-notes.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  remove-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Remove visible Notes field safely
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('mass-programmes.html')
+          s = p.read_text(encoding='utf-8')
+          old = '<div class="field"><label>MAELEZO</label><textarea id="notes" rows="2"></textarea></div>'
+          new = '<input type="hidden" id="notes" value="">'
+          if old not in s:
+              raise SystemExit('Target Notes field was not found; no change made.')
+          s = s.replace(old, new, 1)
+          p.write_text(s, encoding='utf-8')
+
+      - name: Commit change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mass-programmes.html
+          git commit -m "Remove notes field from Mass Programme editor"
+          git push
