@@ -1,42 +1,37 @@
 <!doctype html>
-<html lang="sw"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mpango wa Misa | Kwaya ya Kristu Mfalme</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><style>
-@media print{.printtitle{font-size:20pt!important}.printsub{font-size:17pt!important}.info{font-size:12pt!important}.psec h4{font-size:13pt!important}.psong{font-size:12pt!important}.print-note{font-size:11pt!important}.conductor-print{font-size:12pt!important;font-weight:800!important;margin:3mm 0 5mm!important;padding:2.5mm 0!important;display:block!important;visibility:visible!important}.conductor-print *{font-size:12pt!important;visibility:visible!important}.psec{margin:3pt 0!important}.psec h4{margin:3pt 0!important}.psong{margin:1pt 0!important}.special-print .psec{margin-bottom:4mm!important}}
-</style></head><body><div id="app"></div><script>
-const BASE='https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/a263b9909f08986961e974b00cb062bf7c4812ca/mass-programmes.html';
-fetch(BASE).then(r=>r.text()).then(html=>{
-  const extra=`<style>@media print{.printtitle{font-size:20pt!important}.printsub{font-size:17pt!important}.info{font-size:12pt!important}.psec h4{font-size:13pt!important}.psong{font-size:12pt!important}.print-note{font-size:11pt!important}.conductor-print{font-size:12pt!important;font-weight:800!important;margin:3mm 0 5mm!important;padding:2.5mm 0!important;display:block!important;visibility:visible!important}.conductor-print *{font-size:12pt!important;visibility:visible!important}.psec{margin:3pt 0!important}.psec h4{margin:3pt 0!important}.psong{margin:1pt 0!important}.special-print .psec{margin-bottom:4mm!important}.sections-fixed.single-column .col-left{width:100%!important;grid-column:1!important}.sections-fixed.single-column .col-right{display:none!important}.sections-fixed:not(.single-column){grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}.sections-fixed:not(.single-column) .col-left{grid-column:1!important}.sections-fixed:not(.single-column) .col-right{grid-column:2!important}}</style>`;
-  html=html.replace('</head>',extra+'</head>');
-  html=html.replace(/<label class="hint"><input type="checkbox" value="Ndoa">([^<]*)Ndoa<\/label>/,m=>m+'<label class="hint"><input type="checkbox" value="Roho Mtakatifu"> 🕊️ Roho Mtakatifu</label>');
-  const patch=`<script>(function(){
-function esc(s){return String(s||'').replace(/[&<>\"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[m]})}
-function specialMap(v){return ({'Ubatizo':'UBATIZO','Kipaimara':'KIPAIMARA','Roho Mtakatifu':'ROHO MTAKATIFU','Ndoa':'NDOA'})[v]||''}
-function selectedSpecial(){return Array.from(document.querySelectorAll('input[type="checkbox"][value]')).filter(x=>specialMap(x.value)&&x.checked).map(x=>specialMap(x.value))}
-function organizePreview(){
- const p=document.getElementById('preview'); if(!p)return;
- const root=p.querySelector('.sections-fixed'); if(!root)return;
- let left=root.querySelector('.col-left'); let right=root.querySelector('.col-right');
- if(!left){left=document.createElement('div');left.className='col-left';root.prepend(left)}
- if(!right){right=document.createElement('div');right.className='col-right';root.append(right)}
- const chosen=selectedSpecial();
- const all=Array.from(root.querySelectorAll(':scope > .col-left > .psec, :scope > .col-right > .psec'));
- const specialNames=['UBATIZO','KIPAIMARA','ROHO MTAKATIFU','NDOA'];
- const special=[]; const normal=[];
- all.forEach(s=>{const h=(s.querySelector('h4')?.textContent||'').trim().toUpperCase();if(specialNames.includes(h))special.push(s);else normal.push(s)});
- left.replaceChildren();right.replaceChildren();
- normal.forEach(s=>left.appendChild(s));
- chosen.forEach(name=>{let s=special.find(x=>(x.querySelector('h4')?.textContent||'').trim().toUpperCase()===name);if(!s){s=document.createElement('section');s.className='psec';s.innerHTML='<h4>'+esc(name)+'</h4>'}right.appendChild(s)});
- root.classList.toggle('single-column',chosen.length===0);
- if(chosen.length===0){right.style.display='none';root.style.gridTemplateColumns='1fr'}else{right.style.display='block';root.style.gridTemplateColumns='minmax(0,1fr) minmax(0,1fr)'}
- let c=p.querySelector('.conductor-print');
- const chips=Array.from(document.querySelectorAll('#conductors .chip')).map(x=>x.textContent.replace(/^×\s*/,'').trim()).filter(Boolean);
- const input=document.getElementById('conductor');if(input&&input.value.trim()&&!chips.includes(input.value.trim()))chips.push(input.value.trim());
- if(chips.length){if(!c){c=document.createElement('div');c.className='conductor-print';const h=p.querySelector('.printhead');if(h)h.insertAdjacentElement('afterend',c);else p.prepend(c)}c.innerHTML='<div style="font-weight:900">CONDUCTOR / WAONGOZA NYIMBO</div><div>'+chips.map(esc).join(' • ')+'</div>';c.style.display='block';c.style.visibility='visible'}else if(c)c.remove();
- if(typeof window.fitOnePage==='function')setTimeout(window.fitOnePage,20);
+<html lang="sw">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mpango wa Misa | Kwaya ya Kristu Mfalme</title>
+<style>
+@media print{
+  .printtitle{font-size:20pt!important}
+  .printsub{font-size:17pt!important}
+  .info{font-size:11pt!important}
+  .conductor-print{display:block!important;visibility:visible!important;font-size:12pt!important;font-weight:800!important;margin:3mm 0 5mm!important;padding:2.5mm 0!important}
+  .conductor-print *{font-size:12pt!important;visibility:visible!important}
+  .psec{margin:3pt 0!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  .psec h4{font-size:13pt!important;margin:3pt 0!important}
+  .psong{font-size:12pt!important;line-height:1.1!important;margin:1pt 0!important}
+  .print-note{font-size:11pt!important}
+  .sections-fixed.single-column{grid-template-columns:1fr!important}
+  .sections-fixed.single-column .col-left{grid-column:1!important;width:100%!important}
+  .sections-fixed.single-column .col-right{display:none!important}
+  .sections-fixed:not(.single-column){grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:8mm!important}
+  .sections-fixed:not(.single-column) .col-left{grid-column:1!important}
+  .sections-fixed:not(.single-column) .col-right{grid-column:2!important}
 }
-function hook(){if(typeof window.showPreview==='function'&&!window.__massHooked){const old=window.showPreview;window.showPreview=function(){old.apply(this,arguments);setTimeout(organizePreview,30);setTimeout(organizePreview,150)};window.__massHooked=true}setTimeout(organizePreview,250)}
-setTimeout(hook,100);document.addEventListener('DOMContentLoaded',hook);window.addEventListener('load',hook);
-})();<\\/script>`;
-  html=html.replace('</body>',patch+'</body>');
+</style>
+</head>
+<body>
+<script>
+const BASE='https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/70a392b58e479adde81562cd70999f4469947288/mass-programmes.html';
+fetch(BASE).then(r=>r.text()).then(html=>{
+  const css=`<style>@media print{.printtitle{font-size:20pt!important}.printsub{font-size:17pt!important}.info{font-size:11pt!important}.conductor-print{display:block!important;visibility:visible!important;font-size:12pt!important;font-weight:800!important;margin:3mm 0 5mm!important;padding:2.5mm 0!important}.conductor-print *{font-size:12pt!important;visibility:visible!important}.psec{margin:3pt 0!important;break-inside:avoid!important;page-break-inside:avoid!important}.psec h4{font-size:13pt!important;margin:3pt 0!important}.psong{font-size:12pt!important;line-height:1.1!important;margin:1pt 0!important}.print-note{font-size:11pt!important}.sections-fixed.single-column{grid-template-columns:1fr!important}.sections-fixed.single-column .col-left{grid-column:1!important;width:100%!important}.sections-fixed.single-column .col-right{display:none!important}.sections-fixed:not(.single-column){grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:8mm!important}.sections-fixed:not(.single-column) .col-left{grid-column:1!important}.sections-fixed:not(.single-column) .col-right{grid-column:2!important}}</style>`;
+  html=html.replace('</head>',css+'</head>');
   document.open();document.write(html);document.close();
-}).catch(e=>{document.getElementById('app').innerHTML='<p style="padding:20px">Imeshindikana kupakia programme.</p>';console.error(e)});
-</script></body></html>
+}).catch(e=>{document.body.innerHTML='<p style="padding:20px;font-family:Arial">Imeshindikana kupakia Mpango wa Misa.</p>';console.error(e)});
+</script>
+</body>
+</html>
