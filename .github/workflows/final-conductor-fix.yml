@@ -1,0 +1,38 @@
+name: Final conductor fix
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix conductor output
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('mass-programmes.html')
+          s=p.read_text(encoding='utf-8')
+          old="<div class=\"conductor-print\"><b>WAONGOZA NYIMBO:</b> ${conductors.length?conductors.map(esc).join(' • '):'—'}</div>"
+          new="<div class=\"conductor-print\"><b>WAONGOZA NYIMBO:</b> ${(()=>{const a=[...conductors].filter(Boolean),v=($('conductor').value||'').trim();if(v&&!a.includes(v))a.push(v);return a.length?a.map(esc).join(' • '):'—'})()}</div>"
+          if old in s and '($(' in s:
+              s=s.replace(old,new,1)
+          # Remove accidental literal backslash-n text outside HTML tags.
+          s=s.replace('</script>\\n\\n</body>','</script>\n\n</body>')
+          s=s.replace('\\n\\n</body>','\n\n</body>')
+          if '<!-- DIRECT-CONDUCTOR-FIX -->' in s:
+              s=s.split('<!-- DIRECT-CONDUCTOR-FIX -->',1)[0].rstrip()+'\n</body>\n</html>\n'
+          p.write_text(s,encoding='utf-8')
+          PY
+          grep -q 'WAONGOZA NYIMBO' mass-programmes.html
+          grep -q 'MWISHO' mass-programmes.html
+          ! grep -q 'DIRECT-CONDUCTOR-FIX' mass-programmes.html
+          ! grep -q '\\n\\n' mass-programmes.html
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mass-programmes.html
+          git diff --cached --quiet || git commit -m 'Show conductor name in mass programme PDF'
+          git push
