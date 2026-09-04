@@ -21,50 +21,33 @@ jobs:
           p = Path('events.html')
           s = p.read_text(encoding='utf-8')
           original = s
-
           css = '''\n.view-tabs{display:flex;gap:7px;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid #eef0f3;background:#fff}.view-tab{border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer}.view-tab.active{background:#2563eb;color:#fff;border-color:#2563eb}.view-tab.today-tab.active{background:#16a34a;border-color:#16a34a}.view-tab.past-tab.active{background:#6b7280;border-color:#6b7280}\n@media(max-width:480px){.view-tabs{display:grid;grid-template-columns:1fr 1fr}.view-tab{width:100%}}\n'''
-          if '.view-tabs{' not in s:
-              s = s.replace('</style>', css + '</style>', 1)
-
+          if '.view-tabs{' not in s: s = s.replace('</style>', css + '</style>', 1)
           tabs = '''  <div class="view-tabs">\n   <button type="button" class="view-tab active" data-view="all">📅 Zote</button>\n   <button type="button" class="view-tab today-tab" data-view="today">📌 Leo</button>\n   <button type="button" class="view-tab" data-view="upcoming">⏰ Yanayokuja</button>\n   <button type="button" class="view-tab past-tab" data-view="past">🕘 Yaliyopita</button>\n  </div>\n'''
           marker = '  <div id="eventsList" class="events-list">'
-          if 'data-view="today"' not in s:
-              s = s.replace(marker, tabs + marker, 1)
-
+          if 'data-view="today"' not in s: s = s.replace(marker, tabs + marker, 1)
           s = s.replace('let events=[],editingId=null;', 'let events=[],editingId=null,canManage=false,viewMode=\'all\';', 1)
-
           old_save = "async function save(e){e.preventDefault();const payload={title:$('eventTitle').value.trim(),description:$('description').value.trim()||null,event_date:$('eventDate').value,start_time:$('startTime').value||null,end_time:$('endTime').value||null,location:$('location').value.trim()||null,event_type:$('eventType').value};"
           new_save = "async function save(e){e.preventDefault();if(!canManage)return showToast('Ni Admin/Super Admin pekee anayeweza kubadilisha ratiba.');const payload={title:$('eventTitle').value.trim(),description:$('description').value.trim()||null,event_date:$('eventDate').value,start_time:$('startTime').value||null,end_time:$('endTime').value||null,location:$('location').value.trim()||null,event_type:$('eventType').value};"
           s = s.replace(old_save, new_save, 1)
-
           old_filter = "return (!q||text.includes(q))&&(!type||e.event_type===type)&&(!from||e.event_date>=from)&&(!to||e.event_date<=to)})"
           new_filter = "const viewOk=viewMode==='all'||(viewMode==='today'&&e.event_date===todayString())||(viewMode==='upcoming'&&e.event_date>todayString())||(viewMode==='past'&&e.event_date<todayString());return viewOk&&(!q||text.includes(q))&&(!type||e.event_type===type)&&(!from||e.event_date>=from)&&(!to||e.event_date<=to)})"
-          if old_filter not in s:
-              raise SystemExit('render filter marker not found')
+          if old_filter not in s: raise SystemExit('render filter marker not found')
           s = s.replace(old_filter, new_filter, 1)
-
           old_actions = '<div class="event-actions"><button class="icon-btn edit" onclick="editEvent(\'${e.id}\')" title="Hariri">✏️</button><button class="icon-btn danger" onclick="deleteEvent(\'${e.id}\')" title="Futa">🗑️</button></div>'
           new_actions = '${canManage?`<div class="event-actions"><button class="icon-btn edit" onclick="editEvent(\'${e.id}\')" title="Hariri">✏️</button><button class="icon-btn danger" onclick="deleteEvent(\'${e.id}\')" title="Futa">🗑️</button></div>`:\'\'}'
-          if old_actions not in s:
-              raise SystemExit('event actions marker not found')
+          if old_actions not in s: raise SystemExit('event actions marker not found')
           s = s.replace(old_actions, new_actions, 1)
-
           old_delete = 'async function deleteEvent(id){const e=events.find(x=>x.id===id);if(!e||!confirm(`Una uhakika unataka kufuta "${e.title}"?`))return;'
           new_delete = 'async function deleteEvent(id){if(!canManage)return showToast(\'Ni Admin/Super Admin pekee anayeweza kufuta ratiba.\');const e=events.find(x=>x.id===id);if(!e||!confirm(`Una uhakika unataka kufuta "${e.title}"?`))return;'
           s = s.replace(old_delete, new_delete, 1)
-
           role_code = '''\nasync function initRole(){try{const {data:{session}}=await db.auth.getSession();if(!session){canManage=false;applyRoleUI();return}const {data:role,error}=await db.rpc('get_my_role');if(error)throw error;canManage=role==='admin'||role==='super_admin';applyRoleUI()}catch(err){console.error('Role:',err);canManage=false;applyRoleUI()}}\nfunction applyRoleUI(){const form=document.querySelector('.form-card');if(form)form.style.display=canManage?'':'none';if(!canManage)document.querySelectorAll('.event-actions').forEach(x=>x.remove());render()}\nfunction setView(mode){viewMode=mode;document.querySelectorAll('.view-tab').forEach(b=>b.classList.toggle('active',b.dataset.view===mode));render()}\n'''
-          if 'async function initRole()' not in s:
-              s = s.replace('function printSchedule(){window.print()}', role_code + 'function printSchedule(){window.print()}', 1)
-
+          if 'async function initRole()' not in s: s = s.replace('function printSchedule(){window.print()}', role_code + 'function printSchedule(){window.print()}', 1)
           old_end = "$('eventForm').addEventListener('submit',save);['search','filterType','fromDate','toDate'].forEach(id=>$(id).addEventListener('input',render));setDefaultDate();loadEvents();"
           new_end = "$('eventForm').addEventListener('submit',save);['search','filterType','fromDate','toDate'].forEach(id=>$(id).addEventListener('input',render));document.querySelectorAll('.view-tab').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));setDefaultDate();initRole();loadEvents();"
-          if old_end not in s:
-              raise SystemExit('script end marker not found')
+          if old_end not in s: raise SystemExit('script end marker not found')
           s = s.replace(old_end, new_end, 1)
-
-          if s == original:
-              raise SystemExit('No changes made')
+          if s == original: raise SystemExit('No changes made')
           p.write_text(s, encoding='utf-8')
           PY
       - name: Commit changes
