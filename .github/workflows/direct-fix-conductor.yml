@@ -1,0 +1,34 @@
+name: Direct Fix Conductor in Main File
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch mass-programmes.html directly
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('mass-programmes.html')
+          s=p.read_text(encoding='utf-8')
+          marker='<!-- DIRECT-CONDUCTOR-FIX -->'
+          if marker in s:
+              raise SystemExit('already patched')
+          patch=r'''\n<!-- DIRECT-CONDUCTOR-FIX -->\n<style>\n@media print{\n  .conductor-print{display:block!important;visibility:visible!important;position:relative!important;z-index:99!important;color:#000!important;font-size:11pt!important;line-height:1.15!important;margin:3mm 0 4mm!important;padding:2mm 0!important;border-top:1px solid #777!important;border-bottom:1px solid #777!important;text-align:center!important;break-inside:avoid!important;page-break-inside:avoid!important}\n}\n</style>\n<script>\n(function(){\n  function names(){\n    var out=[];\n    var chips=document.querySelectorAll('#conductors .chip');\n    chips.forEach(function(c){var t=(c.textContent||'').replace(/^×\\s*/,'').trim();if(t)out.push(t)});\n    var input=document.getElementById('conductor');\n    if(input&&input.value.trim()&&!out.includes(input.value.trim()))out.push(input.value.trim());\n    try{if(Array.isArray(conductors))conductors.forEach(function(t){t=String(t||'').trim();if(t&&!out.includes(t))out.push(t)})}catch(e){}\n    return out;\n  }\n  function forceLine(){\n    var preview=document.getElementById('preview'); if(!preview)return;\n    var ns=names();\n    var line=preview.querySelector('.conductor-print');\n    if(!line){\n      line=document.createElement('div');\n      line.className='conductor-print';\n      var head=preview.querySelector('.printhead');\n      if(head&&head.parentNode)head.parentNode.insertBefore(line,head.nextSibling); else preview.insertBefore(line,preview.firstChild);\n    }\n    line.innerHTML='<b>WAONGOZA NYIMBO:</b> '+(ns.length?ns.map(function(x){return String(x).replace(/[&<>"\\']/g,function(m){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\\\"":"&quot;","\\\'":"&#39;"}[m])})}).join(' • '):'—');\n    line.style.display='block';\n    line.style.visibility='visible';\n  }\n  function wrap(fn){return function(){var r=fn&&fn.apply(this,arguments);setTimeout(forceLine,0);setTimeout(forceLine,100);return r}}\n  function install(){\n    ['addConductor','removeConductor','showPreview','printProgramme'].forEach(function(n){\n      if(typeof window[n]==='function'&&!window[n].__directWrapped){var f=window[n];var w=wrap(f);w.__directWrapped=true;window[n]=w}\n    });\n    forceLine();\n  }\n  document.addEventListener('DOMContentLoaded',function(){install();setTimeout(install,300);setTimeout(forceLine,800)});\n  window.addEventListener('beforeprint',function(){install();forceLine()});\n  window.addEventListener('afterprint',forceLine);\n  var mo=new MutationObserver(function(){forceLine()});\n  mo.observe(document.documentElement,{subtree:true,childList:true});\n})();\n</script>\n'''
+          s=s.replace('</body>',patch+'</body>')
+          p.write_text(s,encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mass-programmes.html
+          git commit -m 'Fix conductor names directly in main mass programme file'
+          git push
