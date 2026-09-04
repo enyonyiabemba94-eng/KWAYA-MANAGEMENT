@@ -1,0 +1,29 @@
+name: Normalize Special Event Patch Newlines
+on:
+  push:
+    paths:
+      - _fix-special-events-2.txt
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Normalize literal newline escapes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('mass-programmes.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('\\n','\n')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mass-programmes.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Normalize special event programme script'
+          git push
