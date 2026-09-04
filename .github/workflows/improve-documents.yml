@@ -1,0 +1,43 @@
+name: Improve Nyaraka UI
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/improve-documents.yml'
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Improve documents page
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('documents.html')
+          s=p.read_text(encoding='utf-8')
+          css='''\n<style id="documents-pro-ui">\n.doc-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}.doc-search{flex:1;min-width:220px;height:42px;border:1px solid #dfe3ea;border-radius:10px;padding:0 13px;background:#fff}.doc-count{font-size:12px;color:#6b7280;font-weight:700}.doc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.doc-stat{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:15px;box-shadow:0 4px 14px rgba(15,23,42,.04)}.doc-stat b{display:block;font-size:23px;color:#18122b}.doc-stat span{font-size:11px;color:#6b7280;font-weight:700}.doc-file{display:flex;align-items:center;gap:8px}.doc-icon{width:36px;height:36px;border-radius:9px;background:#f3f4f6;display:grid;place-items:center;font-size:18px}.doc-actions{display:flex;gap:6px;flex-wrap:wrap}.doc-actions .btn{white-space:nowrap}@media(max-width:700px){.doc-stats{grid-template-columns:1fr 1fr}.doc-stats .doc-stat:last-child{grid-column:1/-1}.doc-toolbar{align-items:stretch}.doc-search{min-width:100%;}}\n</style>'''
+          if 'id="documents-pro-ui"' not in s:
+              s=s.replace('</style></head>',css+'</style></head>',1)
+          marker='<div class="card"><h2>Orodha ya Nyaraka</h2>'
+          replacement='<div class="card"><h2>Orodha ya Nyaraka</h2><div class="doc-toolbar"><input id="docSearch" class="doc-search" placeholder="🔎 Tafuta nyaraka kwa jina, kategoria au faili..."><span id="docCount" class="doc-count"></span></div>'
+          if marker in s and 'id="docSearch"' not in s:
+              s=s.replace(marker,replacement,1)
+          stats='<div id="docStats" class="doc-stats"><div class="doc-stat"><b id="docTotal">0</b><span>JUMLA YA NYARAKA</span></div><div class="doc-stat"><b id="docPdf">0</b><span>PDF</span></div><div class="doc-stat"><b id="docRecent">0</b><span>ZA KARIBUNI</span></div></div>'
+          if 'id="docStats"' not in s:
+              anchor='<section class="content">'
+              s=s.replace(anchor,anchor+stats,1)
+          js='''<script id="documents-pro-js">\n(function(){\n const q=s=>document.querySelector(s);\n function icon(n){n=(n||'').toLowerCase();if(n.includes('.pdf'))return '📕';if(/\\.(doc|docx)$/.test(n))return '📘';if(/\\.(xls|xlsx)$/.test(n))return '📊';if(/\\.(ppt|pptx)$/.test(n))return '📙';return '📄'}\n function enhance(){\n   const rows=q('#rows'); if(!rows)return;\n   const all=[...rows.querySelectorAll('tr')]; const real=all.filter(r=>r.querySelector('td'));\n   if(q('#docTotal'))q('#docTotal').textContent=real.length;\n   if(q('#docPdf'))q('#docPdf').textContent=real.filter(r=>r.innerText.toLowerCase().includes('.pdf')).length;\n   if(q('#docRecent'))q('#docRecent').textContent=Math.min(real.length,5);\n   if(q('#docCount'))q('#docCount').textContent=real.length+' nyaraka';\n   real.forEach(r=>{if(r.dataset.enhanced)return;r.dataset.enhanced='1';const file=r.cells[2];if(file){const name=file.textContent.trim();file.innerHTML='<div class="doc-file"><span class="doc-icon">'+icon(name)+'</span><span>'+name+'</span></div>';}const actions=r.cells[r.cells.length-1];if(actions)actions.classList.add('doc-actions');});\n }\n const search=q('#docSearch'); if(search)search.addEventListener('input',function(){const term=this.value.toLowerCase().trim();[...q('#rows').querySelectorAll('tr')].forEach(r=>{r.style.display=!term||r.innerText.toLowerCase().includes(term)?'':'none'});});\n const rows=q('#rows');if(rows)new MutationObserver(enhance).observe(rows,{childList:true,subtree:true});enhance();\n})();\n</script>'''
+          if 'id="documents-pro-js"' not in s:
+              s=s.replace('</body>',js+'</body>',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add documents.html
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "Polish Nyaraka document management"
+          git push
