@@ -1,0 +1,105 @@
+name: Fix Ratiba page
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-events-page.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch events page safely
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('events.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Connect the page logo to choir_settings.logo_url while keeping logo.png as fallback.
+          logo_patch = r'''<script>
+          (async function connectChoirLogo(){
+            try{
+              const {data,error}=await db.from('choir_settings').select('logo_url').limit(1).maybeSingle();
+              if(error) throw error;
+              if(data && data.logo_url){
+                document.querySelectorAll('.brand img,.choir-brand-header img').forEach(img=>{
+                  img.src=data.logo_url;
+                  img.onerror=()=>{img.src='logo.png'};
+                });
+              }
+            }catch(e){console.warn('Logo settings:',e)}
+          })();
+          </script>'''
+
+          # Reliable edit/delete handlers. They use the existing form and existing Supabase table.
+          edit_patch = r'''<script>
+          window.editEvent = function(id){
+            const e = (events||[]).find(x=>String(x.id)===String(id));
+            if(!e){toast('Tukio halipatikani');return;}
+            $('eventId').value=e.id||'';
+            $('title').value=e.title||'';
+            $('eventType').value=e.event_type||'other';
+            $('eventDate').value=e.event_date||'';
+            $('startTime').value=(e.start_time||'').slice(0,5);
+            $('endTime').value=(e.end_time||'').slice(0,5);
+            $('location').value=e.location||'';
+            $('description').value=e.description||'';
+            $('formTitle').textContent='✏️ Hariri Tukio';
+            $('saveBtn').textContent='💾 Hifadhi Mabadiliko';
+            $('cancelBtn').classList.remove('hidden');
+            document.querySelector('.form-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+          };
+
+          window.deleteEvent = async function(id){
+            const e=(events||[]).find(x=>String(x.id)===String(id));
+            if(!e) return;
+            if(!confirm('Una uhakika unataka kufuta tukio hili?')) return;
+            try{
+              const {error}=await db.from('events').delete().eq('id',id);
+              if(error) throw error;
+              events=events.filter(x=>String(x.id)!==String(id));
+              render();
+              toast('Tukio limefutwa');
+            }catch(err){console.error(err);toast('Imeshindikana kufuta tukio');}
+          };
+
+          window.resetForm = function(){
+            $('eventForm').reset();
+            $('eventId').value='';
+            $('formTitle').textContent='➕ Ongeza Tukio';
+            $('saveBtn').textContent='💾 Hifadhi Tukio';
+            $('cancelBtn').classList.add('hidden');
+          };
+          </script>'''
+
+          # Make the existing hidden utility actually work.
+          if '.hidden{' not in s:
+              s = s.replace('</style>', '.hidden{display:none!important}</style>', 1)
+
+          # Add scripts immediately before body end, without touching the existing one-line application logic.
+          marker='</body>'
+          if marker not in s:
+              raise SystemExit('events.html: </body> marker not found')
+          if 'connectChoirLogo' not in s:
+              s=s.replace(marker, logo_patch+edit_patch+marker, 1)
+
+          p.write_text(s,encoding='utf-8')
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add events.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Fix Ratiba logo and event editing"
+            git push
+          fi
