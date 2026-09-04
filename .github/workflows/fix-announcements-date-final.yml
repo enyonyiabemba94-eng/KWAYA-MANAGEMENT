@@ -1,0 +1,66 @@
+name: Final fix announcement dates
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-announcements-date-final.yml'
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject reliable date renderer
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('announcements.html')
+          s=p.read_text(encoding='utf-8')
+          marker='FINAL ANNOUNCEMENT DATE FIX 2026'
+          inject=r'''<script>
+/* FINAL ANNOUNCEMENT DATE FIX 2026 */
+(function(){
+  function safeAnnouncementDate(v){
+    if(!v) return '—';
+    var raw=String(v).trim();
+    var m=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(m) return m[3]+'/'+m[2]+'/'+m[1];
+    var d=new Date(raw);
+    return isNaN(d.getTime()) ? '—' : String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  }
+  window.safeAnnouncementDate=safeAnnouncementDate;
+  async function repairAnnouncementDates(){
+    try{
+      if(typeof db==='undefined') return;
+      var r=await db.from('announcements').select('id,title,publish_date').order('publish_date',{ascending:false});
+      if(r.error||!Array.isArray(r.data)) return;
+      var rows=r.data;
+      document.querySelectorAll('.announcement').forEach(function(card){
+        var titleEl=card.querySelector('.announcement-title');
+        var dateEl=card.querySelector('.announcement-date');
+        if(!titleEl||!dateEl) return;
+        var title=titleEl.textContent.trim();
+        var row=rows.find(function(x){return String(x.title||'').trim()===title;});
+        if(row) dateEl.textContent='📅 '+safeAnnouncementDate(row.publish_date);
+      });
+    }catch(e){ console.warn('Announcement date repair:',e); }
+  }
+  function start(){ setTimeout(repairAnnouncementDates,400); setTimeout(repairAnnouncementDates,1200); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
+</script>
+'''
+          if marker not in s:
+              pos=s.lower().rfind('</body>')
+              if pos>=0: s=s[:pos]+inject+s[pos:]
+              else: s+=inject
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add announcements.html
+          git diff --cached --quiet || (git commit -m 'Fix announcement date display reliably' && git push)
