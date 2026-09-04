@@ -11,56 +11,47 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Inject reliable date renderer
+      - name: Fix announcement date parser
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
           p=Path('announcements.html')
           s=p.read_text(encoding='utf-8')
-          marker='FINAL ANNOUNCEMENT DATE FIX 2026'
-          inject=r'''<script>
-/* FINAL ANNOUNCEMENT DATE FIX 2026 */
-(function(){
-  function safeAnnouncementDate(v){
-    if(!v) return '—';
-    var raw=String(v).trim();
-    var m=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if(m) return m[3]+'/'+m[2]+'/'+m[1];
-    var d=new Date(raw);
-    return isNaN(d.getTime()) ? '—' : String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
-  }
-  window.safeAnnouncementDate=safeAnnouncementDate;
-  async function repairAnnouncementDates(){
-    try{
-      if(typeof db==='undefined') return;
-      var r=await db.from('announcements').select('id,title,publish_date').order('publish_date',{ascending:false});
-      if(r.error||!Array.isArray(r.data)) return;
-      var rows=r.data;
-      document.querySelectorAll('.announcement').forEach(function(card){
-        var titleEl=card.querySelector('.announcement-title');
-        var dateEl=card.querySelector('.announcement-date');
-        if(!titleEl||!dateEl) return;
-        var title=titleEl.textContent.trim();
-        var row=rows.find(function(x){return String(x.title||'').trim()===title;});
-        if(row) dateEl.textContent='📅 '+safeAnnouncementDate(row.publish_date);
-      });
-    }catch(e){ console.warn('Announcement date repair:',e); }
-  }
-  function start(){ setTimeout(repairAnnouncementDates,400); setTimeout(repairAnnouncementDates,1200); }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
-})();
-</script>
-'''
-          if marker not in s:
+
+          # Replace the broken formatter wherever it exists. The old code
+          # split an ISO timestamp at '-' and tried Number('04T00:00:00...'),
+          # which produces NaN and therefore Invalid Date.
+          pattern=r'function\s+formatDisplayDate\s*\(value\)\s*\{.*?\n\s*\}\s*'
+          replacement='''function formatDisplayDate(value){
+              if(!value) return "Tarehe haijawekwa";
+              const raw=String(value).trim();
+              const match=raw.match(/^(\\d{4})-(\\d{2})-(\\d{2})/);
+              if(match){
+                  const d=new Date(Number(match[1]),Number(match[2])-1,Number(match[3]));
+                  return d.toLocaleDateString("sw-TZ",{day:"2-digit",month:"long",year:"numeric"});
+              }
+              const d=new Date(raw);
+              if(Number.isNaN(d.getTime())) return "Tarehe haijawekwa";
+              return d.toLocaleDateString("sw-TZ",{day:"2-digit",month:"long",year:"numeric"});
+          }
+          '''
+          s2,n=re.subn(pattern,replacement,s,count=1,flags=re.S)
+          if n==0:
+              # Fallback: override the global formatter even if the source
+              # layout differs from the expected function block.
+              inject='''\n<script>\nwindow.formatDisplayDate=function(value){\n  if(!value) return "Tarehe haijawekwa";\n  const raw=String(value).trim();\n  const m=raw.match(/^(\\d{4})-(\\d{2})-(\\d{2})/);\n  if(m) return new Date(Number(m[1]),Number(m[2])-1,Number(m[3])).toLocaleDateString("sw-TZ",{day:"2-digit",month:"long",year:"numeric"});\n  const d=new Date(raw);\n  return Number.isNaN(d.getTime()) ? "Tarehe haijawekwa" : d.toLocaleDateString("sw-TZ",{day:"2-digit",month:"long",year:"numeric"});\n};\n</script>\n'''
               pos=s.lower().rfind('</body>')
-              if pos>=0: s=s[:pos]+inject+s[pos:]
-              else: s+=inject
+              s=s[:pos]+inject+s[pos:] if pos>=0 else s+inject
+          else:
+              s=s2
           p.write_text(s,encoding='utf-8')
+          print('formatter replacements:',n)
           PY
-      - name: Commit changes
+      - name: Commit fixed page
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add announcements.html
-          git diff --cached --quiet || (git commit -m 'Fix announcement date display reliably' && git push)
+          git diff --cached --quiet || (git commit -m 'Fix announcement date rendering' && git push)
