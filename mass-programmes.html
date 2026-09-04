@@ -52,5 +52,6 @@ async function logout(){await db.auth.signOut();location.href='login.html'}
 (async()=>{const {data:{session}}=await db.auth.getSession();if(!session){location.href='login.html';return}newProgramme();await load()})();
 </script>
 
+<script src="./mass-special-events.js?v=20260904"></script>
 </body>
 </html>
