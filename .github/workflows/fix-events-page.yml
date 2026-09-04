@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/fix-events-page.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -19,77 +20,117 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import re
           p = Path('events.html')
           s = p.read_text(encoding='utf-8')
 
-          # Connect the page logo to choir_settings.logo_url while keeping logo.png as fallback.
-          logo_patch = r'''<script>
-          (async function connectChoirLogo(){
-            try{
-              const {data,error}=await db.from('choir_settings').select('logo_url').limit(1).maybeSingle();
-              if(error) throw error;
-              if(data && data.logo_url){
-                document.querySelectorAll('.brand img,.choir-brand-header img').forEach(img=>{
-                  img.src=data.logo_url;
-                  img.onerror=()=>{img.src='logo.png'};
-                });
-              }
-            }catch(e){console.warn('Logo settings:',e)}
-          })();
-          </script>'''
+          # Ensure Programme ya Misa can be selected when editing an existing programme event.
+          option = '<option value="mass_programme">Programme ya Misa</option>'
+          if 'value="mass_programme"' not in s:
+              s = s.replace('<option value="mass">Misa</option>', '<option value="mass">Misa</option>'+option, 1)
 
-          # Reliable edit/delete handlers. They use the existing form and existing Supabase table.
-          edit_patch = r'''<script>
-          window.editEvent = function(id){
-            const e = (events||[]).find(x=>String(x.id)===String(id));
-            if(!e){toast('Tukio halipatikani');return;}
-            $('eventId').value=e.id||'';
-            $('title').value=e.title||'';
-            $('eventType').value=e.event_type||'other';
-            $('eventDate').value=e.event_date||'';
-            $('startTime').value=(e.start_time||'').slice(0,5);
-            $('endTime').value=(e.end_time||'').slice(0,5);
-            $('location').value=e.location||'';
-            $('description').value=e.description||'';
-            $('formTitle').textContent='✏️ Hariri Tukio';
-            $('saveBtn').textContent='💾 Hifadhi Mabadiliko';
-            $('cancelBtn').classList.remove('hidden');
-            document.querySelector('.form-card')?.scrollIntoView({behavior:'smooth',block:'start'});
-          };
+          # Remove the previous repair block, if present, so this repair is deterministic.
+          s = re.sub(r'<script>\s*\(async function connectChoirLogo\(\).*?</script>\s*<script>\s*window\.editEvent\s*=\s*function\(id\).*?</script>', '', s, count=1, flags=re.S)
 
-          window.deleteEvent = async function(id){
-            const e=(events||[]).find(x=>String(x.id)===String(id));
-            if(!e) return;
-            if(!confirm('Una uhakika unataka kufuta tukio hili?')) return;
-            try{
-              const {error}=await db.from('events').delete().eq('id',id);
-              if(error) throw error;
-              events=events.filter(x=>String(x.id)!==String(id));
-              render();
-              toast('Tukio limefutwa');
-            }catch(err){console.error(err);toast('Imeshindikana kufuta tukio');}
-          };
-
-          window.resetForm = function(){
-            $('eventForm').reset();
-            $('eventId').value='';
-            $('formTitle').textContent='➕ Ongeza Tukio';
-            $('saveBtn').textContent='💾 Hifadhi Tukio';
-            $('cancelBtn').classList.add('hidden');
-          };
-          </script>'''
-
-          # Make the existing hidden utility actually work.
           if '.hidden{' not in s:
               s = s.replace('</style>', '.hidden{display:none!important}</style>', 1)
 
-          # Add scripts immediately before body end, without touching the existing one-line application logic.
-          marker='</body>'
-          if marker not in s:
-              raise SystemExit('events.html: </body> marker not found')
-          if 'connectChoirLogo' not in s:
-              s=s.replace(marker, logo_patch+edit_patch+marker, 1)
+          patch = r'''<script>
+          (function(){
+            const LOGO_FALLBACK='https://raw.githubusercontent.com/enyonyiabemba94-eng/KWAYA-MANAGEMENT/main/KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg';
 
+            async function connectChoirLogo(){
+              let src=LOGO_FALLBACK;
+              try{
+                const q=await db.from('choir_settings').select('logo_url').order('updated_at',{ascending:false}).limit(1).maybeSingle();
+                if(q.data?.logo_url) src=q.data.logo_url;
+              }catch(e){console.warn('Logo settings:',e)}
+              document.querySelectorAll('.brand img,.choir-brand-header img').forEach(img=>{
+                img.src=src;
+                img.alt='Logo ya Kwaya ya Kristu Mfalme';
+                img.onerror=()=>{if(img.src!==LOGO_FALLBACK)img.src=LOGO_FALLBACK};
+              });
+            }
+
+            window.editEvent=function(id){
+              const e=(events||[]).find(x=>String(x.id)===String(id));
+              if(!e){toast('Tukio halipatikani');return}
+              $('eventId').value=e.id||'';
+              $('title').value=e.title||'';
+              const type=(e.event_type==='mass_programme'||(e.description||'').includes('"kind":"mass_programme"'))?'mass_programme':(e.event_type||'other');
+              if(![...$('eventType').options].some(o=>o.value===type)){
+                const o=document.createElement('option');o.value=type;o.textContent='Programme ya Misa';$('eventType').appendChild(o);
+              }
+              $('eventType').value=type;
+              $('eventDate').value=e.event_date||'';
+              $('startTime').value=(e.start_time||'').slice(0,5);
+              $('endTime').value=(e.end_time||'').slice(0,5);
+              $('location').value=e.location||'';
+              $('description').value=e.description||'';
+              $('formTitle').textContent='✏️ Hariri Tukio';
+              $('saveBtn').textContent='💾 Hifadhi Mabadiliko';
+              $('cancelBtn').classList.remove('hidden');
+              document.querySelector('.form-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+            };
+
+            window.resetForm=function(){
+              $('eventForm').reset();
+              $('eventId').value='';
+              $('formTitle').textContent='➕ Ongeza Tukio';
+              $('saveBtn').textContent='💾 Hifadhi Tukio';
+              $('cancelBtn').classList.add('hidden');
+            };
+
+            window.deleteEvent=async function(id){
+              const e=(events||[]).find(x=>String(x.id)===String(id));
+              if(!e)return;
+              if(!confirm('Una uhakika unataka kufuta tukio hili?'))return;
+              try{
+                const q=await db.from('events').delete().eq('id',id);
+                if(q.error)throw q.error;
+                events=events.filter(x=>String(x.id)!==String(id));
+                render();
+                toast('Tukio limefutwa');
+              }catch(err){console.error(err);toast('Imeshindikana kufuta tukio');}
+            };
+
+            // Capture-phase handler overrides any older submit handler and supports both INSERT and UPDATE.
+            $('eventForm').addEventListener('submit',async function(ev){
+              ev.preventDefault();
+              ev.stopImmediatePropagation();
+              if(!['admin','super_admin'].includes(role)){toast('Huna ruhusa ya kusimamia ratiba');return}
+              const id=$('eventId').value.trim();
+              const payload={
+                title:$('title').value.trim(),
+                event_type:$('eventType').value||'other',
+                event_date:$('eventDate').value,
+                start_time:$('startTime').value||null,
+                end_time:$('endTime').value||null,
+                location:$('location').value.trim()||null,
+                description:$('description').value||null
+              };
+              if(!payload.title||!payload.event_date){toast('Jaza Jina la Tukio na Tarehe');return}
+              $('saveBtn').disabled=true;
+              try{
+                let q;
+                if(id) q=await db.from('events').update(payload).eq('id',id).select('*').single();
+                else q=await db.from('events').insert(payload).select('*').single();
+                if(q.error)throw q.error;
+                if(id){const i=events.findIndex(x=>String(x.id)===String(id));if(i>=0)events[i]=q.data;else events.push(q.data);toast('Tukio limehaririwa kikamilifu');}
+                else {events.push(q.data);toast('Tukio limehifadhiwa');}
+                render();
+                resetForm();
+              }catch(err){console.error(err);toast('Imeshindikana kuhifadhi: '+(err.message||'kosa'))}
+              finally{$('saveBtn').disabled=false}
+            },true);
+
+            connectChoirLogo();
+          })();
+          </script>'''
+
+          marker='</body>'
+          if marker not in s: raise SystemExit('events.html: </body> marker not found')
+          s=s.replace(marker, patch+marker, 1)
           p.write_text(s,encoding='utf-8')
 
       - name: Commit changes
@@ -100,6 +141,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Fix Ratiba logo and event editing"
+            git commit -m "Fix Ratiba logo and reliable event editing"
             git push
           fi
