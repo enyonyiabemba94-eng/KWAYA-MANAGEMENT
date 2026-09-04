@@ -1,0 +1,44 @@
+name: Apply Special Event Song Sections
+on:
+  push:
+    paths:
+      - _apply-special-events.txt
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch mass programme special events
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('mass-programmes.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<!-- SPECIAL_EVENTS_V2 -->'
+          if marker in s:
+              print('Special event patch already present')
+              raise SystemExit(0)
+          css = r'''\n/* SPECIAL_EVENTS_V2 */\n.special-builder{border:1px solid #ddd6fe;background:#faf7ff;border-radius:10px;padding:10px;margin:8px 0}.special-builder h4{margin:0 0 6px;font-size:12px;color:#5b21b6}.special-part{border:1px solid #ede9fe;background:#fff;border-radius:8px;padding:8px;margin:6px 0}.special-part b{font-size:11px;color:#1A365D}.special-part small{display:block;color:#6b7280;font-size:9px;margin-top:2px}\n'''
+          s = s.replace('</style>', css + '</style>', 1)
+          ui = r'''\n<!-- SPECIAL_EVENTS_V2 -->\n<div id="specialEventBuilder" class="special-builder" style="display:none"></div>\n'''
+          needle = '<div class="actions"><button class="btn primary" onclick="addSection()">＋ Ongeza Sehemu</button>'
+          if needle not in s:
+              raise SystemExit('UI insertion point not found')
+          s = s.replace(needle, ui + needle, 1)
+          js = r'''\n/* SPECIAL_EVENTS_V2 */\nconst SPECIAL_EVENT_PARTS={\n  'Ubatizo':['ISHARA YA MSALABA','MAFUTA YA WAKATEKUMENI','UBATIZO WENYEWE','MAFUTA YA KRISMA','NGUO NYEUPE','MSHUMAA','EFETA (EPHPHATHA)'],\n  'Kipaimara':null,'Roho Mtakatifu':null,'Ndoa':null\n};\nconst SPECIAL_EVENT_KEYS={Ubatizo:'baptism',Kipaimara:'confirmation','Roho Mtakatifu:':'holy_spirit',Ndoa:'marriage'};\nfunction selectedSpecialEventsV2(){return [...document.querySelectorAll('input[type=checkbox]:checked')].map(x=>x.value).filter(x=>SPECIAL_EVENT_KEYS[x]);}\nfunction syncSpecialSectionsV2(){\n  const selected=selectedSpecialEventsV2(),old=(sections||[]).filter(s=>s.__special),normal=(sections||[]).filter(s=>!s.__special),out=[];\n  selected.forEach(ev=>{const key=SPECIAL_EVENT_KEYS[ev];if(ev==='Ubatizo'){SPECIAL_EVENT_PARTS.Ubatizo.forEach(part=>{const prev=old.find(s=>s.specialKey===key+':'+part);out.push({name:'UBATIZO — '+part,songs:prev?.songs||[],__special:true,specialKey:key+':'+part});});}else{const prev=old.find(s=>s.specialKey===key);out.push({name:ev.toUpperCase(),songs:prev?.songs||[],__special:true,specialKey:key});}});\n  sections=[...normal,...out];renderSections();renderSpecialBuilderV2();\n}\nfunction renderSpecialBuilderV2(){const box=$('specialEventBuilder');if(!box)return;const selected=selectedSpecialEventsV2();if(!selected.length){box.style.display='none';box.innerHTML='';return}box.style.display='block';let h='<h4>🎵 NYIMBO ZA SHEREHE MAALUM</h4><div class="hint">Kila kipengele kinaweza kuwa na nyimbo bila kikomo. Chagua wimbo kutoka Maktaba ya Nyimbo na Key itaonekana.</div>';selected.forEach(ev=>{if(ev==='Ubatizo')h+='<div class="special-part"><b>💧 UBATIZO</b><small>Ishara ya Msalaba ndiyo mwanzo wa ibada ya Ubatizo.</small></div>';else h+=`<div class="special-part"><b>${ev==='Ndoa'?'💍':ev==='Kipaimara'?'✝️':'🕊️'} ${esc(ev.toUpperCase())}</b><small>Sehemu hii ina nyimbo tu, bila vipengele vya ndani.</small></div>`});box.innerHTML=h}\nfunction saveProgrammeV2(){const name=$('name').value.trim();if(!name)return toast('Weka jina la Dominika / Sherehe.',true);if(!$('date').value)return toast('Weka tarehe.',true);const clean=sections.map(s=>({name:s.name,specialKey:s.specialKey||null,songs:s.songs.filter(v=>v.id||v.title).map(v=>({id:v.id||'',title:v.title||'',key:normKey(v.key),manual:v.manual===true||v.id==='__manual__'}))})).filter(s=>s.songs.length||s.specialKey);const meta={kind:'mass_programme',type:$('type').value,season:$('season').value,name,year:$('year').value,conductors,specials:[...document.querySelectorAll('input[type=checkbox]:checked')].map(x=>x.value),sections:clean,notes:$('notes').value.trim()};const obj={title:name,description:JSON.stringify(meta),event_date:$('date').value,location:$('location').value.trim()||null,event_type:'other',updated_at:new Date().toISOString()};const r=selectedId?db.from('events').update(obj).eq('id',selectedId).select().single():db.from('events').insert(obj).select().single();return r.then(async r=>{if(r.error)return toast(r.error.message,true);selectedId=r.data.id;toast('Programme imehifadhiwa.');await load();chooseV2(selectedId)})}\nfunction chooseV2(id){const x=programmes.find(p=>String(p.id)===String(id));if(!x)return;selectedId=x.id;const m=x.meta||{};$('formTitle').textContent='✏️ Hariri Programme';$('type').value=m.type||'Misa ya Dominika';$('season').value=m.season||'Kipindi cha Kawaida';$('name').value=m.name||x.title;$('date').value=x.event_date||'';$('year').value=m.year||'—';$('location').value=x.location||'';$('notes').value=m.notes||'';conductors=(m.conductors||[]).slice();renderConductors();const checks=m.specials||[];document.querySelectorAll('input[type=checkbox]').forEach(x=>x.checked=checks.includes(x.value));sections=Array.isArray(m.sections)?m.sections.map(s=>({name:s.name,specialKey:s.specialKey||null,__special:!!s.specialKey,songs:(s.songs||[]).map(v=>({...blank(),...v,id:v.id||v.songId||'',title:v.title||v.name||'',key:normKey(v.key||v.key_signature)}))})).filter(s=>s.songs.length||s.specialKey):legacyToSections(m);if(!sections.length)defaultSections();renderSections();renderSpecialBuilderV2();$('preview').style.display='none';renderSaved()}\nfunction showPreviewV2(){const selected=selectedSpecialEventsV2(),normal=sections.filter(s=>!s.__special),special=sections.filter(s=>s.__special),hasSpecial=selected.length>0;let html=`<div class="fit-page"><div class="printhead"><img class="printlogo" src="${LOGO}"><div><div class="printtitle">KWAYA YA KRISTU MFALME</div><div class="printsub">MPANGO WA MISA / SHEREHE</div></div><img class="printlogo" src="${LOGO}"></div><div style="text-align:center;font-weight:900;font-size:22pt;margin:3px 0;text-transform:uppercase">${esc($('name').value||'Misa / Sherehe')}</div><div class="info"><div><b>Kipindi:</b> ${esc($('season').value)}</div><div><b>Mwaka:</b> ${esc($('year').value)}</div><div><b>Tarehe:</b> ${esc($('date').value||'—')}</div><div><b>Mahali:</b> ${esc($('location').value||'—')}</div></div><div class="conductor-print"><b>WAONGOZA NYIMBO:</b> ${(()=>{const a=[...conductors].filter(Boolean),v=($('conductor').value||'').trim();if(v&&!a.includes(v))a.push(v);return a.length?a.map(esc).join(' • '):'—'})()}</div><div class="sections-fixed ${hasSpecial?'':'single-column'}"><div class="col-left">${normal.map(printSection).join('')}</div><div class="col-right">${hasSpecial?special.map(printSection).join(''):''}</div></div>`;if($('notes').value.trim())html+=`<div class="print-note"><b>Maelezo:</b> ${esc($('notes').value)}</div>`;html+='</div>';$('preview').innerHTML=html;$('preview').style.display='block';fitOnePage()}\nconst originalNewProgrammeV2=window.newProgramme;window.newProgramme=function(){originalNewProgrammeV2();renderSpecialBuilderV2()};window.saveProgramme=saveProgrammeV2;window.choose=chooseV2;window.showPreview=showPreviewV2;window.printProgramme=function(){showPreviewV2();setTimeout(()=>{fitOnePage();window.print()},180)};document.querySelectorAll('input[type=checkbox]').forEach(x=>{if(SPECIAL_EVENT_KEYS[x.value])x.addEventListener('change',syncSpecialSectionsV2)});renderSpecialBuilderV2();\n'''
+          # Correct the key typo before writing.
+          js = js.replace("'Roho Mtakatifu:'", "'Roho Mtakatifu'")
+          s = s.replace('</script>\n\n</body>', js + '\n</script>\n\n</body>', 1)
+          p.write_text(s, encoding='utf-8')
+          print('Patched mass-programmes.html')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add mass-programmes.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Add special event song sections to mass programme'
+          git push
