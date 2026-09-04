@@ -1,4 +1,4 @@
-name: Update receipt print layout
+name: Fix receipt-only thermal print
 
 on:
   push:
@@ -15,40 +15,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Make receipt thermal-only
+      - name: Fix receipt layout
         shell: python
         run: |
           from pathlib import Path
-          import re
           p = Path('contributions.html')
           s = p.read_text(encoding='utf-8')
 
-          # Compact 80mm thermal receipt (automatic height).
-          s = re.sub(
-              r'\.receipt\{display:none;.*?\.receipt-member-name\{font-size:8\.5px;font-weight:700\}',
-              '.receipt{display:none;width:80mm;max-width:80mm;box-sizing:border-box;margin:8px auto;padding:5px;border:1px solid #ddd;background:#fff;font-family:Arial,sans-serif;font-size:8.5px}.receipt-head{display:grid;grid-template-columns:27px 1fr 27px;align-items:center;gap:3px;text-align:center}.receipt-logo{width:25px;height:25px;object-fit:contain;display:block;margin:auto}.receipt-title h2{font-size:9.5px;line-height:1.05;margin:0}.receipt-title div{font-size:7.5px;margin-top:1px}.receipt-title h3{font-size:8.5px;margin:2px 0 0}.receipt .center{text-align:center}.receipt .line{border-top:1px dashed #777;margin:4px 0}.receipt table{width:100%;font-size:8px}.receipt td{padding:2px 0;border:0;vertical-align:top;white-space:normal}.receipt td:first-child{width:38%}.receipt .total{font-size:11px;font-weight:700}.receipt .thanks{margin-top:4px;font-size:7.5px}.receipt-member{display:flex;align-items:center;gap:5px;margin:4px 0}.receipt-member-photo{width:27px;height:31px;object-fit:cover;border:1px solid #aaa;border-radius:3px;background:#f2f2f2;display:none}.receipt-member-photo.show{display:block}.receipt-member .label{font-size:6.5px;color:#666;font-weight:700}.receipt-member-name{font-size:8.5px;font-weight:700}',
-              s,
-              flags=re.S
-          )
+          old_print = '@media print{ @page{size:86mm 54mm;margin:0}.side,.top,.hero,.grid>section:first-child,.toolbar,.stats,[data-admin-only],.no-print{display:none!important}.main{margin:0}.content{padding:0}.card{border:0}.receipt{display:block!important;width:86mm;max-width:86mm;min-height:54mm;margin:0;padding:5px;border:0;box-shadow:none}}'
+          new_print = '@media print{@page{size:80mm auto;margin:0}html,body{width:80mm!important;min-width:80mm!important;margin:0!important;padding:0!important;background:#fff!important}body *{visibility:hidden!important}#receipt,#receipt *{visibility:visible!important}#receipt{display:block!important;position:absolute!important;left:0!important;top:0!important;width:80mm!important;max-width:80mm!important;height:auto!important;min-height:0!important;margin:0!important;padding:5px!important;border:0!important;box-shadow:none!important;background:#fff!important;box-sizing:border-box!important}#receipt .no-print{display:none!important}}'
+          if old_print in s:
+              s = s.replace(old_print, new_print)
 
-          # Replace the complete print block so ONLY #receipt is visible.
-          print_css = '''@media print{
-            @page{size:80mm auto;margin:0}
-            html,body{width:80mm!important;min-width:80mm!important;margin:0!important;padding:0!important;background:#fff!important;overflow:hidden!important}
-            body *{visibility:hidden!important}
-            #receipt,#receipt *{visibility:visible!important}
-            #receipt{display:block!important;position:fixed!important;left:0!important;top:0!important;width:80mm!important;max-width:80mm!important;height:auto!important;min-height:0!important;margin:0!important;padding:5px!important;border:0!important;box-shadow:none!important;background:#fff!important;overflow:visible!important;box-sizing:border-box!important}
-            #receipt .no-print{display:none!important}
-          }'''
-          s = re.sub(r'@media print\{.*?\}', print_css, s, count=1, flags=re.S)
+          old_size = '.receipt{display:none;width:86mm;max-width:86mm;min-height:54mm;box-sizing:border-box;margin:8px auto;padding:5px;border:1px solid #ddd;background:#fff;font-family:Arial,sans-serif;font-size:8.5px}'
+          new_size = '.receipt{display:none;width:80mm;max-width:80mm;box-sizing:border-box;margin:8px auto;padding:5px;border:1px solid #ddd;background:#fff;font-family:Arial,sans-serif;font-size:8.5px}'
+          if old_size in s:
+              s = s.replace(old_size, new_size)
 
-          # Ensure receipt member photo support exists.
-          if 'function setReceiptPhoto' not in s:
-              s=s.replace("const memberName=m=>[m?.first_name,m?.middle_name,m?.last_name].filter(Boolean).join(' ');function receiptNo", "const memberName=m=>[m?.first_name,m?.middle_name,m?.last_name].filter(Boolean).join(' ');function memberPhoto(m){return m?.photo_url||''}function setReceiptPhoto(m){const el=$('rPhoto');const url=memberPhoto(m);if(url){el.src=url;el.classList.add('show');el.onerror=()=>{el.classList.remove('show');el.removeAttribute('src')}}else{el.classList.remove('show');el.removeAttribute('src')}}function receiptNo")
-          s=s.replace("function showReceipt(p){$('rNo').textContent=p.receipt_number||receiptNo(p.id);$('rMember').textContent=memberName(p.members);", "function showReceipt(p){$('rNo').textContent=p.receipt_number||receiptNo(p.id);$('rMember').textContent=memberName(p.members);setReceiptPhoto(p.members);")
-          s=s.replace("db.from('members').select('id,first_name,middle_name,last_name,status')", "db.from('members').select('id,first_name,middle_name,last_name,status,photo_url')")
-          s=s.replace("members(first_name,middle_name,last_name)", "members(first_name,middle_name,last_name,photo_url)")
-          p.write_text(s,encoding='utf-8')
+          s = s.replace('setReceiptPhoto(p.members);setReceiptPhoto(p.members);', 'setReceiptPhoto(p.members);')
+          p.write_text(s, encoding='utf-8')
 
       - name: Commit changes
         run: |
@@ -58,6 +43,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Use receipt-only 80mm thermal print"
+            git commit -m "Fix receipt-only 80mm print"
             git push
           fi
