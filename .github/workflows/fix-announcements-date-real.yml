@@ -1,14 +1,11 @@
 name: Fix announcement date real
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/fix-announcements-date-real.yml'
+permissions:
+  contents: write
 jobs:
   fix:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Replace broken date formatter
@@ -20,29 +17,18 @@ jobs:
           p=Path('announcements.html')
           s=p.read_text(encoding='utf-8')
           new = r'''function formatDisplayDate(value){
-    if(!value) return "Tarehe haijawekwa";
-    const raw = String(value).trim();
-    let y, m, d;
-    let match = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if(match){
-        y = Number(match[1]);
-        m = Number(match[2]);
-        d = Number(match[3]);
-    } else {
-        const dt = new Date(raw);
-        if(Number.isNaN(dt.getTime())) return "Tarehe haijulikani";
-        y = dt.getFullYear();
-        m = dt.getMonth()+1;
-        d = dt.getDate();
-    }
-    return String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+String(y);
-}'''
+              if(!value) return "Tarehe haijawekwa";
+              const raw=String(value).trim();
+              let y,m,d;
+              const match=raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+              if(match){y=Number(match[1]);m=Number(match[2]);d=Number(match[3]);}
+              else{const dt=new Date(raw);if(Number.isNaN(dt.getTime())) return "Tarehe haijulikani";y=dt.getFullYear();m=dt.getMonth()+1;d=dt.getDate();}
+              return String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+'/'+String(y);
+          }'''
           pattern=r'function formatDisplayDate\(value\)\{.*?\n\}'
           s2,n=re.subn(pattern,new,s,count=1,flags=re.S)
-          if n==0:
-              raise SystemExit('formatDisplayDate function not found')
+          if n==0: raise SystemExit('formatDisplayDate function not found')
           p.write_text(s2,encoding='utf-8')
-          print('Replaced:',n)
           PY
       - name: Commit
         run: |
