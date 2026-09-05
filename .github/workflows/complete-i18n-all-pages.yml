@@ -1,55 +1,82 @@
 name: Complete Choir Multilingual UI
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
 permissions:
   contents: write
+
+# Prevent multiple i18n runs from editing/pushing main at the same time.
+concurrency:
+  group: choir-i18n-main
+  cancel-in-progress: false
+
 jobs:
   i18n:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout latest main
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Sync with latest main
         run: |
           git fetch origin main
+          git checkout main
           git reset --hard origin/main
+
       - name: Translate remaining static UI
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import json
-          M={
-          'Dashboard':('Dashboard','Tableau de bord','Dashboard'),'Waimbaji':('Waimbaji','Choristes','Singers'),'Mahudhurio':('Mahudhurio','Présences','Attendance'),'Nyimbo':('Nyimbo','Chants','Songs'),'Vitabu vya Nyimbo':('Vitabu vya Nyimbo','Livres de chants','Songbooks'),'Sakramenti':('Sakramenti','Sacrements','Sacraments'),'Mpango wa Misa':('Mpango wa Misa','Programme de messe','Mass Programme'),'Michango':('Michango','Contributions','Contributions'),'Sare':('Sare','Uniformes','Uniforms'),'Ripoti':('Ripoti','Rapports','Reports'),'Ratiba':('Ratiba','Calendrier','Schedule'),'Matukio':('Matukio','Événements','Events'),'Taarifa':('Taarifa','Annonces','Notices'),'Matangazo':('Matangazo','Annonces','Announcements'),'Nyaraka':('Nyaraka','Documents','Documents'),'Chat':('Chat','Chat','Chat'),'Mipangilio':('Mipangilio','Paramètres','Settings'),'Usalama':('Usalama','Sécurité','Security'),'Toka':('Toka','Déconnexion','Log out'),'Hifadhi':('Hifadhi','Enregistrer','Save'),'Ghairi':('Ghairi','Annuler','Cancel'),'Ongeza':('Ongeza','Ajouter','Add'),'Hariri':('Hariri','Modifier','Edit'),'Futa':('Futa','Supprimer','Delete'),'Tafuta':('Tafuta','Rechercher','Search'),'Refresh':('Refresh','Actualiser','Refresh'),'Inapakia...':('Inapakia...','Chargement...','Loading...'),'Hakuna taarifa.':('Hakuna taarifa.','Aucune information.','No information.'),'Jina':('Jina','Nom','Name'),'Tarehe':('Tarehe','Date','Date'),'Muda':('Muda','Heure','Time'),'Mahali':('Mahali','Lieu','Location'),'Maelezo':('Maelezo','Description','Description'),'Hali':('Hali','Statut','Status'),'Vitendo':('Vitendo','Actions','Actions'),'Jumla':('Jumla','Total','Total'),'Kiasi':('Kiasi','Montant','Amount'),'Mwezi':('Mwezi','Mois','Month'),'Mwaka':('Mwaka','Année','Year'),'Chagua':('Chagua','Choisir','Select'),'Chagua mwezi':('Chagua mwezi','Choisir le mois','Select month'),'Chagua mwaka':('Chagua mwaka','Choisir l’année','Select year'),'Ripoti ya Mahudhurio':('Ripoti ya Mahudhurio','Rapport des présences','Attendance Report'),'Ripoti ya Waimbaji':('Ripoti ya Waimbaji','Rapport des choristes','Singers Report'),'Pakua PDF':('Pakua PDF','Télécharger le PDF','Download PDF'),'Chapisha':('Chapisha','Imprimer','Print'),'Ongeza Mchango':('Ongeza Mchango','Ajouter une contribution','Add Contribution'),'Michango ya Mwezi':('Michango ya Mwezi','Contributions mensuelles','Monthly Contributions'),'Michango Mbalimbali':('Michango Mbalimbali','Contributions diverses','Miscellaneous Contributions'),'Ongeza Sare':('Ongeza Sare','Ajouter un uniforme','Add Uniform'),'Ratiba ya Kwaya':('Ratiba ya Kwaya','Calendrier de la chorale','Choir Schedule'),'Ongeza Tukio':('Ongeza Tukio','Ajouter un événement','Add Event'),'Matukio ya Kwaya':('Matukio ya Kwaya','Événements de la chorale','Choir Events'),'Ongeza Tangazo':('Ongeza Tangazo','Ajouter une annonce','Add Announcement'),'Matangazo ya Kwaya':('Matangazo ya Kwaya','Annonces de la chorale','Choir Announcements'),'Nyaraka za Kwaya':('Nyaraka za Kwaya','Documents de la chorale','Choir Documents'),'Ongeza Hati':('Ongeza Hati','Ajouter un document','Add Document'),'Tuma':('Tuma','Envoyer','Send'),'Andika ujumbe...':('Andika ujumbe...','Écrivez un message...','Type a message...'),'Ingia':('Ingia','Se connecter','Log in'),'Toka kwenye akaunti':('Toka kwenye akaunti','Se déconnecter','Log out'),'Barua pepe':('Barua pepe','Adresse e-mail','Email'),'Nenosiri':('Nenosiri','Mot de passe','Password'),'Kumbuka mimi':('Kumbuka mimi','Se souvenir de moi','Remember me'),'Umesahau nenosiri?':('Umesahau nenosiri ?','Mot de passe oublié ?','Forgot password?'),'Mipangilio ya Mfumo':('Mipangilio ya Mfumo','Paramètres du système','System Settings'),'Lugha':('Lugha','Langue','Language'),'Kiswahili':('Kiswahili','Swahili','Swahili'),'Français':('Français','Français','French'),'English':('English','Anglais','English'),'Badilisha lugha':('Badilisha lugha','Changer de langue','Change language'),'Sakramenti za Mwimbaji':('Sakramenti za Mwimbaji','Sacrements du choriste','Singer Sacraments'),'Taarifa Binafsi':('Taarifa Binafsi','Informations personnelles','Personal Information'),'Mawasiliano':('Mawasiliano','Coordonnées','Contact Information'),'Profile ya Mwimbaji':('Profile ya Mwimbaji','Profil du choriste','Singer Profile')}
-          targets=['mass-programme.html','mass-program.html','mpango-wa-misa.html','contributions.html','michango.html','uniforms.html','sare.html','reports.html','ripoti.html','events.html','ratiba.html','announcements.html','matangazo.html','documents.html','nyaraka.html','chat.html','login.html','settings.html','security.html','dashboard.html','index.html','member-profile.html']
-          targets += [p.name for p in Path('.').glob('*.html')]
-          targets=sorted(set(targets))
-          data={k:{'sw':v[0],'fr':v[1],'en':v[2]} for k,v in M.items()}
-          dj=json.dumps(data,ensure_ascii=False)
-          for fn in targets:
-            p=Path(fn)
-            if not p.exists(): continue
-            s=p.read_text(encoding='utf-8')
-            marker='<!-- COMPLETE_I18N_STATIC_UI_V1 -->'
-            if marker in s or '</body>' not in s.lower(): continue
-            js=f'''<script>(function(){{const D={dj};function run(){{const l=window.choirI18n&&typeof window.choirI18n.lang==='function'?window.choirI18n.lang():(localStorage.getItem('choirLang')||'sw'),d=D[l]||D.sw;document.querySelectorAll('[data-i18n]').forEach(e=>{{const k=e.getAttribute('data-i18n');if(d[k])e.textContent=d[k]}});document.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(e=>{{const k=e.getAttribute('placeholder');if(d[k])e.placeholder=d[k]}});document.querySelectorAll('body *').forEach(e=>{{if(e.children.length)return;const k=(e.textContent||'').trim();if(d[k])e.textContent=d[k]}})}}function start(){{run();new MutationObserver(run).observe(document.body,{{childList:true,subtree:true,characterData:true}});window.addEventListener('languageChanged',run)}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()}})();</script>'''
-            s=s.replace('</body>',marker+js+'</body>')
-            p.write_text(s,encoding='utf-8'); print('patched',fn)
+          import re
+
+          files = [p for p in Path('.').glob('*.html') if p.is_file()]
+          marker = '<!-- COMPLETE_I18N_STATIC_UI_V1 -->'
+          patch = r'''<!-- COMPLETE_I18N_STATIC_UI_V1 --><script>(function(){const D={sw:{"Dashboard":"Dashboard","Waimbaji":"Waimbaji","Mahudhurio":"Mahudhurio","Nyimbo":"Nyimbo","Vitabu vya Nyimbo":"Vitabu vya Nyimbo","Sakramenti":"Sakramenti","Mpango wa Misa":"Mpango wa Misa","Michango":"Michango","Sare":"Sare","Ripoti":"Ripoti","Ratiba":"Ratiba","Matukio":"Matukio","Taarifa":"Taarifa","Matangazo":"Matangazo","Nyaraka":"Nyaraka","Chat":"Chat","Mipangilio":"Mipangilio","Usalama":"Usalama","Toka":"Toka","Hifadhi":"Hifadhi","Ghairi":"Ghairi","Ongeza":"Ongeza","Hariri":"Hariri","Futa":"Futa","Tafuta":"Tafuta","Refresh":"Refresh","Inapakia...":"Inapakia...","Hakuna taarifa.":"Hakuna taarifa.","Jina":"Jina","Tarehe":"Tarehe","Muda":"Muda","Mahali":"Mahali","Maelezo":"Maelezo","Hali":"Hali","Vitendo":"Vitendo","Jumla":"Jumla","Kiasi":"Kiasi","Mwezi":"Mwezi","Mwaka":"Mwaka","Chagua":"Chagua","Chagua mwezi":"Chagua mwezi","Chagua mwaka":"Chagua mwaka","Pakua PDF":"Pakua PDF","Chapisha":"Chapisha","Tuma":"Tuma","Andika ujumbe...":"Andika ujumbe...","Ingia":"Ingia","Toka kwenye akaunti":"Toka kwenye akaunti","Barua pepe":"Barua pepe","Nenosiri":"Nenosiri","Kumbuka mimi":"Kumbuka mimi","Umesahau nenosiri?":"Umesahau nenosiri?","Lugha":"Lugha","Kiswahili":"Kiswahili","Français":"Français","English":"English","Badilisha lugha":"Badilisha lugha","Sakramenti za Mwimbaji":"Sakramenti za Mwimbaji","Taarifa Binafsi":"Taarifa Binafsi","Mawasiliano":"Mawasiliano","Profile ya Mwimbaji":"Profile ya Mwimbaji"},fr:{"Dashboard":"Tableau de bord","Waimbaji":"Choristes","Mahudhurio":"Présences","Nyimbo":"Chants","Vitabu vya Nyimbo":"Livres de chants","Sakramenti":"Sacrements","Mpango wa Misa":"Programme de messe","Michango":"Contributions","Sare":"Uniformes","Ripoti":"Rapports","Ratiba":"Planning","Matukio":"Événements","Taarifa":"Informations","Matangazo":"Annonces","Nyaraka":"Documents","Chat":"Discussion","Mipangilio":"Paramètres","Usalama":"Sécurité","Toka":"Déconnexion","Hifadhi":"Enregistrer","Ghairi":"Annuler","Ongeza":"Ajouter","Hariri":"Modifier","Futa":"Supprimer","Tafuta":"Rechercher","Refresh":"Actualiser","Inapakia...":"Chargement...","Hakuna taarifa.":"Aucune information.","Jina":"Nom","Tarehe":"Date","Muda":"Heure","Mahali":"Lieu","Maelezo":"Description","Hali":"Statut","Vitendo":"Actions","Jumla":"Total","Kiasi":"Montant","Mwezi":"Mois","Mwaka":"Année","Chagua":"Choisir","Chagua mwezi":"Choisir le mois","Chagua mwaka":"Choisir l'année","Pakua PDF":"Télécharger PDF","Chapisha":"Imprimer","Tuma":"Envoyer","Andika ujumbe...":"Écrire un message...","Ingia":"Se connecter","Toka kwenye akaunti":"Se déconnecter","Barua pepe":"E-mail","Nenosiri":"Mot de passe","Kumbuka mimi":"Se souvenir de moi","Umesahau nenosiri?":"Mot de passe oublié ?","Lugha":"Langue","Kiswahili":"Kiswahili","Français":"Français","English":"Anglais","Badilisha lugha":"Changer de langue","Sakramenti za Mwimbaji":"Sacrements du choriste","Taarifa Binafsi":"Informations personnelles","Mawasiliano":"Contact","Profile ya Mwimbaji":"Profil du choriste"},en:{"Dashboard":"Dashboard","Waimbaji":"Singers","Mahudhurio":"Attendance","Nyimbo":"Songs","Vitabu vya Nyimbo":"Songbooks","Sakramenti":"Sacraments","Mpango wa Misa":"Mass Programme","Michango":"Contributions","Sare":"Uniforms","Ripoti":"Reports","Ratiba":"Schedule","Matukio":"Events","Taarifa":"Information","Matangazo":"Announcements","Nyaraka":"Documents","Chat":"Chat","Mipangilio":"Settings","Usalama":"Security","Toka":"Log out","Hifadhi":"Save","Ghairi":"Cancel","Ongeza":"Add","Hariri":"Edit","Futa":"Delete","Tafuta":"Search","Refresh":"Refresh","Inapakia...":"Loading...","Hakuna taarifa.":"No information.","Jina":"Name","Tarehe":"Date","Muda":"Time","Mahali":"Location","Maelezo":"Description","Hali":"Status","Vitendo":"Actions","Jumla":"Total","Kiasi":"Amount","Mwezi":"Month","Mwaka":"Year","Chagua":"Choose","Chagua mwezi":"Choose month","Chagua mwaka":"Choose year","Pakua PDF":"Download PDF","Chapisha":"Print","Tuma":"Send","Andika ujumbe...":"Write a message...","Ingia":"Log in","Toka kwenye akaunti":"Log out","Barua pepe":"Email","Nenosiri":"Password","Kumbuka mimi":"Remember me","Umesahau nenosiri?":"Forgot password?","Lugha":"Language","Kiswahili":"Swahili","Français":"French","English":"English","Badilisha lugha":"Change language","Sakramenti za Mwimbaji":"Singer's Sacraments","Taarifa Binafsi":"Personal Information","Mawasiliano":"Contact","Profile ya Mwimbaji":"Singer Profile"}};function run(){const l=window.choirI18n&&typeof window.choirI18n.lang==='function'?window.choirI18n.lang():(localStorage.getItem('choirLang')||'sw'),d=D[l]||D.sw;document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(d[k])e.textContent=d[k]});document.querySelectorAll('input[placeholder]').forEach(e=>{const k=e.getAttribute('placeholder');if(d[k])e.setAttribute('placeholder',d[k])});document.querySelectorAll('option').forEach(e=>{const k=e.textContent.trim();if(d[k])e.textContent=d[k]});document.querySelectorAll('body *').forEach(e=>{if(e.children.length)return;const k=(e.textContent||'').trim();if(d[k])e.textContent=d[k]})}function start(){run();new MutationObserver(run).observe(document.body,{childList:true,subtree:true,characterData:true});window.addEventListener('languageChanged',run)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()})();</script>'''
+          changed=0
+          for p in files:
+              s=p.read_text(encoding='utf-8', errors='ignore')
+              if marker in s or '</body>' not in s.lower():
+                  continue
+              s=re.sub(r'</body>', patch+'</body>', s, count=1, flags=re.I)
+              p.write_text(s, encoding='utf-8')
+              changed+=1
+          print(f'Patched {changed} HTML files')
           PY
-      - name: Commit and push with retry
+
+      - name: Commit and push safely
+        shell: bash
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add '*.html'
-          if git diff --cached --quiet; then echo "No changes needed"; exit 0; fi
+          git add -- '*.html'
+          if git diff --cached --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
           git commit -m "fix: complete multilingual UI across choir pages"
-          for i in 1 2 3 4 5; do
+
+          # Another workflow may have pushed while this job was running.
+          # Rebase onto the newest main and retry the push several times.
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt"
             git fetch origin main
-            git rebase origin/main || { git rebase --abort; git reset --hard origin/main; git add '*.html'; git commit -m "fix: complete multilingual UI across choir pages" || true; }
-            if git push origin HEAD:main; then echo "Push succeeded on attempt $i"; exit 0; fi
+            git rebase origin/main || {
+              echo "Rebase conflict detected; aborting safely."
+              git rebase --abort || true
+              exit 1
+            }
+            if git push origin HEAD:main; then
+              echo "Push succeeded."
+              exit 0
+            fi
             sleep 3
           done
-          echo "Push failed after 5 attempts"
+
+          echo "Push failed after 5 attempts."
           exit 1
