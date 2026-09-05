@@ -28,9 +28,12 @@
   db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'&&!location.pathname.endsWith('/login.html'))location.replace('login.html')});
   check().then((role)=>{
     // Dashboard data must load only after the authenticated session/role is ready.
-    // This prevents the profiles query from running as an anonymous user during startup.
-    if(role && location.pathname.endsWith('/dashboard.html') && typeof window.load==='function'){
-      window.load().catch(e=>{console.error('Dashboard load after auth:',e);const s=document.getElementById('linkStatus');if(s)s.textContent='Hitilafu: '+e.message});
+    // The first page script may start before Auth finishes restoring the session,
+    // so run the dashboard loader again after Auth is ready.
+    if(role && location.pathname.endsWith('/dashboard.html')){
+      const runDashboard=()=>{if(typeof window.load==='function')window.load().catch(e=>{console.error('Dashboard load after auth:',e);const s=document.getElementById('linkStatus');if(s)s.textContent='Hitilafu: '+e.message})};
+      if(typeof window.load==='function')runDashboard();
+      else document.addEventListener('DOMContentLoaded',runDashboard,{once:true});
     }
     if(location.pathname.endsWith('/member-profile.html')){
       const s=document.createElement('script');s.src='./profile-loader.js?v=3';document.head.appendChild(s);
