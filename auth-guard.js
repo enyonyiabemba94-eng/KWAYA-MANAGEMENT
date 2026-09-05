@@ -26,7 +26,12 @@
   }
   window.KWAYA_AUTH={db,getRole,isAdmin:async()=>['admin','super_admin'].includes(await getRole()),isSuperAdmin:async()=>await getRole()==='super_admin',isMember:async()=>await getRole()==='member',check};
   db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'&&!location.pathname.endsWith('/login.html'))location.replace('login.html')});
-  check().then(()=>{
+  check().then((role)=>{
+    // Dashboard data must load only after the authenticated session/role is ready.
+    // This prevents the profiles query from running as an anonymous user during startup.
+    if(role && location.pathname.endsWith('/dashboard.html') && typeof window.load==='function'){
+      window.load().catch(e=>{console.error('Dashboard load after auth:',e);const s=document.getElementById('linkStatus');if(s)s.textContent='Hitilafu: '+e.message});
+    }
     if(location.pathname.endsWith('/member-profile.html')){
       const s=document.createElement('script');s.src='./profile-loader.js?v=3';document.head.appendChild(s);
     }
