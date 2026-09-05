@@ -8,46 +8,173 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: choir-i18n-main
+  cancel-in-progress: false
+
 jobs:
   fix-pages:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync latest main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
       - name: Patch multilingual UI pages
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import json
+
           pages = {
             'members.html': {
-              'title': 'Waimbaji', 'marker': 'MEMBERS_I18N_RUNTIME_PATCH_V2',
-              'items': {'Waimbaji':'Waimbaji|Choristes|Singers','Orodha ya Waimbaji':'Orodha ya Waimbaji|Liste des choristes|Singers List','Ongeza Mwimbaji':'Ongeza Mwimbaji|Ajouter un choriste|Add Singer','Toka':'Toka|Déconnexion|Log out','Hifadhi':'Hifadhi|Enregistrer|Save','Ghairi':'Ghairi|Annuler|Cancel','Inapakia...':'Inapakia...|Chargement...|Loading...'}},
+              'marker': 'MEMBERS_I18N_RUNTIME_PATCH_V2',
+              'items': {
+                'Waimbaji':'Waimbaji|Choristes|Singers',
+                'Orodha ya Waimbaji':'Orodha ya Waimbaji|Liste des choristes|Singers List',
+                'Ongeza Mwimbaji':'Ongeza Mwimbaji|Ajouter un choriste|Add Singer',
+                'Toka':'Toka|Déconnexion|Log out',
+                'Hifadhi':'Hifadhi|Enregistrer|Save',
+                'Ghairi':'Ghairi|Annuler|Cancel',
+                'Inapakia...':'Inapakia...|Chargement...|Loading...'
+              }
+            },
             'attendance.html': {
-              'title': 'Kitabu cha Mahudhurio', 'marker': 'ATTENDANCE_I18N_RUNTIME_PATCH_V1',
-              'items': {'Kitabu cha Mahudhurio':'Kitabu cha Mahudhurio|Registre des présences|Attendance Register','MWEZI':'MWEZI|MOIS|MONTH','Andaa Kitabu':'Andaa Kitabu|Préparer le registre|Prepare Register','Hifadhi Mahudhurio':'Hifadhi Mahudhurio|Enregistrer les présences|Save Attendance','Weka Wote ✓':'Weka Wote ✓|Marquer tous ✓|Mark All ✓','Refresh':'Refresh|Actualiser|Refresh','🚨 Siku ya Ziada':'🚨 Siku ya Ziada|🚨 Jour supplémentaire|🚨 Extra Day','📥 Pakua Kitabu (PDF)':'📥 Pakua Kitabu (PDF)|📥 Télécharger le registre (PDF)|📥 Download Register (PDF)','KITABU CHA MAHUDHURIO':'KITABU CHA MAHUDHURIO|REGISTRE DES PRÉSENCES|ATTENDANCE REGISTER','CHAGUA MWEZI':'CHAGUA MWEZI|CHOISIR LE MOIS|SELECT MONTH','Inapakia...':'Inapakia...|Chargement...|Loading...','Ghairi':'Ghairi|Annuler|Cancel','Hifadhi':'Hifadhi|Enregistrer|Save','Toka':'Toka|Déconnexion|Log out','Waimbaji':'Waimbaji|Choristes|Singers','Mahudhurio':'Mahudhurio|Présences|Attendance','Siku ya Ziada':'Siku ya Ziada|Jour supplémentaire|Extra Day','Present':'Present|Présent|Present','Absent':'Absent|Absent|Absent','Sick':'Sick|Malade|Sick','Excused':'Excused|Excusé|Excused'}},
+              'marker': 'ATTENDANCE_I18N_RUNTIME_PATCH_V1',
+              'items': {
+                'Kitabu cha Mahudhurio':'Kitabu cha Mahudhurio|Registre des présences|Attendance Register',
+                'MWEZI':'MWEZI|MOIS|MONTH',
+                'Andaa Kitabu':'Andaa Kitabu|Préparer le registre|Prepare Register',
+                'Hifadhi Mahudhurio':'Hifadhi Mahudhurio|Enregistrer les présences|Save Attendance',
+                'Weka Wote ✓':'Weka Wote ✓|Marquer tous ✓|Mark All ✓',
+                'Refresh':'Refresh|Actualiser|Refresh',
+                '🚨 Siku ya Ziada':'🚨 Siku ya Ziada|🚨 Jour supplémentaire|🚨 Extra Day',
+                '📥 Pakua Kitabu (PDF)':'📥 Pakua Kitabu (PDF)|📥 Télécharger le registre (PDF)|📥 Download Register (PDF)',
+                'KITABU CHA MAHUDHURIO':'KITABU CHA MAHUDHURIO|REGISTRE DES PRÉSENCES|ATTENDANCE REGISTER',
+                'CHAGUA MWEZI':'CHAGUA MWEZI|CHOISIR LE MOIS|SELECT MONTH',
+                'Inapakia...':'Inapakia...|Chargement...|Loading...',
+                'Ghairi':'Ghairi|Annuler|Cancel',
+                'Hifadhi':'Hifadhi|Enregistrer|Save',
+                'Toka':'Toka|Déconnexion|Log out',
+                'Waimbaji':'Waimbaji|Choristes|Singers',
+                'Mahudhurio':'Mahudhurio|Présences|Attendance',
+                'Siku ya Ziada':'Siku ya Ziada|Jour supplémentaire|Extra Day',
+                'Present':'Present|Présent|Present',
+                'Absent':'Absent|Absent|Absent',
+                'Sick':'Sick|Malade|Sick',
+                'Excused':'Excused|Excusé|Excused'
+              }
+            },
             'songs.html': {
-              'title': 'Nyimbo', 'marker': 'SONGS_I18N_RUNTIME_PATCH_V1',
-              'items': {'🎶 KWAYA MANAGEMENT':'🎶 KWAYA MANAGEMENT|🎶 GESTION DE CHORALE|🎶 CHOIR MANAGEMENT','Usimamizi wa Kwaya Kristo Mfalme':'Usimamizi wa Kwaya Kristo Mfalme|Gestion de la Chorale Kristo Mfalme|Christ the King Choir Management','Dashboard':'Dashboard|Tableau de bord|Dashboard','Waimbaji':'Waimbaji|Choristes|Singers','Mahudhurio':'Mahudhurio|Présences|Attendance','Nyimbo':'Nyimbo|Chansons|Songs','Vitabu vya Nyimbo':'Vitabu vya Nyimbo|Livres de chants|Songbooks','Sakramenti':'Sakramenti|Sacrements|Sacraments','Ripoti':'Ripoti|Rapports|Reports','Ratiba':'Ratiba|Calendrier|Schedule','Taarifa':'Taarifa|Annonces|Notices','Nyaraka':'Nyaraka|Documents|Documents','Mipangilio':'Mipangilio|Paramètres|Settings','🎵 Nyimbo':'🎵 Nyimbo|🎵 Chansons|🎵 Songs','Maktaba ya nyimbo za Kwaya Kristo Mfalme':'Maktaba ya nyimbo za Kwaya Kristo Mfalme|Bibliothèque des chants de la Chorale Kristo Mfalme|Christ the King Choir song library','Toka':'Toka|Déconnexion|Log out','Orodha ya Nyimbo za Misa':'Orodha ya Nyimbo za Misa|Liste des chants de messe|Mass Songs List','＋ Ongeza Wimbo':'＋ Ongeza Wimbo|＋ Ajouter un chant|＋ Add Song','🔎 Tafuta namba, kichwa, mtunzi, jamii...':'🔎 Tafuta namba, kichwa, mtunzi, jamii...|🔎 Rechercher numéro, titre, compositeur, catégorie...|🔎 Search number, title, composer, category...','Lugha zote':'Lugha zote|Toutes les langues|All languages','Makundi yote':'Makundi yote|Toutes les catégories|All categories','↻ Refresh':'↻ Refresh|↻ Actualiser|↻ Refresh','📖 Vichujio vya Zaburi — Kalenda ya Kanisa Katoliki':'📖 Vichujio vya Zaburi — Kalenda ya Kanisa Katoliki|📖 Filtres des psaumes — Calendrier liturgique catholique|📖 Psalm Filters — Catholic Liturgical Calendar','Vipindi vyote':'Vipindi vyote|Toutes les périodes|All periods','Majilio':'Majilio|Avent|Advent','Krismasi':'Krismasi|Noël|Christmas','Kwaresima':'Kwaresima|Carême|Lent','Pasaka':'Pasaka|Pâques|Easter','Pentekoste':'Pentekoste|Pentecôte|Pentecost','Wakati wa Kawaida':'Wakati wa Kawaida|Temps ordinaire|Ordinary Time','Sherehe / Sikukuu':'Sherehe / Sikukuu|Fêtes / Solennités|Feasts / Solemnities','Dominika / Siku zote':'Dominika / Siku zote|Tous les dimanches / jours|All Sundays / days','Miaka yote':'Miaka yote|Toutes les années|All years','Chagua kipindi ili mfumo ulete Dominika na Sikukuu zake moja kwa moja.':'Chagua kipindi ili mfumo ulete Dominika na Sikukuu zake moja kwa moja.|Choisissez une période pour charger automatiquement ses dimanches et fêtes.|Select a period to automatically load its Sundays and feasts.','Vitendo':'Vitendo|Actions|Actions','Inapakia...':'Inapakia...|Chargement...|Loading...','Ongeza Wimbo':'Ongeza Wimbo|Ajouter un chant|Add Song','Namba *':'Namba *|Numéro *|Number *','Lugha':'Lugha|Langue|Language','Kichwa cha Wimbo *':'Kichwa cha Wimbo *|Titre du chant *|Song Title *','Mtunzi':'Mtunzi|Compositeur|Composer','🎵 Kundi la Wimbo':'🎵 Kundi la Wimbo|🎵 Catégorie du chant|🎵 Song Category','Chagua kundi':'Chagua kundi|Choisir une catégorie|Choose category','Key':'Key|Tonalité|Key','Chagua Key':'Chagua Key|Choisir la tonalité|Choose Key','📖 Taarifa za Zaburi na Kalenda ya Liturujia':'📖 Taarifa za Zaburi na Kalenda ya Liturujia|📖 Informations du psaume et calendrier liturgique|📖 Psalm & Liturgical Calendar Information','Kipindi cha Liturujia':'Kipindi cha Liturujia|Période liturgique|Liturgical Season','Chagua kipindi':'Chagua kipindi|Choisir une période|Choose period','Mwaka wa Liturujia':'Mwaka wa Liturujia|Année liturgique|Liturgical Year','Chagua mwaka':'Chagua mwaka|Choisir une année|Choose year','Dominika / Siku':'Dominika / Siku|Dimanche / Jour|Sunday / Day','Chagua Dominika / Siku':'Chagua Dominika / Siku|Choisir dimanche / jour|Choose Sunday / Day','📝 Maneno':'📝 Maneno|📝 Paroles|📝 Lyrics','🎼 PDF ya Noti':'🎼 PDF ya Noti|🎼 PDF de partition|🎼 Sheet Music PDF','Hakuna PDF iliyochaguliwa.':'Hakuna PDF iliyochaguliwa.|Aucun PDF sélectionné.|No PDF selected.','🎹 MIDI':'🎹 MIDI|🎹 MIDI|🎹 MIDI','Hakuna MIDI iliyochaguliwa.':'Hakuna MIDI iliyochaguliwa.|Aucun MIDI sélectionné.|No MIDI selected.','🔊 Audio URL':'🔊 Audio URL|🔊 URL audio|🔊 Audio URL','Maelezo':'Maelezo|Description|Description','Ghairi':'Ghairi|Annuler|Cancel','💾 Hifadhi':'💾 Hifadhi|💾 Enregistrer|💾 Save','Maelezo ya Wimbo':'Maelezo ya Wimbo|Détails du chant|Song Details','Hakuna maneno.':'Hakuna maneno.|Aucune parole.|No lyrics.'}
+              'marker': 'SONGS_I18N_RUNTIME_PATCH_V1',
+              'items': {
+                '🎶 KWAYA MANAGEMENT':'🎶 KWAYA MANAGEMENT|🎶 GESTION DE CHORALE|🎶 CHOIR MANAGEMENT',
+                'Usimamizi wa Kwaya Kristo Mfalme':'Usimamizi wa Kwaya Kristo Mfalme|Gestion de la Chorale Kristo Mfalme|Christ the King Choir Management',
+                'Dashboard':'Dashboard|Tableau de bord|Dashboard',
+                'Waimbaji':'Waimbaji|Choristes|Singers',
+                'Mahudhurio':'Mahudhurio|Présences|Attendance',
+                'Nyimbo':'Nyimbo|Chansons|Songs',
+                'Vitabu vya Nyimbo':'Vitabu vya Nyimbo|Livres de chants|Songbooks',
+                'Sakramenti':'Sakramenti|Sacrements|Sacraments',
+                'Ripoti':'Ripoti|Rapports|Reports',
+                'Ratiba':'Ratiba|Calendrier|Schedule',
+                'Taarifa':'Taarifa|Annonces|Notices',
+                'Nyaraka':'Nyaraka|Documents|Documents',
+                'Mipangilio':'Mipangilio|Paramètres|Settings',
+                '🎵 Nyimbo':'🎵 Nyimbo|🎵 Chansons|🎵 Songs',
+                'Maktaba ya nyimbo za Kwaya Kristo Mfalme':'Maktaba ya nyimbo za Kwaya Kristo Mfalme|Bibliothèque des chants de la Chorale Kristo Mfalme|Christ the King Choir song library',
+                'Toka':'Toka|Déconnexion|Log out',
+                'Orodha ya Nyimbo za Misa':'Orodha ya Nyimbo za Misa|Liste des chants de messe|Mass Songs List',
+                '＋ Ongeza Wimbo':'＋ Ongeza Wimbo|＋ Ajouter un chant|＋ Add Song',
+                '🔎 Tafuta namba, kichwa, mtunzi, jamii...':'🔎 Tafuta namba, kichwa, mtunzi, jamii...|🔎 Rechercher numéro, titre, compositeur, catégorie...|🔎 Search number, title, composer, category...',
+                'Lugha zote':'Lugha zote|Toutes les langues|All languages',
+                'Makundi yote':'Makundi yote|Toutes les catégories|All categories',
+                '↻ Refresh':'↻ Refresh|↻ Actualiser|↻ Refresh',
+                '📖 Vichujio vya Zaburi — Kalenda ya Kanisa Katoliki':'📖 Vichujio vya Zaburi — Kalenda ya Kanisa Katoliki|📖 Filtres des psaumes — Calendrier liturgique catholique|📖 Psalm Filters — Catholic Liturgical Calendar',
+                'Vipindi vyote':'Vipindi vyote|Toutes les périodes|All periods',
+                'Majilio':'Majilio|Avent|Advent',
+                'Krismasi':'Krismasi|Noël|Christmas',
+                'Kwaresima':'Kwaresima|Carême|Lent',
+                'Pasaka':'Pasaka|Pâques|Easter',
+                'Pentekoste':'Pentekoste|Pentecôte|Pentecost',
+                'Wakati wa Kawaida':'Wakati wa Kawaida|Temps ordinaire|Ordinary Time',
+                'Sherehe / Sikukuu':'Sherehe / Sikukuu|Fêtes / Solennités|Feasts / Solemnities',
+                'Dominika / Siku zote':'Dominika / Siku zote|Tous les dimanches / jours|All Sundays / days',
+                'Miaka yote':'Miaka yote|Toutes les années|All years',
+                'Chagua kipindi ili mfumo ulete Dominika na Sikukuu zake moja kwa moja.':'Chagua kipindi ili mfumo ulete Dominika na Sikukuu zake moja kwa moja.|Choisissez une période pour charger automatiquement ses dimanches et fêtes.|Select a period to automatically load its Sundays and feasts.',
+                'Vitendo':'Vitendo|Actions|Actions',
+                'Inapakia...':'Inapakia...|Chargement...|Loading...',
+                'Ongeza Wimbo':'Ongeza Wimbo|Ajouter un chant|Add Song',
+                'Namba *':'Namba *|Numéro *|Number *',
+                'Lugha':'Lugha|Langue|Language',
+                'Kichwa cha Wimbo *':'Kichwa cha Wimbo *|Titre du chant *|Song Title *',
+                'Mtunzi':'Mtunzi|Compositeur|Composer',
+                '🎵 Kundi la Wimbo':'🎵 Kundi la Wimbo|🎵 Catégorie du chant|🎵 Song Category',
+                'Chagua kundi':'Chagua kundi|Choisir une catégorie|Choose category',
+                'Key':'Key|Tonalité|Key',
+                'Chagua Key':'Chagua Key|Choisir la tonalité|Choose Key',
+                '📖 Taarifa za Zaburi na Kalenda ya Liturujia':'📖 Taarifa za Zaburi na Kalenda ya Liturujia|📖 Informations du psaume et calendrier liturgique|📖 Psalm & Liturgical Calendar Information',
+                'Kipindi cha Liturujia':'Kipindi cha Liturujia|Période liturgique|Liturgical Season',
+                'Chagua kipindi':'Chagua kipindi|Choisir une période|Choose period',
+                'Mwaka wa Liturujia':'Mwaka wa Liturujia|Année liturgique|Liturgical Year',
+                'Chagua mwaka':'Chagua mwaka|Choisir une année|Choose year',
+                'Dominika / Siku':'Dominika / Siku|Dimanche / Jour|Sunday / Day',
+                'Chagua Dominika / Siku':'Chagua Dominika / Siku|Choisir dimanche / jour|Choose Sunday / Day',
+                '📝 Maneno':'📝 Maneno|📝 Paroles|📝 Lyrics',
+                '🎼 PDF ya Noti':'🎼 PDF ya Noti|🎼 PDF de partition|🎼 Sheet Music PDF',
+                'Hakuna PDF iliyochaguliwa.':'Hakuna PDF iliyochaguliwa.|Aucun PDF sélectionné.|No PDF selected.',
+                '🎹 MIDI':'🎹 MIDI|🎹 MIDI|🎹 MIDI',
+                'Hakuna MIDI iliyochaguliwa.':'Hakuna MIDI iliyochaguliwa.|Aucun MIDI sélectionné.|No MIDI selected.',
+                '🔊 Audio URL':'🔊 Audio URL|🔊 URL audio|🔊 Audio URL',
+                'Maelezo':'Maelezo|Description|Description',
+                'Ghairi':'Ghairi|Annuler|Cancel',
+                '💾 Hifadhi':'💾 Hifadhi|💾 Enregistrer|💾 Save',
+                'Maelezo ya Wimbo':'Maelezo ya Wimbo|Détails du chant|Song Details',
+                'Hakuna maneno.':'Hakuna maneno.|Aucune parole.|No lyrics.'
+              }
             }
           }
-          for fn,cfg in pages.items():
-            p=Path(fn)
-            if not p.exists(): continue
-            s=p.read_text(encoding='utf-8')
-            marker='<!-- '+cfg['marker']+' -->'
-            if marker in s or '</body>' not in s.lower(): continue
-            import json
-            d={lang:{} for lang in ('sw','fr','en')}
-            for k,v in cfg['items'].items():
-              a,b,c=v.split('|'); d['sw'][k]=a; d['fr'][k]=b; d['en'][k]=c
-            dj=json.dumps(d,ensure_ascii=False)
-            targeted = fn == 'songs.html'
-            js=f'''<script>(function(){{const D={dj};function run(){{const l=window.choirI18n&&typeof window.choirI18n.lang==='function'?window.choirI18n.lang():(localStorage.getItem('choirLang')||'sw'),d=D[l]||D.sw;document.querySelectorAll('[data-i18n]').forEach(e=>{{const k=e.getAttribute('data-i18n');if(d[k])e.textContent=d[k]}});document.querySelectorAll('input[placeholder]').forEach(e=>{{const k=e.getAttribute('placeholder');if(d[k])e.placeholder=d[k]}});document.querySelectorAll('option').forEach(e=>{{const k=e.textContent.trim();if(d[k])e.textContent=d[k]}});{'' if targeted else "document.querySelectorAll('body *').forEach(e=>{if(e.children.length)return;const k=(e.textContent||'').trim();if(d[k])e.textContent=d[k]})"}}}}function start(){{run();new MutationObserver(run).observe(document.body,{{childList:true,subtree:true,characterData:true}});window.addEventListener('languageChanged',run)}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()}})();</script>'''
-            s=s.replace('</body>',marker+js+'</body>')
-            p.write_text(s,encoding='utf-8'); print(fn,'patched')
+
+          for fn, cfg in pages.items():
+              p = Path(fn)
+              if not p.exists():
+                  continue
+              s = p.read_text(encoding='utf-8')
+              marker = '<!-- ' + cfg['marker'] + ' -->'
+              if marker in s or '</body>' not in s.lower():
+                  continue
+
+              d = {lang: {} for lang in ('sw', 'fr', 'en')}
+              for k, v in cfg['items'].items():
+                  a, b, c = v.split('|')
+                  d['sw'][k], d['fr'][k], d['en'][k] = a, b, c
+
+              dj = json.dumps(d, ensure_ascii=False)
+              targeted = fn == 'songs.html'
+              leaf_patch = '' if targeted else "document.querySelectorAll('body *').forEach(function(e){if(e.children.length)return;var k=(e.textContent||'').trim();if(d[k])e.textContent=d[k]});"
+
+              js = """<script>(function(){const D=%s;function run(){const l=window.choirI18n&&typeof window.choirI18n.lang==='function'?window.choirI18n.lang():(localStorage.getItem('choirLang')||'sw'),d=D[l]||D.sw;document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(d[k])e.textContent=d[k]});document.querySelectorAll('input[placeholder]').forEach(e=>{const k=e.getAttribute('placeholder');if(d[k])e.placeholder=d[k]});document.querySelectorAll('option').forEach(e=>{const k=e.textContent.trim();if(d[k])e.textContent=d[k]});%s}function start(){run();new MutationObserver(run).observe(document.body,{childList:true,subtree:true,characterData:true});window.addEventListener('languageChanged',run)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()})();</script>""" % (dj, leaf_patch)
+
+              s = s.replace('</body>', marker + js + '</body>')
+              p.write_text(s, encoding='utf-8')
+              print(fn, 'patched')
           PY
+
       - name: Commit multilingual patches
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add members.html attendance.html songs.html
-          if git diff --cached --quiet; then echo "No changes needed."; else git commit -m "fix: complete multilingual UI pages"; git push; fi
+          if git diff --cached --quiet; then
+            echo "No changes needed."
+            exit 0
+          fi
+          git commit -m "fix: complete multilingual UI pages"
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
