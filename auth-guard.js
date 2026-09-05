@@ -27,9 +27,6 @@
   window.KWAYA_AUTH={db,getRole,isAdmin:async()=>['admin','super_admin'].includes(await getRole()),isSuperAdmin:async()=>await getRole()==='super_admin',isMember:async()=>await getRole()==='member',check};
   db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'&&!location.pathname.endsWith('/login.html'))location.replace('login.html')});
   check().then((role)=>{
-    // Dashboard data must load only after the authenticated session/role is ready.
-    // The first page script may start before Auth finishes restoring the session,
-    // so run the dashboard loader again after Auth is ready.
     if(role && location.pathname.endsWith('/dashboard.html')){
       const runDashboard=()=>{if(typeof window.load==='function')window.load().catch(e=>{console.error('Dashboard load after auth:',e);const s=document.getElementById('linkStatus');if(s)s.textContent='Hitilafu: '+e.message})};
       if(typeof window.load==='function')runDashboard();
@@ -40,6 +37,9 @@
     }
     if(location.pathname.endsWith('/sacraments.html')){
       const s=document.createElement('script');s.src='./sacraments-filter.js?v=1';document.head.appendChild(s);
+    }
+    if(role==='member' && location.pathname.endsWith('/member-dashboard.html')){
+      const s=document.createElement('script');s.src='./member-songs-fix.js?v=20260905';document.head.appendChild(s);
     }
   }).catch(e=>console.error('Auth guard:',e));
 })();
