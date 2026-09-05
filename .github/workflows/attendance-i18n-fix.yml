@@ -1,0 +1,34 @@
+name: Attendance Multilingual UI Fix
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch attendance UI translations
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('attendance.html')
+          if not p.exists(): raise SystemExit(0)
+          s=p.read_text(encoding='utf-8')
+          marker='ATTENDANCE_I18N_RUNTIME_PATCH'
+          patch=r'''<!-- ATTENDANCE_I18N_RUNTIME_PATCH --><script>(function(){const D={sw:{"Kitabu cha Mahudhurio":"Kitabu cha Mahudhurio","Toka":"Toka","MWEZI":"MWEZI","Andaa Kitabu":"Andaa Kitabu","Hifadhi Mahudhurio":"Hifadhi Mahudhurio","Weka Wote ✓":"Weka Wote ✓","Refresh":"Refresh","🚨 Siku ya Ziada":"🚨 Siku ya Ziada","📥 Pakua Kitabu (PDF)":"📥 Pakua Kitabu (PDF)","KITABU CHA MAHUDHURIO":"KITABU CHA MAHUDHURIO","Jumatano • Alhamisi • Jumamosi":"Jumatano • Alhamisi • Jumamosi","CHAGUA MWEZI":"CHAGUA MWEZI","MAHUDHURIO":"MAHUDHURIO","Jina":"Jina","Jumla":"Jumla","Asilimia":"Asilimia","LEO":"LEO","✓ Yupo":"✓ Yupo","✕ Hayupo":"✕ Hayupo","🤒 Anaumwa":"🤒 Anaumwa","Ruhusa":"Ruhusa","Siku ya Ziada":"Siku ya Ziada"},fr:{"Kitabu cha Mahudhurio":"Registre des présences","Toka":"Déconnexion","MWEZI":"MOIS","Andaa Kitabu":"Préparer le registre","Hifadhi Mahudhurio":"Enregistrer les présences","Weka Wote ✓":"Marquer tous ✓","Refresh":"Actualiser","🚨 Siku ya Ziada":"🚨 Jour supplémentaire","📥 Pakua Kitabu (PDF)":"📥 Télécharger le registre (PDF)","KITABU CHA MAHUDHURIO":"REGISTRE DES PRÉSENCES","Jumatano • Alhamisi • Jumamosi":"Mercredi • Jeudi • Samedi","CHAGUA MWEZI":"CHOISIR LE MOIS","MAHUDHURIO":"PRÉSENCES","Jina":"Nom","Jumla":"Total","Asilimia":"Pourcentage","LEO":"AUJOURD'HUI","✓ Yupo":"✓ Présent","✕ Hayupo":"✕ Absent","🤒 Anaumwa":"🤒 Malade","Ruhusa":"Permission","Siku ya Ziada":"Jour supplémentaire"},en:{"Kitabu cha Mahudhurio":"Attendance Register","Toka":"Log out","MWEZI":"MONTH","Andaa Kitabu":"Prepare Register","Hifadhi Mahudhurio":"Save Attendance","Weka Wote ✓":"Mark All ✓","Refresh":"Refresh","🚨 Siku ya Ziada":"🚨 Extra Day","📥 Pakua Kitabu (PDF)":"📥 Download Register (PDF)","KITABU CHA MAHUDHURIO":"ATTENDANCE REGISTER","Jumatano • Alhamisi • Jumamosi":"Wednesday • Thursday • Saturday","CHAGUA MWEZI":"SELECT MONTH","MAHUDHURIO":"ATTENDANCE","Jina":"Name","Jumla":"Total","Asilimia":"Percentage","LEO":"TODAY","✓ Yupo":"✓ Present","✕ Hayupo":"✕ Absent","🤒 Anaumwa":"🤒 Sick","Ruhusa":"Permission","Siku ya Ziada":"Extra Day"}};function run(){const l=window.choirI18n&&typeof window.choirI18n.lang==='function'?window.choirI18n.lang():'sw',d=D[l]||D.sw;document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(d[k])e.textContent=d[k]});const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode()){const k=n.nodeValue.trim();if(d[k]&&k)n.nodeValue=n.nodeValue.replace(k,d[k])}}if(document.body){run();new MutationObserver(run).observe(document.body,{childList:true,subtree:true,characterData:true});setInterval(run,1500)}})();</script>'''
+          if marker not in s and '</body>' in s:
+              s=s.replace('</body>',patch+'</body>')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit attendance fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add attendance.html
+          if git diff --cached --quiet; then echo "No attendance changes"; else git commit -m "Fix attendance multilingual UI"; git push; fi
