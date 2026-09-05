@@ -1,0 +1,34 @@
+name: Fix Sacraments Multilingual UI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch sacraments UI
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('sacraments.html')
+          if not p.exists(): raise SystemExit(0)
+          s=p.read_text(encoding='utf-8')
+          marker='<!-- SACRAMENTS_I18N_RUNTIME_PATCH -->'
+          patch=r'''<!-- SACRAMENTS_I18N_RUNTIME_PATCH --><script>(function(){const D={sw:{"Sakramenti":"Sakramenti","Taarifa za sakramenti za kila mwimbaji":"Taarifa za sakramenti za kila mwimbaji","Tafuta mwimbaji...":"Tafuta mwimbaji...","↻ Refresh":"↻ Refresh","Mwimbaji *":"Mwimbaji *","Chagua mwimbaji":"Chagua mwimbaji","Inapakia...":"Inapakia...","Hakuna mwimbaji mwenye sakramenti ambazo hazijakamilika":"Hakuna mwimbaji mwenye sakramenti ambazo hazijakamilika","Ubatizo — Tarehe":"Ubatizo — Tarehe","Ubatizo — Parokia/Mahali":"Ubatizo — Parokia/Mahali","Komunyo ya Kwanza — Tarehe":"Komunyo ya Kwanza — Tarehe","Komunyo ya Kwanza — Parokia/Mahali":"Komunyo ya Kwanza — Parokia/Mahali","Kipaimara — Tarehe":"Kipaimara — Tarehe","Kipaimara — Parokia/Mahali":"Kipaimara — Parokia/Mahali","Ndoa ya Kanisa — Tarehe":"Ndoa ya Kanisa — Tarehe","Ndoa ya Kanisa — Parokia/Mahali":"Ndoa ya Kanisa — Parokia/Mahali","Mwenza wa Ndoa":"Mwenza wa Ndoa","Maelezo ya ziada":"Maelezo ya ziada","Futa":"Futa","💾 Hifadhi Taarifa za Sakramenti":"💾 Hifadhi Taarifa za Sakramenti","Orodha ya Waimbaji":"Orodha ya Waimbaji","Ubatizo":"Ubatizo","Komunyo":"Komunyo","Kipaimara":"Kipaimara","Ndoa":"Ndoa","Vitendo":"Vitendo","✓ Imejazwa":"✓ Imejazwa","✏️ Hariri":"✏️ Hariri","Hakuna mwimbaji.":"Hakuna mwimbaji.","Toka":"Toka","MFUMO WA USIMAMIZI":"MFUMO WA USIMAMIZI","MFUMO WA USIMAMIZI WA KWAYA":"MFUMO WA USIMAMIZI WA KWAYA"},fr:{"Sakramenti":"Sacrements","Taarifa za sakramenti za kila mwimbaji":"Informations sacramentelles de chaque choriste","Tafuta mwimbaji...":"Rechercher un choriste...","↻ Refresh":"↻ Actualiser","Mwimbaji *":"Choriste *","Chagua mwimbaji":"Choisir un choriste","Inapakia...":"Chargement...","Hakuna mwimbaji mwenye sakramenti ambazo hazijakamilika":"Aucun choriste avec des sacrements incomplets","Ubatizo — Tarehe":"Baptême — Date","Ubatizo — Parokia/Mahali":"Baptême — Paroisse/Lieu","Komunyo ya Kwanza — Tarehe":"Première communion — Date","Komunyo ya Kwanza — Parokia/Mahali":"Première communion — Paroisse/Lieu","Kipaimara — Tarehe":"Confirmation — Date","Kipaimara — Parokia/Mahali":"Confirmation — Paroisse/Lieu","Ndoa ya Kanisa — Tarehe":"Mariage religieux — Date","Ndoa ya Kanisa — Parokia/Mahali":"Mariage religieux — Paroisse/Lieu","Mwenza wa Ndoa":"Conjoint(e)","Maelezo ya ziada":"Notes supplémentaires","Futa":"Effacer","💾 Hifadhi Taarifa za Sakramenti":"💾 Enregistrer les informations sacramentelles","Orodha ya Waimbaji":"Liste des choristes","Ubatizo":"Baptême","Komunyo":"Communion","Kipaimara":"Confirmation","Ndoa":"Mariage","Vitendo":"Actions","✓ Imejazwa":"✓ Rempli","✏️ Hariri":"✏️ Modifier","Hakuna mwimbaji.":"Aucun choriste.","Toka":"Déconnexion","MFUMO WA USIMAMIZI":"SYSTÈME DE GESTION"},en:{"Sakramenti":"Sacraments","Taarifa za sakramenti za kila mwimbaji":"Sacramental information for each singer","Tafuta mwimbaji...":"Search singer...","↻ Refresh":"↻ Refresh","Mwimbaji *":"Singer *","Chagua mwimbaji":"Choose singer","Inapakia...":"Loading...","Hakuna mwimbaji mwenye sakramenti ambazo hazijakamilika":"No singer with incomplete sacraments","Ubatizo — Tarehe":"Baptism — Date","Ubatizo — Parokia/Mahali":"Baptism — Parish/Place","Komunyo ya Kwanza — Tarehe":"First Communion — Date","Komunyo ya Kwanza — Parokia/Mahali":"First Communion — Parish/Place","Kipaimara — Tarehe":"Confirmation — Date","Kipaimara — Parokia/Mahali":"Confirmation — Parish/Place","Ndoa ya Kanisa — Tarehe":"Church Marriage — Date","Ndoa ya Kanisa — Parokia/Mahali":"Church Marriage — Parish/Place","Mwenza wa Ndoa":"Spouse","Maelezo ya ziada":"Additional notes","Futa":"Clear","💾 Hifadhi Taarifa za Sakramenti":"💾 Save Sacramental Information","Orodha ya Waimbaji":"Singers List","Ubatizo":"Baptism","Komunyo":"Communion","Kipaimara":"Confirmation","Ndoa":"Marriage","Vitendo":"Actions","✓ Imejazwa":"✓ Filled","✏️ Hariri":"✏️ Edit","Hakuna mwimbaji.":"No singer.","Toka":"Log out","MFUMO WA USIMAMIZI":"MANAGEMENT SYSTEM"}};function run(){const l=window.choirI18n&&typeof window.choirI18n.lang==='function'?window.choirI18n.lang():'sw',d=D[l]||D.sw;document.title=(d.Sakramenti||'Sakramenti')+' | KWAYA YA KRISTU MFALME';document.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(e=>{const k=e.placeholder;if(d[k])e.placeholder=d[k]});document.querySelectorAll('option').forEach(e=>{const k=e.textContent.trim();if(d[k])e.textContent=d[k]});document.querySelectorAll('label,.top h1,.top div,.card h3,th,.bar button,.btn,.nav a,.brand small').forEach(e=>{const k=e.textContent.trim();if(d[k])e.textContent=d[k]});document.querySelectorAll('.table td').forEach(e=>{const k=e.textContent.trim();if(d[k])e.textContent=d[k]})}if(document.body){run();new MutationObserver(run).observe(document.body,{childList:true,subtree:true,characterData:true});setInterval(run,1000)}})();</script>'''
+          if marker not in s and '</body>' in s:
+              s=s.replace('</body>',patch+'</body>')
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sacraments.html
+          if git diff --cached --quiet; then echo "No changes"; else git commit -m "Fix sacraments multilingual UI"; git push; fi
