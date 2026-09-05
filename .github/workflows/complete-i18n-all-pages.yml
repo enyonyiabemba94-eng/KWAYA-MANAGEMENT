@@ -8,7 +8,6 @@ on:
 permissions:
   contents: write
 
-# Prevent multiple i18n runs from editing/pushing main at the same time.
 concurrency:
   group: choir-i18n-main
   cancel-in-progress: false
@@ -17,37 +16,26 @@ jobs:
   i18n:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout latest main
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Sync with latest main
+      - name: Sync latest main
         run: |
           git fetch origin main
-          git checkout main
           git reset --hard origin/main
-
       - name: Translate remaining static UI
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-
-          files = [p for p in Path('.').glob('*.html') if p.is_file()]
-          marker = '<!-- COMPLETE_I18N_STATIC_UI_V1 -->'
-          patch = r'''<!-- COMPLETE_I18N_STATIC_UI_V1 --><script>(function(){const D={sw:{"Dashboard":"Dashboard","Waimbaji":"Waimbaji","Mahudhurio":"Mahudhurio","Nyimbo":"Nyimbo","Vitabu vya Nyimbo":"Vitabu vya Nyimbo","Sakramenti":"Sakramenti","Mpango wa Misa":"Mpango wa Misa","Michango":"Michango","Sare":"Sare","Ripoti":"Ripoti","Ratiba":"Ratiba","Matukio":"Matukio","Taarifa":"Taarifa","Matangazo":"Matangazo","Nyaraka":"Nyaraka","Chat":"Chat","Mipangilio":"Mipangilio","Usalama":"Usalama","Toka":"Toka","Hifadhi":"Hifadhi","Ghairi":"Ghairi","Ongeza":"Ongeza","Hariri":"Hariri","Futa":"Futa","Tafuta":"Tafuta","Refresh":"Refresh","Inapakia...":"Inapakia...","Hakuna taarifa.":"Hakuna taarifa.","Jina":"Jina","Tarehe":"Tarehe","Muda":"Muda","Mahali":"Mahali","Maelezo":"Maelezo","Hali":"Hali","Vitendo":"Vitendo","Jumla":"Jumla","Kiasi":"Kiasi","Mwezi":"Mwezi","Mwaka":"Mwaka","Chagua":"Chagua","Chagua mwezi":"Chagua mwezi","Chagua mwaka":"Chagua mwaka","Pakua PDF":"Pakua PDF","Chapisha":"Chapisha","Tuma":"Tuma","Andika ujumbe...":"Andika ujumbe...","Ingia":"Ingia","Toka kwenye akaunti":"Toka kwenye akaunti","Barua pepe":"Barua pepe","Nenosiri":"Nenosiri","Kumbuka mimi":"Kumbuka mimi","Umesahau nenosiri?":"Umesahau nenosiri?","Lugha":"Lugha","Kiswahili":"Kiswahili","Français":"Français","English":"English","Badilisha lugha":"Badilisha lugha","Sakramenti za Mwimbaji":"Sakramenti za Mwimbaji","Taarifa Binafsi":"Taarifa Binafsi","Mawasiliano":"Mawasiliano","Profile ya Mwimbaji":"Profile ya Mwimbaji"},fr:{"Dashboard":"Tableau de bord","Waimbaji":"Choristes","Mahudhurio":"Présences","Nyimbo":"Chants","Vitabu vya Nyimbo":"Livres de chants","Sakramenti":"Sacrements","Mpango wa Misa":"Programme de messe","Michango":"Contributions","Sare":"Uniformes","Ripoti":"Rapports","Ratiba":"Planning","Matukio":"Événements","Taarifa":"Informations","Matangazo":"Annonces","Nyaraka":"Documents","Chat":"Discussion","Mipangilio":"Paramètres","Usalama":"Sécurité","Toka":"Déconnexion","Hifadhi":"Enregistrer","Ghairi":"Annuler","Ongeza":"Ajouter","Hariri":"Modifier","Futa":"Supprimer","Tafuta":"Rechercher","Refresh":"Actualiser","Inapakia...":"Chargement...","Hakuna taarifa.":"Aucune information.","Jina":"Nom","Tarehe":"Date","Muda":"Heure","Mahali":"Lieu","Maelezo":"Description","Hali":"Statut","Vitendo":"Actions","Jumla":"Total","Kiasi":"Montant","Mwezi":"Mois","Mwaka":"Année","Chagua":"Choisir","Chagua mwezi":"Choisir le mois","Chagua mwaka":"Choisir l'année","Pakua PDF":"Télécharger PDF","Chapisha":"Imprimer","Tuma":"Envoyer","Andika ujumbe...":"Écrire un message...","Ingia":"Se connecter","Toka kwenye akaunti":"Se déconnecter","Barua pepe":"E-mail","Nenosiri":"Mot de passe","Kumbuka mimi":"Se souvenir de moi","Umesahau nenosiri?":"Mot de passe oublié ?","Lugha":"Langue","Kiswahili":"Kiswahili","Français":"Français","English":"Anglais","Badilisha lugha":"Changer de langue","Sakramenti za Mwimbaji":"Sacrements du choriste","Taarifa Binafsi":"Informations personnelles","Mawasiliano":"Contact","Profile ya Mwimbaji":"Profil du choriste"},en:{"Dashboard":"Dashboard","Waimbaji":"Singers","Mahudhurio":"Attendance","Nyimbo":"Songs","Vitabu vya Nyimbo":"Songbooks","Sakramenti":"Sacraments","Mpango wa Misa":"Mass Programme","Michango":"Contributions","Sare":"Uniforms","Ripoti":"Reports","Ratiba":"Schedule","Matukio":"Events","Taarifa":"Information","Matangazo":"Announcements","Nyaraka":"Documents","Chat":"Chat","Mipangilio":"Settings","Usalama":"Security","Toka":"Log out","Hifadhi":"Save","Ghairi":"Cancel","Ongeza":"Add","Hariri":"Edit","Futa":"Delete","Tafuta":"Search","Refresh":"Refresh","Inapakia...":"Loading...","Hakuna taarifa.":"No information.","Jina":"Name","Tarehe":"Date","Muda":"Time","Mahali":"Location","Maelezo":"Description","Hali":"Status","Vitendo":"Actions","Jumla":"Total","Kiasi":"Amount","Mwezi":"Month","Mwaka":"Year","Chagua":"Choose","Chagua mwezi":"Choose month","Chagua mwaka":"Choose year","Pakua PDF":"Download PDF","Chapisha":"Print","Tuma":"Send","Andika ujumbe...":"Write a message...","Ingia":"Log in","Toka kwenye akaunti":"Log out","Barua pepe":"Email","Nenosiri":"Password","Kumbuka mimi":"Remember me","Umesahau nenosiri?":"Forgot password?","Lugha":"Language","Kiswahili":"Swahili","Français":"French","English":"English","Badilisha lugha":"Change language","Sakramenti za Mwimbaji":"Singer's Sacraments","Taarifa Binafsi":"Personal Information","Mawasiliano":"Contact","Profile ya Mwimbaji":"Singer Profile"}};function run(){const l=window.choirI18n&&typeof window.choirI18n.lang==='function'?window.choirI18n.lang():(localStorage.getItem('choirLang')||'sw'),d=D[l]||D.sw;document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(d[k])e.textContent=d[k]});document.querySelectorAll('input[placeholder]').forEach(e=>{const k=e.getAttribute('placeholder');if(d[k])e.setAttribute('placeholder',d[k])});document.querySelectorAll('option').forEach(e=>{const k=e.textContent.trim();if(d[k])e.textContent=d[k]});document.querySelectorAll('body *').forEach(e=>{if(e.children.length)return;const k=(e.textContent||'').trim();if(d[k])e.textContent=d[k]})}function start(){run();new MutationObserver(run).observe(document.body,{childList:true,subtree:true,characterData:true});window.addEventListener('languageChanged',run)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()})();</script>'''
-          changed=0
-          for p in files:
-              s=p.read_text(encoding='utf-8', errors='ignore')
-              if marker in s or '</body>' not in s.lower():
-                  continue
-              s=re.sub(r'</body>', patch+'</body>', s, count=1, flags=re.I)
-              p.write_text(s, encoding='utf-8')
-              changed+=1
-          print(f'Patched {changed} HTML files')
+          marker='<!-- COMPLETE_I18N_STATIC_UI_V1 -->'
+          patch=r'''<!-- COMPLETE_I18N_STATIC_UI_V1 --><script>(function(){const D={sw:{"Dashboard":"Dashboard","Waimbaji":"Waimbaji","Mahudhurio":"Mahudhurio","Nyimbo":"Nyimbo","Sakramenti":"Sakramenti","Mpango wa Misa":"Mpango wa Misa","Michango":"Michango","Sare":"Sare","Ripoti":"Ripoti","Ratiba":"Ratiba","Matukio":"Matukio","Taarifa":"Taarifa","Matangazo":"Matangazo","Nyaraka":"Nyaraka","Chat":"Chat","Mipangilio":"Mipangilio","Usalama":"Usalama","Toka":"Toka","Hifadhi":"Hifadhi","Ghairi":"Ghairi","Ongeza":"Ongeza","Hariri":"Hariri","Futa":"Futa","Tafuta":"Tafuta","Refresh":"Refresh","Inapakia...":"Inapakia...","Hakuna taarifa.":"Hakuna taarifa.","Jina":"Jina","Tarehe":"Tarehe","Muda":"Muda","Mahali":"Mahali","Maelezo":"Maelezo","Hali":"Hali","Vitendo":"Vitendo","Jumla":"Jumla","Kiasi":"Kiasi","Mwezi":"Mwezi","Mwaka":"Mwaka","Chagua":"Chagua","Chagua mwezi":"Chagua mwezi","Chagua mwaka":"Chagua mwaka","Pakua PDF":"Pakua PDF","Chapisha":"Chapisha","Tuma":"Tuma","Andika ujumbe...":"Andika ujumbe...","Ingia":"Ingia","Barua pepe":"Barua pepe","Nenosiri":"Nenosiri","Kumbuka mimi":"Kumbuka mimi","Umesahau nenosiri?":"Umesahau nenosiri?","Lugha":"Lugha","Kiswahili":"Kiswahili","Français":"Français","English":"English","Badilisha lugha":"Badilisha lugha","Sakramenti za Mwimbaji":"Sakramenti za Mwimbaji","Taarifa Binafsi":"Taarifa Binafsi","Mawasiliano":"Mawasiliano","Profile ya Mwimbaji":"Profile ya Mwimbaji"},fr:{"Dashboard":"Tableau de bord","Waimbaji":"Choristes","Mahudhurio":"Présences","Nyimbo":"Chants","Sakramenti":"Sacrements","Mpango wa Misa":"Programme de messe","Michango":"Contributions","Sare":"Uniformes","Ripoti":"Rapports","Ratiba":"Planning","Matukio":"Événements","Taarifa":"Informations","Matangazo":"Annonces","Nyaraka":"Documents","Chat":"Discussion","Mipangilio":"Paramètres","Usalama":"Sécurité","Toka":"Déconnexion","Hifadhi":"Enregistrer","Ghairi":"Annuler","Ongeza":"Ajouter","Hariri":"Modifier","Futa":"Supprimer","Tafuta":"Rechercher","Refresh":"Actualiser","Inapakia...":"Chargement...","Hakuna taarifa.":"Aucune information.","Jina":"Nom","Tarehe":"Date","Muda":"Heure","Mahali":"Lieu","Maelezo":"Description","Hali":"Statut","Vitendo":"Actions","Jumla":"Total","Kiasi":"Montant","Mwezi":"Mois","Mwaka":"Année","Chagua":"Choisir","Chagua mwezi":"Choisir le mois","Chagua mwaka":"Choisir l'année","Pakua PDF":"Télécharger PDF","Chapisha":"Imprimer","Tuma":"Envoyer","Andika ujumbe...":"Écrire un message...","Ingia":"Se connecter","Barua pepe":"E-mail","Nenosiri":"Mot de passe","Kumbuka mimi":"Se souvenir de moi","Umesahau nenosiri?":"Mot de passe oublié ?","Lugha":"Langue","Kiswahili":"Kiswahili","Français":"Français","English":"Anglais","Badilisha lugha":"Changer de langue","Sakramenti za Mwimbaji":"Sacrements du choriste","Taarifa Binafsi":"Informations personnelles","Mawasiliano":"Contact","Profile ya Mwimbaji":"Profil du choriste"},en:{"Dashboard":"Dashboard","Waimbaji":"Singers","Mahudhurio":"Attendance","Nyimbo":"Songs","Sakramenti":"Sacraments","Mpango wa Misa":"Mass Programme","Michango":"Contributions","Sare":"Uniforms","Ripoti":"Reports","Ratiba":"Schedule","Matukio":"Events","Taarifa":"Information","Matangazo":"Announcements","Nyaraka":"Documents","Chat":"Chat","Mipangilio":"Settings","Usalama":"Security","Toka":"Log out","Hifadhi":"Save","Ghairi":"Cancel","Ongeza":"Add","Hariri":"Edit","Futa":"Delete","Tafuta":"Search","Refresh":"Refresh","Inapakia...":"Loading...","Hakuna taarifa.":"No information.","Jina":"Name","Tarehe":"Date","Muda":"Time","Mahali":"Location","Maelezo":"Description","Hali":"Status","Vitendo":"Actions","Jumla":"Total","Kiasi":"Amount","Mwezi":"Month","Mwaka":"Year","Chagua":"Choose","Chagua mwezi":"Choose month","Chagua mwaka":"Choose year","Pakua PDF":"Download PDF","Chapisha":"Print","Tuma":"Send","Andika ujumbe...":"Write a message...","Ingia":"Log in","Barua pepe":"Email","Nenosiri":"Password","Kumbuka mimi":"Remember me","Umesahau nenosiri?":"Forgot password?","Lugha":"Language","Kiswahili":"Swahili","Français":"French","English":"English","Badilisha lugha":"Change language","Sakramenti za Mwimbaji":"Singer's Sacraments","Taarifa Binafsi":"Personal Information","Mawasiliano":"Contact","Profile ya Mwimbaji":"Singer Profile"}};function run(){const l=window.choirI18n&&typeof window.choirI18n.lang==='function'?window.choirI18n.lang():(localStorage.getItem('choirLang')||'sw'),d=D[l]||D.sw;document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(d[k])e.textContent=d[k]});document.querySelectorAll('input[placeholder]').forEach(e=>{const k=e.getAttribute('placeholder');if(d[k])e.setAttribute('placeholder',d[k])});document.querySelectorAll('option').forEach(e=>{const k=e.textContent.trim();if(d[k])e.textContent=d[k]});document.querySelectorAll('body *').forEach(e=>{if(e.children.length)return;const k=(e.textContent||'').trim();if(d[k])e.textContent=d[k]})}function start(){run();new MutationObserver(run).observe(document.body,{childList:true,subtree:true,characterData:true});window.addEventListener('languageChanged',run)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start()})();</script>'''
+          for p in Path('.').glob('*.html'):
+              s=p.read_text(encoding='utf-8',errors='ignore')
+              if marker not in s and '</body>' in s.lower():
+                  s=re.sub(r'</body>',patch+'</body>',s,count=1,flags=re.I)
+                  p.write_text(s,encoding='utf-8')
           PY
-
       - name: Commit and push safely
         shell: bash
         run: |
@@ -55,28 +43,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- '*.html'
-          if git diff --cached --quiet; then
-            echo "No changes needed."
-            exit 0
-          fi
+          if git diff --cached --quiet; then exit 0; fi
           git commit -m "fix: complete multilingual UI across choir pages"
-
-          # Another workflow may have pushed while this job was running.
-          # Rebase onto the newest main and retry the push several times.
           for attempt in 1 2 3 4 5; do
-            echo "Push attempt $attempt"
             git fetch origin main
-            git rebase origin/main || {
-              echo "Rebase conflict detected; aborting safely."
-              git rebase --abort || true
-              exit 1
-            }
-            if git push origin HEAD:main; then
-              echo "Push succeeded."
-              exit 0
-            fi
+            git rebase origin/main
+            if git push origin HEAD:main; then exit 0; fi
             sleep 3
           done
-
-          echo "Push failed after 5 attempts."
           exit 1
