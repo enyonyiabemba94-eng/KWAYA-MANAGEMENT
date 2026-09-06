@@ -7,6 +7,36 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f5f8;color:#202431}.top{height:64px;background:#fff;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;padding:0 16px}.top h1{font-size:19px;margin:0}.content{padding:14px}.toolbar{background:#fff;padding:12px;border:1px solid #ddd;border-radius:12px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.toolbar input{height:40px}.btn,input{border:1px solid #d7dbe2;border-radius:8px}.btn{padding:10px 13px;font-weight:700;cursor:pointer;background:#f3f4f6}.primary{background:#6d28d9;color:#fff;border-color:#6d28d9}.success{background:#16a34a;color:#fff;border-color:#16a34a}.book{background:#fff;border:1px solid #ddd;border-radius:12px;overflow:hidden}.head{text-align:center;padding:14px;border-bottom:2px solid #222}.head h2{margin:0;font-size:20px}.head p{margin:5px 0;font-size:12px;color:#666}.status{padding:28px;text-align:center;color:#666}.error{color:#991b1b;background:#fff1f2}.table-wrap{overflow:auto}.table{border-collapse:collapse;width:100%;min-width:900px}th,td{border:1px solid #ccc;text-align:center;padding:7px;font-size:11px}th{background:#f1f2f4}.name{position:sticky;left:0;background:#fff;text-align:left;min-width:220px}.mark{width:30px;height:30px;border:1px solid #ddd;border-radius:6px;background:#fff;font-weight:900;cursor:pointer}.present{background:#dcfce7;color:#15803d}.late{background:#fee2e2;color:#b91c1c}.sick{background:#fef3c7;color:#a16207}.permission{background:#dbeafe;color:#1d4ed8}.legend{padding:10px;font-size:11px;border-top:2px solid #222}.toast{position:fixed;right:15px;bottom:15px;background:#166534;color:#fff;padding:12px 15px;border-radius:8px;display:none;z-index:20}.toast.show{display:block}@media(max-width:700px){.content{padding:9px}.top h1{font-size:16px}.toolbar{display:grid}.toolbar>*{width:100%}}
+
+/* ATTENDANCE_A4_FILL_V2 */
+@media print {
+  @page { size: A4 landscape; margin: 5mm; }
+  .book { min-height: calc(100vh - 10mm) !important; }
+  .book-head { padding: 2mm 0 2mm !important; }
+  .book-title { grid-template-columns: 46px 1fr 46px !important; gap: 6px !important; }
+  .book-logo { width: 44px !important; height: 44px !important; }
+  .book-title h3 { font-size: 24px !important; line-height: 1.05 !important; }
+  .book-title h4 { font-size: 18px !important; line-height: 1.05 !important; margin-top: 3px !important; }
+  .book-title p { font-size: 11px !important; margin-top: 3px !important; }
+  .month-title { font-size: 12px !important; margin-top: 4px !important; }
+  .table-wrap { min-height: calc(100vh - 43mm) !important; overflow: visible !important; }
+  table { width: 100% !important; min-width: 0 !important; height: calc(100vh - 49mm) !important; table-layout: auto !important; }
+  th, td { padding: 4px 2px !important; font-size: 12px !important; line-height: 1.15 !important; }
+  .name-head, .name-cell { min-width: 150px !important; }
+  .name-head { padding: 4px 5px !important; }
+  .name-head .name-title { font-size: 13px !important; }
+  .name-cell { padding: 4px 5px !important; }
+  .name-cell strong { font-size: 17px !important; line-height: 1.15 !important; }
+  .date-head { min-width: 31px !important; }
+  .date-head .day { font-size: 9px !important; }
+  .date-head .date { font-size: 10px !important; margin-top: 1px !important; }
+  .mark { width: 23px !important; height: 23px !important; font-size: 11px !important; }
+  .legend { font-size: 9px !important; padding: 5px 0 !important; gap: 14px !important; }
+  .legend b { font-size: 11px !important; }
+  .note { font-size: 8px !important; padding: 4px 0 !important; }
+  thead { display: table-header-group !important; }
+  tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+}
 </style>
 </head>
 <body>
