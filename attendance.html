@@ -10,6 +10,36 @@
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f5f8;color:#202431}.side{position:fixed;inset:0 auto 0 0;width:250px;background:#18122b;color:#fff;padding:18px 12px;z-index:50;overflow:auto}.brand{display:flex;align-items:center;gap:9px;padding:8px;border-bottom:1px solid #ffffff22}.brand img{width:36px;height:36px;object-fit:contain}.brand b{font-size:12px;line-height:1.15}.brand small{display:block;color:#bbb2cc;font-size:9px;margin-top:3px}.nav{margin-top:18px}.nav a{display:block;color:#ddd7e8;text-decoration:none;padding:11px 13px;border-radius:9px;font-size:13px;margin:3px 0}.nav a.active,.nav a:hover{background:#8b5cf633;color:#fff}.sub{margin-left:12px;border-left:2px solid #ffffff22}.sub a{font-size:12px;padding:8px 10px}.main{margin-left:250px;min-height:100vh}.top{height:72px;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 25px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}.top h1{margin:0;font-size:21px}.menu{display:none;border:0;border-radius:8px;width:38px;height:38px;font-size:20px}.content{padding:20px}.toolbar,.book{background:#fff;border:1px solid #e5e7eb;border-radius:14px}.toolbar{padding:14px;display:flex;gap:9px;align-items:end;flex-wrap:wrap;margin-bottom:15px}.field{min-width:190px}.field label{display:block;font-size:10px;font-weight:800;margin-bottom:5px}.field input{width:100%;height:40px;padding:8px;border:1px solid #dfe3ea;border-radius:9px}.btn{border:0;border-radius:9px;padding:10px 13px;font-weight:800;cursor:pointer}.primary{background:#6d28d9;color:#fff}.success{background:#16a34a;color:#fff}.info{background:#dbeafe;color:#1d4ed8}.book{overflow:hidden}.head{text-align:center;padding:12px;border-bottom:2px solid #222}.title{display:grid;grid-template-columns:55px 1fr 55px;align-items:center;gap:8px}.title img{width:48px;height:48px;object-fit:contain;margin:auto}.title h2{margin:0;font-size:21px}.title h3{margin:4px 0;font-size:15px}.title p{margin:3px;font-size:11px;color:#667085}.month{font-weight:900;font-size:13px;text-transform:uppercase}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:1000px}th,td{border:1px solid #cfd3da;text-align:center;padding:6px;font-size:11px}th{background:#f3f4f6}.name{position:sticky;left:0;background:#fff;text-align:left;min-width:240px;z-index:3}.name strong{font-size:14px}.date{min-width:58px}.extra{background:#fff1df;color:#9a3412}.mark{width:28px;height:28px;border:1px solid #d7dae0;border-radius:6px;background:#fff;font-weight:900;cursor:pointer}.present{color:#15803d;background:#dcfce7}.late{color:#b91c1c;background:#fee2e2}.sick{color:#a16207;background:#fef3c7}.permission{color:#1d4ed8;background:#dbeafe}.sum{font-weight:900;background:#fafafa}.legend,.note{padding:10px 14px;font-size:10px}.legend{border-top:2px solid #222;display:flex;gap:16px;flex-wrap:wrap}.error{padding:25px;text-align:center;color:#b91c1c}.toast{position:fixed;right:15px;bottom:15px;background:#166534;color:#fff;padding:11px 15px;border-radius:9px;display:none;z-index:100}.toast.show{display:block}@media(max-width:700px){.side{transform:translateX(-100%);transition:.2s}.side.open{transform:none}.main{margin-left:0}.menu{display:inline-block;margin-right:8px}.top{padding:0 12px}.top h1{font-size:17px}.content{padding:10px}.toolbar{display:grid}.field{min-width:0}.toolbar .btn{width:100%}.title{grid-template-columns:40px 1fr 40px}.title img{width:35px;height:35px}.title h2{font-size:17px}.title h3{font-size:13px}}
 @media print{@page{size:A4 landscape;margin:5mm}.side,.top,.toolbar{display:none!important}.main{margin:0}.content{padding:0}.book{border:0}.table-wrap{overflow:visible}table{min-width:0;width:100%}th,td{padding:3px;font-size:9px}.name{min-width:125px}.mark{width:20px;height:20px;font-size:9px}}
+
+/* ATTENDANCE_A4_FILL_V2 */
+@media print {
+  @page { size: A4 landscape; margin: 5mm; }
+  .book { min-height: calc(100vh - 10mm) !important; }
+  .book-head { padding: 2mm 0 2mm !important; }
+  .book-title { grid-template-columns: 46px 1fr 46px !important; gap: 6px !important; }
+  .book-logo { width: 44px !important; height: 44px !important; }
+  .book-title h3 { font-size: 24px !important; line-height: 1.05 !important; }
+  .book-title h4 { font-size: 18px !important; line-height: 1.05 !important; margin-top: 3px !important; }
+  .book-title p { font-size: 11px !important; margin-top: 3px !important; }
+  .month-title { font-size: 12px !important; margin-top: 4px !important; }
+  .table-wrap { min-height: calc(100vh - 43mm) !important; overflow: visible !important; }
+  table { width: 100% !important; min-width: 0 !important; height: calc(100vh - 49mm) !important; table-layout: auto !important; }
+  th, td { padding: 4px 2px !important; font-size: 12px !important; line-height: 1.15 !important; }
+  .name-head, .name-cell { min-width: 150px !important; }
+  .name-head { padding: 4px 5px !important; }
+  .name-head .name-title { font-size: 13px !important; }
+  .name-cell { padding: 4px 5px !important; }
+  .name-cell strong { font-size: 17px !important; line-height: 1.15 !important; }
+  .date-head { min-width: 31px !important; }
+  .date-head .day { font-size: 9px !important; }
+  .date-head .date { font-size: 10px !important; margin-top: 1px !important; }
+  .mark { width: 23px !important; height: 23px !important; font-size: 11px !important; }
+  .legend { font-size: 9px !important; padding: 5px 0 !important; gap: 14px !important; }
+  .legend b { font-size: 11px !important; }
+  .note { font-size: 8px !important; padding: 4px 0 !important; }
+  thead { display: table-header-group !important; }
+  tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+}
 </style>
 </head>
 <body>
