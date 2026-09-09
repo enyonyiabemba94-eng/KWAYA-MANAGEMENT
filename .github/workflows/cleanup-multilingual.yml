@@ -1,0 +1,37 @@
+name: Cleanup multilingual code
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove multilingual code
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for p in Path('.').rglob('*'):
+              if not p.is_file() or '.git' in p.parts or p.suffix.lower() not in {'.html','.js','.css'}:
+                  continue
+              try: s=p.read_text(encoding='utf-8')
+              except Exception: continue
+              old=s
+              s=re.sub(r'<script[^>]+src=["\']\./i18n\.js["\'][^>]*>\s*</script>', '', s, flags=re.I)
+              s=re.sub(r'<!--\s*COMPLETE_I18N_STATIC_UI_V1\s*-->\s*<script>.*?</script>', '', s, flags=re.I|re.S)
+              s=re.sub(r'\s+data-i18n(?:-[\w-]+)?\s*=\s*["\'][^"\']*["\']', '', s, flags=re.I)
+              s=re.sub(r'<option[^>]*>\s*(?:Français|English|French|Anglais|Language|Langue)\s*</option>', '', s, flags=re.I)
+              s=re.sub(r'<(?:select|div|button)[^>]*(?:id|class)=["\'][^"\']*(?:language|lang)[^"\']*["\'][^>]*>.*?</(?:select|div|button)>', '', s, flags=re.I|re.S)
+              if s != old: p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Remove remaining multilingual UI and references"
+          git push
