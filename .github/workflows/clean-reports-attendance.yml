@@ -1,0 +1,48 @@
+name: Safisha ripoti ya mahudhurio
+on:
+  push:
+    paths:
+      - '.github/workflows/clean-reports-attendance.yml'
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Safisha reports.html
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('reports.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('.att-absent{color:#b91c1c;background:#fee2e2}','')
+          s=s.replace('.att-bereavement{color:#7c3aed;background:#ede9fe}','')
+          s=s.replace('.att-extra{color:#9a3412;background:#ffedd5}','')
+          old="const statusLabel=v=>v==='present'?'✓':v==='late'?'C':v==='permission'?'R':v==='sick'?'M':v==='bereavement'?'F':v==='emergency'?'EM':v?'A':'—';const cls=v=>v==='present'?'att-present':v==='late'?'att-late':v==='permission'?'att-permission':v==='sick'?'att-sick':v==='bereavement'?'att-bereavement':v==='emergency'?'att-extra':v?'att-absent':'';"
+          new="const statusLabel=v=>v==='present'?'✓':v==='late'?'A':v==='sick'?'M':v==='permission'?'R':'';const cls=v=>v==='present'?'att-present':v==='late'?'att-late':v==='sick'?'att-sick':v==='permission'?'att-permission':'';"
+          if old not in s: raise SystemExit('status mapping not found')
+          s=s.replace(old,new)
+          old2="let p=0,n=0;const cells=sessions.map(x=>{const v=by.get(x.id+'|'+m.id);if(v){n++;if(v==='present'||v==='late')p++;}return `<td class=\"att-mark ${cls(v)}\">${statusLabel(v)}</td>`}).join('');const pct=sessions.length?Math.round(p/sessions.length*100):0;present+=p;"
+          new2="let p=0,n=0;const cells=sessions.map(x=>{const v=by.get(x.id+'|'+m.id);if(v){n++;if(v==='present')p++;}return `<td class=\"att-mark ${cls(v)}\">${statusLabel(v)}</td>`}).join('');const pct=n?Math.round(p/n*100):0;present+=p;"
+          if old2 not in s: raise SystemExit('member percentage block not found')
+          s=s.replace(old2,new2)
+          old3="const denom=active.length*sessions.length;$('attPresent').textContent=present;$('attPct').textContent=denom?Math.round(present/denom*100)+'%':'0%'"
+          new3="const recorded=records.filter(r=>active.some(m=>m.id===r.member_id));const presentCount=recorded.filter(r=>r.status==='present').length;$('attPresent').textContent=presentCount;$('attPct').textContent=recorded.length?Math.round(presentCount/recorded.length*100)+'%':'0%'"
+          if old3 not in s: raise SystemExit('overall percentage block not found')
+          s=s.replace(old3,new3)
+          p.write_text(s,encoding='utf-8')
+          PY
+          grep -q "v==='late'?'A'" reports.html
+          ! grep -q "'C'\|'F'\|'EM'\|att-bereavement\|att-extra\|att-absent" reports.html
+      - name: Commit and remove workflow
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add reports.html .github/workflows/clean-reports-attendance.yml
+          git commit -m 'Safisha alama na asilimia za mahudhurio' || exit 0
+          git rm .github/workflows/clean-reports-attendance.yml
+          git commit -m 'Ondoa workflow ya muda ya usafishaji'
+          git push
