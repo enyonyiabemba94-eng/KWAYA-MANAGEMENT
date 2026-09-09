@@ -1,18 +1,33 @@
 <!doctype html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#18122b">
-<title>Kwaya ya Kristu Mfalme</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>body{font-family:Arial,sans-serif;background:#f5f6fa;margin:0;display:grid;place-items:center;min-height:100vh;color:#18122b}.box{text-align:center;padding:30px}.spinner{width:38px;height:38px;border:4px solid #ddd;border-top-color:#6d28d9;border-radius:50%;animation:r .8s linear infinite;margin:0 auto 14px}@keyframes r{to{transform:rotate(360deg)}}</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#18122b">
+  <meta name="description" content="Mfumo wa usimamizi wa Kwaya ya Kristo Mfalme Nyarugusu">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" type="image/jpeg">
+  <title>Kwaya ya Kristo Mfalme Nyarugusu</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f7fb;color:#18122b}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:min(560px,100%);background:#fff;border-radius:20px;padding:32px;box-shadow:0 12px 40px rgba(0,0,0,.12);text-align:center}.logo{width:110px;height:110px;object-fit:cover;border-radius:50%;margin-bottom:16px}.btn{display:inline-block;margin-top:18px;padding:13px 22px;border-radius:10px;background:#18122b;color:#fff;text-decoration:none;font-weight:700}
+  </style>
 </head>
 <body>
-<div class="box"><div class="spinner"></div><b>Inafungua KWAYA MANAGEMENT…</b></div>
-<script>
-const db=supabase.createClient('https://xulnkdrgjgajmcqntwga.supabase.co','sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2');
-(async()=>{const {data:{session}}=await db.auth.getSession();if(!session){location.replace('login.html');return;}const {data:p}=await db.from('profiles').select('role').eq('id',session.user.id).maybeSingle();const role=p?.role||session.user.app_metadata?.role||null;if(role==='member'){location.replace('member-dashboard.html');}else if(role==='admin'||role==='super_admin'){location.replace('dashboard.html');}else{await db.auth.signOut();location.replace('login.html');}})();
-</script>
+  <main class="wrap">
+    <section class="card">
+      <img class="logo" src="./KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristo Mfalme Nyarugusu">
+      <h1>KWAYA YA KRISTO MFALME</h1>
+      <p>Nyarugusu</p>
+      <p>Mfumo wa usimamizi wa kwaya</p>
+      <a class="btn" href="./login.html">Ingia kwenye Mfumo</a>
+    </section>
+  </main>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>
