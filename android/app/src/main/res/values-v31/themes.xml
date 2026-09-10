@@ -8,6 +8,5 @@
         <item name="android:windowSplashScreenBackground">@color/kristu_mfalme_background</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="android:windowSplashScreenIconBackgroundColor">@color/kristu_mfalme_background</item>
-        <item name="android:postSplashScreenTheme">@style/Theme.KristuMfalme</item>
     </style>
 </resources>
