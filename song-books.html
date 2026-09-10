@@ -1,37 +1,135 @@
 <!doctype html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#18122b">
 <title>Vitabu vya Nyimbo | KWAYA YA KRISTU MFALME</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth-guard.js?v=20260909"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f6fa;color:#1f2937}.side{position:fixed;inset:0 auto 0 0;width:250px;background:#18122b;padding:18px 12px;overflow:auto;z-index:20}.brand{display:flex;align-items:center;gap:9px;color:#fff;padding:8px;border-bottom:1px solid #ffffff18;font-weight:800}.brand-logo{width:34px;height:34px;object-fit:contain}.brand-text{font-size:12px;line-height:1.15}.brand small{display:block;color:#b9aecf;font-size:9px;margin-top:3px}.nav{margin-top:18px}.nav a{display:block;color:#d9d3e5;text-decoration:none;padding:11px 13px;border-radius:9px;font-size:13px;margin:3px 0}.nav a.active,.nav a:hover{background:#8b5cf633;color:#fff}.nav-sub{margin:0 0 2px 12px;border-left:2px solid #ffffff20;padding-left:4px}.nav-sub a{font-size:12px;padding:8px 10px}.main{margin-left:250px;min-height:100vh}.top{height:72px;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 25px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}.top h1{font-size:21px;margin:0}.top small{color:#6b7280}.brand-header{display:grid;grid-template-columns:50px minmax(0,1fr) 50px;align-items:center;gap:8px;padding:7px 12px;background:#fff;border-bottom:2px solid #18122b;text-align:center}.brand-header img{width:38px;height:38px;object-fit:contain;margin:auto}.brand-title{font-size:17px;font-weight:900;color:#18122b}.brand-sub{font-size:9px;font-weight:700;color:#5b6472}.content{padding:25px;max-width:1400px;margin:auto}.layout{display:grid;grid-template-columns:1fr 1.5fr;gap:18px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px}.card h2{font-size:15px;margin:0 0 15px}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field label{font-size:11px;font-weight:700}input,textarea{width:100%;border:1px solid #dfe3ea;border-radius:9px;padding:10px;font:inherit;font-size:13px}input{height:40px}.btn{border:0;border-radius:9px;padding:10px 13px;font-weight:700;cursor:pointer}.primary{background:#6d28d9;color:#fff}.muted{background:#f3f4f6;color:#374151}.book{border:1px solid #eee;border-radius:10px;padding:12px;margin:8px 0;cursor:pointer}.book.sel{border-color:#8b5cf6;background:#faf7ff}.book b{font-size:13px}.book small,.hint{color:#6b7280}.song{display:flex;gap:9px;padding:10px;border-bottom:1px solid #eee;font-size:12px}.check{display:flex;gap:9px;align-items:center}.song b{font-size:12px}.actions{display:flex;gap:7px;flex-wrap:wrap}.toast{display:none;position:fixed;right:20px;bottom:20px;background:#166534;color:#fff;padding:12px 16px;border-radius:9px;z-index:30}.toast.show{display:block}.menu{display:none}.preview{margin-top:15px;background:#fafafa;border:1px solid #eee;border-radius:10px;padding:16px}.preview h3{margin:0 0 5px}.preview p{font-size:12px;line-height:1.55;margin:7px 0}.hint{font-size:10px}@media(max-width:850px){.layout{grid-template-columns:1fr}}@media(max-width:700px){.side{transform:translateX(-100%);transition:.2s}.side.open{transform:none}.main{margin-left:0}.menu{display:inline-block;border:0;background:#f3f4f6;border-radius:8px;width:38px;height:38px;font-size:20px}.top{padding:0 15px}.content{padding:15px}.brand-header{grid-template-columns:38px minmax(0,1fr) 38px}.brand-header img{width:30px;height:30px}.brand-title{font-size:13px}.brand-sub{font-size:7px}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f5f6fa;color:#1f2937}.side{position:fixed;inset:0 auto 0 0;width:250px;background:#18122b;padding:18px 12px;overflow:auto;z-index:30}.brand{display:flex;align-items:center;gap:9px;color:#fff;padding:8px;border-bottom:1px solid #ffffff18;font-weight:800}.brand-logo{width:34px;height:34px;object-fit:contain;border-radius:50%}.brand-text{font-size:12px;line-height:1.15}.brand small{display:block;color:#b9aecf;font-size:9px;margin-top:3px}.nav{margin-top:18px}.nav a{display:block;color:#d9d3e5;text-decoration:none;padding:11px 13px;border-radius:9px;font-size:13px;margin:3px 0}.nav a.active,.nav a:hover{background:#8b5cf633;color:#fff}.nav-sub{margin:0 0 2px 12px;border-left:2px solid #ffffff20;padding-left:4px}.nav-sub a{font-size:12px;padding:8px 10px}.main{margin-left:250px;min-height:100vh}.top{height:72px;background:#fff;border-bottom:1px solid #e5e7eb;padding:0 25px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}.top h1{font-size:21px;margin:0}.top small{color:#6b7280}.menu{display:none;border:0;background:#f3f4f6;border-radius:8px;width:38px;height:38px;font-size:20px}.brand-header{display:grid;grid-template-columns:50px minmax(0,1fr) 50px;align-items:center;gap:8px;padding:7px 12px;background:#fff;border-bottom:2px solid #18122b;text-align:center}.brand-header img{width:38px;height:38px;object-fit:contain;margin:auto;border-radius:50%}.brand-title{font-size:17px;font-weight:900;color:#18122b}.brand-sub{font-size:9px;font-weight:700;color:#5b6472}.content{padding:25px;max-width:1400px;margin:auto}.layout{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(0,1.5fr);gap:18px}.card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:18px;box-shadow:0 2px 8px #1118270a}.card h2{font-size:15px;margin:0 0 15px}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}.field label{font-size:11px;font-weight:700}input,textarea{width:100%;border:1px solid #dfe3ea;border-radius:9px;padding:10px;font:inherit;font-size:13px;background:#fff}input{height:40px}textarea{resize:vertical;min-height:80px}.btn{border:0;border-radius:9px;padding:10px 13px;font-weight:700;cursor:pointer;min-height:40px}.btn:disabled{opacity:.5;cursor:not-allowed}.primary{background:#6d28d9;color:#fff}.muted{background:#f3f4f6;color:#374151}.danger{background:#fee2e2;color:#991b1b}.actions{display:flex;gap:7px;flex-wrap:wrap}.book{border:1px solid #eee;border-radius:10px;padding:12px;margin:8px 0;cursor:pointer;transition:.15s}.book:hover{border-color:#b9a0ff}.book.sel{border-color:#8b5cf6;background:#faf7ff}.book b{font-size:13px}.book small,.hint{color:#6b7280}.book-meta{font-size:10px;margin-top:5px}.song{display:flex;gap:9px;padding:10px;border-bottom:1px solid #eee;font-size:12px;align-items:flex-start}.song:hover{background:#fafafa}.check{display:flex;gap:9px;align-items:flex-start;width:100%;cursor:pointer}.check input{width:auto;height:auto;margin-top:2px}.song b{font-size:12px}.song small{color:#6b7280}.selected-box{margin-top:15px;border:1px solid #e5e7eb;border-radius:10px;padding:12px;background:#fafafa}.selected-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #e5e7eb}.selected-row:last-child{border-bottom:0}.selected-title{font-size:12px;font-weight:700}.order-actions{display:flex;gap:4px}.mini{border:0;background:#e5e7eb;border-radius:6px;padding:5px 7px;cursor:pointer}.preview{margin-top:15px;background:#fff;border:1px solid #ddd;border-radius:10px;padding:16px;max-height:520px;overflow:auto}.preview h3{margin:0 0 5px}.preview p{font-size:12px;line-height:1.55;margin:10px 0}.hint{font-size:10px}.toast{display:none;position:fixed;right:20px;bottom:20px;background:#166534;color:#fff;padding:12px 16px;border-radius:9px;z-index:50;max-width:90vw}.toast.show{display:block}.empty{padding:18px 5px;text-align:center;color:#6b7280;font-size:12px}.role-note{display:none;margin-bottom:12px;padding:10px;border-radius:9px;background:#f3f4f6;color:#4b5563;font-size:11px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.content{padding:18px}}
+@media(max-width:700px){.side{transform:translateX(-100%);transition:.2s;box-shadow:5px 0 20px #0003}.side.open{transform:none}.main{margin-left:0}.menu{display:inline-block}.top{height:64px;padding:0 12px}.top h1{font-size:17px}.top small{font-size:10px}.content{padding:12px}.brand-header{grid-template-columns:36px minmax(0,1fr) 36px;padding:6px}.brand-header img{width:30px;height:30px}.brand-title{font-size:12px}.brand-sub{font-size:7px}.card{padding:14px}.actions .btn{flex:1 1 120px}.toast{right:10px;bottom:10px}}
 </style>
 </head>
 <body>
-<aside class="side" id="side"><div class="brand"><img class="brand-logo" src="KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristu Mfalme"><div class="brand-text">KWAYA YA KRISTU MFALME<small>MFUMO WA USIMAMIZI WA KWAYA</small></div></div><nav class="nav"><a href="index.html">🏠 Dashboard</a><a href="members.html">👥 Waimbaji</a><div class="nav-sub"><a href="sacraments.html">⛪ Sakramenti</a></div><a href="attendance.html">📋 Mahudhurio</a><a href="songs.html">🎵 Nyimbo</a><div class="nav-sub"><a class="active" href="song-books.html">📚 Vitabu vya Nyimbo</a></div><a href="mass-programmes.html">📖 Mpango wa Misa</a><a href="reports.html">📊 Ripoti</a><a href="events.html">📅 Ratiba</a><a href="announcements.html">📢 Taarifa</a><a href="documents.html">📄 Nyaraka</a><a href="settings.html">⚙️ Mipangilio</a></nav></aside>
-<main class="main"><header class="top"><div style="display:flex;gap:12px;align-items:center"><button class="menu" onclick="side.classList.toggle('open')">☰</button><div><h1>📚 Vitabu vya Nyimbo</h1><small>Vitabu vinatumia nyimbo zilizopo kwenye mfumo</small></div></div><button class="btn muted" onclick="logout()">Toka</button></header><div class="brand-header"><img src="KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristu Mfalme"><div><div class="brand-title">KWAYA YA KRISTU MFALME</div><div class="brand-sub">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristu Mfalme"></div>
-<section class="content"><div class="layout"><div class="card"><h2>📖 Kitabu</h2><div class="field"><label>Jina la Kitabu *</label><input id="title" placeholder="Mf. Kitabu cha Nyimbo za Kwaya"></div><div class="field"><label>Sub-title</label><input id="sub" placeholder="Misa, Kwaresima, Sikukuu..."></div><div class="field"><label>Maelezo</label><textarea id="desc" rows="3"></textarea></div><div class="actions"><button class="btn primary" onclick="saveBook()">💾 Hifadhi Kitabu</button><button class="btn muted" onclick="newBook()">＋ Kitabu Kipya</button></div><div class="actions" style="margin-top:9px"><button class="btn primary" onclick="makePDF()">📄 Tengeneza PDF</button><button class="btn muted" onclick="previewBook()">👁️ Hakiki</button></div><hr><h2>Vitabu Vilivyopo</h2><div id="books"></div></div><div class="card"><h2>🎵 Chagua Nyimbo za Kitabu</h2><input id="search" placeholder="🔎 Tafuta namba, jina au mtunzi..." oninput="renderSongs()"><div id="songs" style="margin-top:10px"></div><div id="selectionInfo" class="hint" style="margin-top:8px">Nyimbo zilizochaguliwa: 0</div><div class="actions" style="margin-top:15px"><button class="btn primary" onclick="saveSongs()">💾 Hifadhi Nyimbo</button><button class="btn muted" onclick="selectAll()">☑️ Chagua Zote</button><button class="btn muted" onclick="clearSongs()">☐ Ondoa Zote</button></div><div id="preview" class="preview" style="display:none"></div></div></div></section></main><div class="toast" id="toast"></div>
+<aside class="side" id="side">
+  <div class="brand"><img class="brand-logo" src="KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristu Mfalme"><div class="brand-text">KWAYA YA KRISTU MFALME<small>MFUMO WA USIMAMIZI WA KWAYA</small></div></div>
+  <nav class="nav">
+    <a href="index.html">🏠 Dashboard</a><a href="members.html">👥 Waimbaji</a><div class="nav-sub"><a href="sacraments.html">⛪ Sakramenti</a></div><a href="attendance.html">📋 Mahudhurio</a><a href="songs.html">🎵 Nyimbo</a><div class="nav-sub"><a class="active" href="song-books.html">📚 Vitabu vya Nyimbo</a></div><a href="mass-programmes.html">📖 Mpango wa Misa</a><a href="reports.html">📊 Ripoti</a><a href="events.html">📅 Ratiba</a><a href="announcements.html">📢 Taarifa</a><a href="documents.html">📄 Nyaraka</a><a href="settings.html">⚙️ Mipangilio</a>
+  </nav>
+</aside>
+<main class="main">
+<header class="top"><div style="display:flex;gap:12px;align-items:center"><button class="menu" onclick="toggleMenu()" aria-label="Fungua menyu">☰</button><div><h1>📚 Vitabu vya Nyimbo</h1><small>Unda vitabu kwa kutumia nyimbo zilizopo kwenye mfumo</small></div></div><button class="btn muted" onclick="logout()">Toka</button></header>
+<div class="brand-header"><img src="KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristu Mfalme"><div><div class="brand-title">KWAYA YA KRISTU MFALME</div><div class="brand-sub">MFUMO WA USIMAMIZI WA KWAYA</div></div><img src="KWAYA%20YA%20KRISTO%20MFALME%20NYARUGUSU%2020260902_141303.jpg" alt="Kwaya ya Kristu Mfalme"></div>
+<section class="content"><div id="roleNote" class="role-note">Unaweza kusoma na kutengeneza PDF. Usimamizi wa vitabu unapatikana kwa Admin.</div><div class="layout">
+<div class="card">
+<h2>📖 Taarifa za Kitabu</h2>
+<div class="field"><label for="title">Jina la Kitabu *</label><input id="title" maxlength="150" placeholder="Mf. Kitabu cha Nyimbo za Kwaya"></div>
+<div class="field"><label for="sub">Kichwa kidogo</label><input id="sub" maxlength="200" placeholder="Misa, Kwaresima, Sikukuu..."></div>
+<div class="field"><label for="desc">Maelezo</label><textarea id="desc" rows="3" maxlength="1000" placeholder="Maelezo mafupi ya kitabu..."></textarea></div>
+<div class="actions admin-controls"><button class="btn primary" onclick="saveBook()">💾 Hifadhi Kitabu</button><button class="btn muted" onclick="newBook()">＋ Kitabu Kipya</button></div>
+<div class="actions" style="margin-top:9px"><button class="btn primary" onclick="makePDF()">📄 Tengeneza PDF</button><button class="btn muted" onclick="previewBook()">👁️ Hakiki</button></div>
+<hr><h2>Vitabu Vilivyopo</h2><div id="books"></div>
+</div>
+<div class="card">
+<h2>🎵 Chagua Nyimbo za Kitabu</h2>
+<input id="search" aria-label="Tafuta wimbo" placeholder="🔎 Tafuta namba, jina au mtunzi..." oninput="renderSongs()">
+<div id="songs" style="margin-top:10px"></div>
+<div id="selectionInfo" class="hint" style="margin-top:8px">Nyimbo zilizochaguliwa: 0</div>
+<div class="actions admin-controls" style="margin-top:15px"><button class="btn primary" onclick="saveSongs()">💾 Hifadhi Nyimbo</button><button class="btn muted" onclick="selectAll()">☑️ Chagua Zote</button><button class="btn muted" onclick="clearSongs()">☐ Ondoa Zote</button></div>
+<div class="selected-box"><strong style="font-size:12px">📋 Mpangilio wa Nyimbo</strong><div id="selectedList" style="margin-top:7px"></div></div>
+<div id="preview" class="preview" style="display:none"></div>
+</div></div></section>
+</main><div class="toast" id="toast"></div>
 <script>
 const db=supabase.createClient('https://xulnkdrgjgajmcqntwga.supabase.co','sb_publishable_J2OrXvOnQXxrf5t3XPmigg_5ULrsWO2');
-let books=[],songs=[],selectedBook=null,selected=[];const $=x=>document.getElementById(x),esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-function toast(m,e=false){$('toast').textContent=m;$('toast').style.background=e?'#991b1b':'#166534';$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),3000)}
-async function load(){const[b,s]=await Promise.all([db.from('song_books').select('*').order('created_at',{ascending:false}),db.from('songs').select('id,song_number,title,composer,language,category,key_signature,lyrics').order('song_number')]);if(b.error||s.error)return toast((b.error||s.error).message,true);books=b.data||[];songs=s.data||[];renderBooks();renderSongs()}
+let books=[],songs=[],selectedBook=null,selected=[],role=null;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+function toast(message,error=false){const t=$('toast');t.textContent=message;t.style.background=error?'#991b1b':'#166534';t.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),3500)}
+function isAdmin(){return role==='admin'||role==='super_admin'}
+function toggleMenu(){$('side').classList.toggle('open')}
+function requireAdmin(){if(!isAdmin()){toast('Hatuna ruhusa ya kufanya mabadiliko.',true);return false}return true}
+async function load(){
+  const [b,s]=await Promise.all([
+    db.from('song_books').select('*').order('created_at',{ascending:false}),
+    db.from('songs').select('id,song_number,title,composer,language,category,key_signature,lyrics').order('song_number')
+  ]);
+  if(b.error||s.error){toast((b.error||s.error).message,true);return}
+  books=b.data||[];songs=s.data||[];renderBooks();renderSongs();renderSelectedList();
+}
+function renderBooks(){
+  $('books').innerHTML=books.length?books.map(b=>`<div class="book ${selectedBook===b.id?'sel':''}" onclick="choose('${b.id}')"><b>${esc(b.title)}</b><div class="book-meta">${esc(b.subtitle||'')}${b.description?' • '+esc(b.description):''}</div></div>`).join(''):'<div class="empty">Hakuna kitabu bado.</div>';
+}
+async function choose(id){
+  selectedBook=id;const b=books.find(x=>x.id===id);if(!b)return;
+  $('title').value=b.title||'';$('sub').value=b.subtitle||'';$('desc').value=b.description||'';$('preview').style.display='none';
+  const r=await db.from('song_book_songs').select('song_id,position').eq('song_book_id',id).order('position',{ascending:true});
+  if(r.error){toast(r.error.message,true);return}
+  selected=(r.data||[]).sort((a,b)=>Number(a.position)-Number(b.position)).map(x=>x.song_id);
+  renderBooks();renderSongs();renderSelectedList();
+}
+function filteredSongs(){const q=$('search').value.trim().toLowerCase();return songs.filter(x=>!q||`${x.song_number} ${x.title} ${x.composer||''} ${x.language||''} ${x.category||''}`.toLowerCase().includes(q))}
+function renderSongs(){
+  const a=filteredSongs();
+  $('songs').innerHTML=a.length?a.map(x=>`<div class="song"><label class="check"><input type="checkbox" ${selected.includes(x.id)?'checked':''} ${isAdmin()?'':'disabled'} onchange="toggleSong('${x.id}',this.checked)"><span><b>${esc(x.song_number)}. ${esc(x.title)}</b><br><small>${esc(x.composer||'')}${x.language?' • '+esc(x.language):''}${x.category?' • '+esc(x.category):''}</small></span></label></div>`).join(''):'<div class="empty">Hakuna nyimbo zilizopatikana.</div>';
+  updateSelectionInfo();
+}
 function updateSelectionInfo(){$('selectionInfo').textContent=`Nyimbo zilizochaguliwa: ${selected.length}`}
-function renderBooks(){$('books').innerHTML=books.length?books.map(b=>`<div class="book ${selectedBook===b.id?'sel':''}" onclick="choose('${b.id}')"><b>${esc(b.title)}</b><br><small>${esc(b.subtitle||b.description||'')}</small></div>`).join(''):'<p class="hint">Hakuna kitabu bado.</p>'}
-async function choose(id){selectedBook=id;const b=books.find(x=>x.id===id);if(!b)return;$('title').value=b.title;$('sub').value=b.subtitle||'';$('desc').value=b.description||'';const r=await db.from('song_book_songs').select('song_id,position').eq('song_book_id',id).order('position');if(r.error)return toast(r.error.message,true);selected=(r.data||[]).sort((a,b)=>a.position-b.position).map(x=>x.song_id);renderBooks();renderSongs()}
-function renderSongs(){const q=$('search').value.toLowerCase();const a=songs.filter(x=>!q||`${x.song_number} ${x.title} ${x.composer||''} ${x.language||''} ${x.category||''}`.toLowerCase().includes(q));$('songs').innerHTML=a.length?a.map(x=>`<div class="song"><label class="check"><input type="checkbox" ${selected.includes(x.id)?'checked':''} onchange="toggleSong('${x.id}',this.checked)"><span><b>${esc(x.song_number)}. ${esc(x.title)}</b><br><small>${esc(x.composer||'')}${x.language?' • '+esc(x.language):''}</small></span></label></div>`).join(''):'<p class="hint">Hakuna nyimbo zilizopatikana.</p>';updateSelectionInfo()}
-function toggleSong(id,on){if(on&&!selected.includes(id))selected.push(id);if(!on)selected=selected.filter(x=>x!==id);updateSelectionInfo()}
-function selectAll(){const q=$('search').value.toLowerCase();songs.filter(x=>!q||`${x.song_number} ${x.title} ${x.composer||''} ${x.language||''} ${x.category||''}`.toLowerCase().includes(q)).forEach(x=>{if(!selected.includes(x.id))selected.push(x.id)});renderSongs()}
-function clearSongs(){selected=[];renderSongs()}
-function newBook(){selectedBook=null;selected=[];$('title').value='';$('sub').value='';$('desc').value='';$('preview').style.display='none';renderBooks();renderSongs()}
-async function saveBook(){const title=$('title').value.trim();if(!title)return toast('Weka jina la kitabu',true);const o={title,subtitle:$('sub').value.trim()||null,description:$('desc').value.trim()||null,updated_at:new Date().toISOString()};const r=selectedBook?await db.from('song_books').update(o).eq('id',selectedBook).select().single():await db.from('song_books').insert(o).select().single();if(r.error)return toast(r.error.message,true);selectedBook=r.data.id;books=[r.data,...books.filter(b=>b.id!==r.data.id)];renderBooks();toast('Kitabu kimehifadhiwa')}
-async function saveSongs(){if(!selectedBook)return toast('Kwanza hifadhi au chagua kitabu',true);const desired=[...new Set(selected)];const currentResult=await db.from('song_book_songs').select('song_id,position').eq('song_book_id',selectedBook).order('position');if(currentResult.error)return toast(currentResult.error.message,true);const current=currentResult.data||[];const currentIds=current.map(x=>x.song_id);const desiredSet=new Set(desired);const toDelete=currentIds.filter(id=>!desiredSet.has(id));const toKeep=current.filter(x=>desiredSet.has(x.song_id));if(toDelete.length){const d=await db.from('song_book_songs').delete().eq('song_book_id',selectedBook).in('song_id',toDelete);if(d.error)return toast(`Imeshindikana kuondoa nyimbo: ${d.error.message}`,true)}const rows=desired.map((id,i)=>({song_book_id:selectedBook,song_id:id,position:i+1}));const changed=rows.filter(r=>{const old=current.find(x=>x.song_id===r.song_id);return !old||old.position!==r.position});if(changed.length){const r=await db.from('song_book_songs').upsert(changed,{onConflict:'song_book_id,song_id'});if(r.error)return toast(`Imeshindikana kuhifadhi mpangilio: ${r.error.message}`,true)}const verify=await db.from('song_book_songs').select('song_id,position').eq('song_book_id',selectedBook).order('position');if(verify.error)return toast(`Imeshindwa kuthibitisha: ${verify.error.message}`,true);selected=(verify.data||[]).sort((a,b)=>a.position-b.position).map(x=>x.song_id);renderSongs();toast(`Nyimbo ${selected.length} zimehifadhiwa kikamilifu`)}
+function toggleSong(id,on){if(!requireAdmin())return;if(on&&!selected.includes(id))selected.push(id);if(!on)selected=selected.filter(x=>x!==id);renderSelectedList();updateSelectionInfo()}
+function selectAll(){if(!requireAdmin())return;filteredSongs().forEach(x=>{if(!selected.includes(x.id))selected.push(x.id)});renderSongs();renderSelectedList()}
+function clearSongs(){if(!requireAdmin())return;selected=[];renderSongs();renderSelectedList()}
+function renderSelectedList(){
+  const arr=selected.map(id=>songs.find(s=>s.id===id)).filter(Boolean);
+  $('selectedList').innerHTML=arr.length?arr.map((s,i)=>`<div class="selected-row"><div><span class="selected-title">${i+1}. ${esc(s.song_number)}. ${esc(s.title)}</span></div><div class="order-actions admin-controls"><button class="mini" title="Panda juu" onclick="moveSong(${i},-1)" ${i===0?'disabled':''}>↑</button><button class="mini" title="Shusha chini" onclick="moveSong(${i},1)" ${i===arr.length-1?'disabled':''}>↓</button><button class="mini" title="Ondoa" onclick="removeSong('${s.id}')">×</button></div></div>`).join(''):'<div class="empty">Chagua nyimbo ili kupanga kitabu.</div>';
+}
+function moveSong(index,delta){if(!requireAdmin())return;const next=index+delta;if(next<0||next>=selected.length)return;[selected[index],selected[next]]=[selected[next],selected[index]];renderSongs();renderSelectedList()}
+function removeSong(id){if(!requireAdmin())return;selected=selected.filter(x=>x!==id);renderSongs();renderSelectedList()}
+function newBook(){if(!requireAdmin())return;selectedBook=null;selected=[];$('title').value='';$('sub').value='';$('desc').value='';$('preview').style.display='none';renderBooks();renderSongs();renderSelectedList()}
+async function saveBook(){
+  if(!requireAdmin())return;const title=$('title').value.trim();if(!title){toast('Weka jina la kitabu',true);$('title').focus();return}
+  const payload={title,subtitle:$('sub').value.trim()||null,description:$('desc').value.trim()||null,updated_at:new Date().toISOString()};
+  const r=selectedBook?await db.from('song_books').update(payload).eq('id',selectedBook).select().single():await db.from('song_books').insert(payload).select().single();
+  if(r.error){toast(r.error.message,true);return}selectedBook=r.data.id;books=[r.data,...books.filter(b=>b.id!==r.data.id)];renderBooks();toast('Kitabu kimehifadhiwa kikamilifu')
+}
+async function saveSongs(){
+  if(!requireAdmin())return;if(!selectedBook){toast('Kwanza hifadhi au chagua kitabu',true);return}
+  const desired=[...new Set(selected)];const currentResult=await db.from('song_book_songs').select('song_id,position').eq('song_book_id',selectedBook).order('position',{ascending:true});
+  if(currentResult.error){toast(currentResult.error.message,true);return}
+  const current=currentResult.data||[];const desiredSet=new Set(desired);const toDelete=current.map(x=>x.song_id).filter(id=>!desiredSet.has(id));
+  if(toDelete.length){const d=await db.from('song_book_songs').delete().eq('song_book_id',selectedBook).in('song_id',toDelete);if(d.error){toast(`Imeshindikana kuondoa nyimbo: ${d.error.message}`,true);return}}
+  const rows=desired.map((id,i)=>({song_book_id:selectedBook,song_id:id,position:i+1}));
+  if(rows.length){const r=await db.from('song_book_songs').upsert(rows,{onConflict:'song_book_id,song_id'});if(r.error){toast(`Imeshindikana kuhifadhi mpangilio: ${r.error.message}`,true);return}}
+  const verify=await db.from('song_book_songs').select('song_id,position').eq('song_book_id',selectedBook).order('position',{ascending:true});
+  if(verify.error){toast(`Imeshindwa kuthibitisha: ${verify.error.message}`,true);return}
+  selected=(verify.data||[]).sort((a,b)=>Number(a.position)-Number(b.position)).map(x=>x.song_id);renderSongs();renderSelectedList();toast(`Nyimbo ${selected.length} zimehifadhiwa kikamilifu`)
+}
 function orderedSongs(){return selected.map(id=>songs.find(s=>s.id===id)).filter(Boolean)}
-function previewBook(){const arr=orderedSongs();if(!arr.length)return toast('Chagua nyimbo kwanza',true);$('preview').innerHTML=`<h3>📖 ${esc($('title').value||'Kitabu cha Nyimbo')}</h3><p>${esc($('sub').value||'')}</p>${arr.map(s=>`<p><b>${esc(s.song_number)}. ${esc(s.title)}</b>${s.composer?`<br><span class="hint">${esc(s.composer)}</span>`:''}<br>${esc(s.lyrics||'Maneno hayajawekwa.').replace(/\n/g,'<br>')}</p>`).join('')}`;$('preview').style.display='block'}
-function makePDF(){const arr=orderedSongs();if(!arr.length)return toast('Chagua nyimbo kwanza',true);const{jsPDF}=window.jspdf,doc=new jsPDF({format:'a4',unit:'mm'});let y=20;doc.setFont('helvetica','bold');doc.setFontSize(20);doc.text($('title').value.trim()||'Kitabu cha Nyimbo',105,30,{align:'center'});doc.setFontSize(10);doc.text('Kwaya ya Kristu Mfalme',105,38,{align:'center'});doc.addPage();y=20;arr.forEach(s=>{if(y>260){doc.addPage();y=20}doc.setFont('helvetica','bold');doc.setFontSize(14);doc.text(`${s.song_number}. ${s.title}`,14,y);y+=8;doc.setFont('helvetica','normal');doc.setFontSize(11);const lyrics=doc.splitTextToSize(s.lyrics||'Maneno ya wimbo hayajawekwa.',180);doc.text(lyrics,14,y);y+=lyrics.length*5+10});doc.save(($('title').value.trim()||'kitabu-cha-nyimbo').replace(/[^a-z0-9\-_ ]/gi,'').replace(/\s+/g,'_')+'.pdf');toast('PDF imetengenezwa')}
+function previewBook(){
+  const arr=orderedSongs();if(!arr.length){toast('Chagua nyimbo kwanza',true);return}
+  const title=$('title').value.trim()||'Kitabu cha Nyimbo';
+  $('preview').innerHTML=`<h3>📖 ${esc(title)}</h3><p>${esc($('sub').value.trim())}</p>${arr.map(s=>`<p><b>${esc(s.song_number)}. ${esc(s.title)}</b>${s.composer?`<br><span class="hint">${esc(s.composer)}</span>`:''}<br>${esc(s.lyrics||'Maneno hayajawekwa.').replace(/\r?\n/g,'<br>')}</p>`).join('')}`;
+  $('preview').style.display='block';$('preview').scrollIntoView({behavior:'smooth',block:'nearest'})
+}
+function makePDF(){
+  const arr=orderedSongs();if(!arr.length){toast('Chagua nyimbo kwanza',true);return}
+  const title=$('title').value.trim()||'Kitabu cha Nyimbo';const subtitle=$('sub').value.trim();const{jsPDF}=window.jspdf;const doc=new jsPDF({format:'a4',unit:'mm'});let y=28;
+  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.text(title,105,y,{align:'center'});y+=9;doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text('Kwaya ya Kristu Mfalme',105,y,{align:'center'});if(subtitle){y+=6;doc.text(subtitle,105,y,{align:'center'})}y+=14;
+  arr.forEach((s,i)=>{doc.setFont('helvetica','bold');doc.setFontSize(13);const heading=`${s.song_number}. ${s.title}`;if(y>270){doc.addPage();y=20}doc.text(heading,14,y);y+=7;if(s.composer){doc.setFont('helvetica','italic');doc.setFontSize(9);doc.text(`Mtunzi: ${s.composer}`,14,y);y+=5}doc.setFont('helvetica','normal');doc.setFontSize(10);const lines=doc.splitTextToSize(s.lyrics||'Maneno ya wimbo hayajawekwa.',180);lines.forEach(line=>{if(y>282){doc.addPage();y=20;doc.setFont('helvetica','normal');doc.setFontSize(10)}doc.text(line,14,y);y+=5});y+=7});
+  const filename=title.replace(/[^a-z0-9\-_ ]/gi,'').trim().replace(/\s+/g,'_')||'kitabu-cha-nyimbo';doc.save(`${filename}.pdf`);toast('PDF imetengenezwa kikamilifu')
+}
 async function logout(){await db.auth.signOut();location.href='index.html'}
-newBook();load();
-</script></body></html>
+async function init(){
+  try{role=await window.KWAYA_AUTH.getRole()}catch(e){console.error(e);role=null}
+  if(!isAdmin()){$('roleNote').style.display='block';document.querySelectorAll('.admin-controls').forEach(e=>e.style.display='none')}
+  await load();newBookSilent()
+}
+function newBookSilent(){if(selectedBook)return;$('title').value='';$('sub').value='';$('desc').value='';renderSelectedList()}
+window.addEventListener('click',e=>{if(e.target.closest('.nav a')&&window.innerWidth<=700)$('side').classList.remove('open')});
+init();
+</script>
+</body>
+</html>
