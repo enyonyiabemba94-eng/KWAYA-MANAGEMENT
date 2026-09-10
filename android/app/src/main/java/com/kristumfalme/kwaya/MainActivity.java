@@ -12,42 +12,79 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST = 1001;
-    private static final String APP_URL = "https://enyonyiabemba94-eng.github.io/KWAYA-MANAGEMENT/?v=20260909-android";
+    private static final String APP_URL = "https://enyonyiabemba94-eng.github.io/KWAYA-MANAGEMENT/?v=20260910-android";
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        showLoadingScreen();
+        setupWebView();
+    }
 
+    private void showLoadingScreen() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER);
-        root.setBackgroundColor(Color.rgb(24, 18, 43));
+        root.setPadding(36, 36, 36, 36);
+        root.setBackgroundColor(Color.WHITE);
 
-        TextView brand = new TextView(this);
-        brand.setText("KWAYA YA KRISTU MFALME\n\nMFUMO WA USIMAMIZI WA KWAYA");
-        brand.setTextColor(Color.WHITE);
-        brand.setTextSize(20);
-        brand.setGravity(Gravity.CENTER);
-        brand.setTypeface(null, android.graphics.Typeface.BOLD);
-        root.addView(brand, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(R.drawable.kristu_logo);
+        logo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(220, 220);
+        logoParams.gravity = Gravity.CENTER;
+        root.addView(logo, logoParams);
+
+        TextView title = new TextView(this);
+        title.setText("KWAYA YA KRISTU MFALME");
+        title.setTextColor(Color.rgb(106, 27, 154));
+        title.setTextSize(22);
+        title.setGravity(Gravity.CENTER);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleParams.topMargin = 18;
+        root.addView(title, titleParams);
+
+        TextView subtitle = new TextView(this);
+        subtitle.setText("MFUMO WA USIMAMIZI WA KWAYA\nNyarugusu");
+        subtitle.setTextColor(Color.DKGRAY);
+        subtitle.setTextSize(15);
+        subtitle.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams subtitleParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        subtitleParams.topMargin = 8;
+        root.addView(subtitle, subtitleParams);
 
         ProgressBar progress = new ProgressBar(this);
-        LinearLayout.LayoutParams progressParams = new LinearLayout.LayoutParams(70, 70);
+        LinearLayout.LayoutParams progressParams = new LinearLayout.LayoutParams(64, 64);
         progressParams.gravity = Gravity.CENTER;
-        progressParams.topMargin = 30;
+        progressParams.topMargin = 28;
         root.addView(progress, progressParams);
 
-        setContentView(root);
+        TextView loading = new TextView(this);
+        loading.setText("Inaunganisha...");
+        loading.setTextColor(Color.GRAY);
+        loading.setTextSize(14);
+        loading.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams loadingParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        loadingParams.topMargin = 10;
+        root.addView(loading, loadingParams);
 
+        setContentView(root);
+    }
+
+    private void setupWebView() {
         webView = new WebView(this);
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
