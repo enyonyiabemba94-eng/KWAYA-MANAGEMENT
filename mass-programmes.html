@@ -19,8 +19,8 @@
   .layout>.card.editor:last-child>*:not(#preview){display:none!important}
   .preview{display:block!important;margin:0!important;padding:0!important;width:196mm!important;height:283mm!important;max-height:283mm!important;overflow:hidden!important;background:#fff!important;box-shadow:none!important;border:0!important}
   .preview .fit-page{width:100%!important;max-width:none!important;height:283mm!important;max-height:283mm!important;overflow:hidden!important;margin:0!important;padding:2mm 3mm!important;border-radius:0!important;box-shadow:none!important;box-sizing:border-box!important}
-  .preview .printhead{padding-bottom:2mm!important;margin-bottom:2mm!important}
-  .preview .printlogo{width:32px!important;height:32px!important}
+  .preview .printhead{grid-template-columns:22mm minmax(0,1fr) 22mm!important;padding-bottom:2mm!important;margin-bottom:2mm!important;gap:2mm!important}
+  .preview .printlogo{width:20mm!important;height:20mm!important;max-width:20mm!important;max-height:20mm!important}
   .preview .printtitle{font-size:48pt!important}
   .preview .printsub{font-size:17pt!important}
   .preview .fit-page>div:nth-child(2){font-size:30pt!important;margin:1mm 0!important}
